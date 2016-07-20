@@ -1,0 +1,2 @@
+# wallet
+IOTA Wallet
