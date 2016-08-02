@@ -7,7 +7,7 @@ var UI = (function(UI, $, undefined) {
       return;
     }
 
-    $("#spam-cnt").html("0 transactions generated");
+    $("#spam-cnt").html("0");
 
     var $modal = $("#spam-modal");
 
@@ -35,12 +35,18 @@ var UI = (function(UI, $, undefined) {
       e.preventDefault();
 
       Server.startSpamming().progress(function(data) {
-        spamCount++;
-
         console.log("in progress");
         console.log(data);
 
-        $("#spam-cnt").html(spamCount + " transactions generated");
+        if (data == "finished") {
+          spamCount++;
+          $("#spam-cnt").html(spamCount);
+        } else {
+          data = String(data).escapeHTML();
+          if (data != $("#spam-msg").html()) {
+            $("#spam-msg").html(data);
+          }
+        }
       });
     });
   }

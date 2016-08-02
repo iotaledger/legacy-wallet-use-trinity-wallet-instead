@@ -437,10 +437,16 @@ var Server = (function(Server, $, undefined) {
 
     var deferred = $.Deferred();
 
+    // Set the last solid milestone to the current milestone, hack. Because the app restarts after spam stops, this is OK.
+    connection.lastSolidMilestone = connection.nodeInfo.milestone;
+
     repeatUntilNotNull(function(data) {
-      return Server.transfer(emptyHash, 0, "", 1, emptyHash).then(function(data) {
-        console.log("SPAM FINISHED");
-        deferred.notify(data);
+      return Server.transfer(emptyHash, 0, "", 1, emptyHash).progress(function(msg) {
+        if (msg) {
+          deferred.notify(msg);
+        }
+      }).then(function(data) {
+        deferred.notify("finished");
         console.log("Spam finished:");
         console.log(data);
         return null;
@@ -721,7 +727,7 @@ var Server = (function(Server, $, undefined) {
         if (deferred) {
           deferred.notify("Attaching to Tangle...");
         }
-        return Server.attachToTangle(trytes, data.trunkTransactionToApprove, data.branchTransactionToApprove);
+        return Server.attachToTangle(trytes, data.trunkTransaction, data.branchTransaction);
       }, function(err) {
         if (deferred && err) {
           deferred.notify(err + "...");
