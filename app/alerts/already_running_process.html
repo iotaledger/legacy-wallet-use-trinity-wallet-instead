@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>IOTA Wallet</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="content">
+    <h1 id="title">Process Already Running...</h1>
+    <p id="message">An IOTA process is already running. If you have another IOTA application running, please quit it before continuing. Otherwise, click 'Continue'.</p>
+  </div>
+  <div id="footer">
+    <button class="btn btn-primary btn-pull-right" id="quit-btn">Cancel</button>
+    <button class="btn btn-default btn-pull-right" id="continue-btn">Continue</button>
+  </div>
+  <script type="text/javascript">
+    require("./js/already_running_process.js")
+  </script>
+</body>
+</html>

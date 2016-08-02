@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <webview id="server" src="about:blank" preload="./js/server-ipc.js"></webview>
+    <div id="status-bar">
+      <div id="status-bar-left">
+        <span id="status-bar-transactions"></span>
+        <span id="status-bar-dot" style="display:none"> • </span>
+        <span id="status-bar-cpu"></span>
+      </div>
+      <div id="status-bar-right"><span id="status-bar-giota"></span></div>
+    </div>
+    <div id="new-user">
+      New user? Read the <strong>FAQ</strong> first!
+    </div>
+  </body>
+  <script src="bower_components/tingle/dist/tingle.min.js"></script>
+  <script type="text/javascript">
+    require("./js/index.js")
+  </script>
+</html>

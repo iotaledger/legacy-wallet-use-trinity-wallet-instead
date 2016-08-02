@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>IOTA Wallet</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style type="text/css">
+  #message span {
+    display: none;
+  }
+
+  #java-download-progress {
+    display: none;
+  }
+
+  .progress {
+    width: 100%;
+    height: 30px;
+  }
+
+  .progress-wrap {
+    margin: 20px 0;
+    overflow: hidden;
+    position: relative;
+    background: #ddd;
+    visibility: hidden;
+  }
+
+  .progress-wrap .progress-bar {
+    background: #f80;
+  }
+
+  .progress-bar.indeterminate:before {
+    content: '';
+    position: absolute;
+    background-color: inherit;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    will-change: left, right;
+    -webkit-animation: indeterminate 2.5s linear infinite;
+    animation: indeterminate 2.5s linear infinite;
+    animation-fill-mode: none; 
+
+  }
+
+  @-webkit-keyframes indeterminate {
+    0% {
+      left: -35%;
+      right: 100%;
+    }
+    100% {
+      left: 100%;
+      right: -90%;
+    }
+  }
+
+  @keyframes indeterminate {
+    0% {
+      left: -35%;
+      right: 100%;
+    }
+    100% {
+      left: 100%;
+      right: -90%;
+    }
+  }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1 id="title">Java Not Found...</h1>
+    <p id="message">
+      The correct java version was not found on your system.
+      <span id="message-win">Click on the button below to start downloading.</span>
+      <span id="message-mac">Click on the button below to start downloading. Reopen the wallet after installation.</span>
+      <span id="message-lin-default">Click on the button below to start downloading, or install it by typing the following command(s) in the terminal:
+        <span id="message-lin-apt-get">
+          <br /><br />
+          <strong style="font-family:courier;">sudo apt-get install openjdk-8-jre</strong>
+          <br /><br />
+          or (depending on your system):
+          <br /><br />
+          <strong style="font-family:courier;">sudo add-apt-repository ppa:webupd8team/java<br />sudo apt-get update<br />sudo apt-get install oracle-java8-installer</strong>
+        </span>
+        <span style="font-family:courier;font-weight:bold;" id="message-lin-yum">su -c "yum install java-1.8.0-openjdk"</span>
+      </span>
+      <span id="message-lin-alternative">Click on the button below to start downloading. Reopen the wallet after installation.</span>
+    </p>
+    <div id="java-download-progress" class="progress-wrap progress">
+      <div id="java-download-progress-bar" class="progress-bar progress" style="width:0%"></div>
+    </div>
+  </div>
+  <div id="footer">
+    <button class="btn btn-primary btn-pull-right" id="download-btn">Download</button>
+    <button class="btn btn-default btn-pull-right" id="quit-btn">Quit</button>
+  </div>
+  <script type="text/javascript">
+    require("./js/no_java.js");
+  </script>
+</body>
+</html>

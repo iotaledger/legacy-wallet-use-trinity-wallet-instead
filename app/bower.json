@@ -1,0 +1,10 @@
+{
+  "name": "iota-app",
+  "authors": [
+    "Iota Foundation <info@iotatoken.com>"
+  ],
+  "homepage": "https://www.iotatoken.com/",
+  "dependencies": {
+    "tingle": "^0.7.0"
+  }
+}

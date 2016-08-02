@@ -1,0 +1,23 @@
+{
+  "name": "iota",
+  "productName": "IOTA Wallet",
+  "description": "IOTA Wallet",
+  "version": "1.0.2",
+  "main": "app/js/main.js",
+  "scripts": {
+    "prepublish": "cd app && bower install && cd ../ui && bower install",
+    "start": "export NODE_ENV=development || set NODE_ENV=development && electron app/js/main.js"
+  },
+  "author": "IOTA Foundation <info@iotatoken.com>",
+  "homepage": "https://www.iotatoken.com/",
+  "dependencies": {
+    "follow-redirects": "^0.1.0",
+    "fs-extra": "^0.30.0",
+    "glob": "^7.0.3",
+    "pidusage": "^1.0.4",
+    "spawn-args": "^0.1.0"
+  },
+  "devDependencies": {
+    "electron-prebuilt": "^1.2.7"
+  }
+}

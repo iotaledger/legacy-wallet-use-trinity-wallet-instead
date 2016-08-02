@@ -1,0 +1,116 @@
+.slider{
+  position:absolute;
+  width:100%;
+  height:6px;
+}
+
+.line{
+  position:absolute;
+  background:#4a8df8;
+  width:100%;
+  height:6px;
+}
+
+.break{
+  position:absolute;
+  background:blue;
+  width:6px;
+  height:6px;  
+  opacity: 0;
+  background: #004a26;
+}
+
+.dot1{
+  -webkit-transform: translateZ(0);
+  -webkit-animation: loading 2s infinite;
+  -moz-animation: loading 2s infinite;
+  -ms-animation: loading 2s infinite;
+  -o-animation: loading 2s infinite;
+  animation: loading 2s infinite;
+}
+
+.dot2{
+  -webkit-transform: translateZ(0);
+  -webkit-animation: loading 2s 0.5s infinite;
+  -moz-animation: loading 2s 0.5s infinite;
+  -ms-animation: loading 2s 0.5s infinite;
+  -o-animation: loading 2s 0.5s infinite;
+  animation: loading 2s 0.5s infinite;
+}
+
+.dot3{
+  -webkit-transform: translateZ(0);
+  -webkit-animation: loading 2s 1s infinite;
+  -moz-animation: loading 2s 1s infinite;
+  -ms-animation: loading 2s 1s infinite;
+  -o-animation: loading 2s 1s infinite;
+  animation: loading 2s 1s infinite;
+}
+
+.btn {
+  position: relative;
+}
+
+.btn .progress {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  z-index:2;
+}
+
+.btn.loading .progress {
+  display: block;
+}
+
+.btn {
+  -webkit-transition: background 0.5s linear;
+  -moz-transition: background 0.5s linear;
+  -ms-transition: background 0.5s linear;
+  -o-transition: background 0.5s linear;
+  transition: background 0.5s linear;
+}
+
+.btn.error {
+  background: #b43012 !important;
+  color: #fff;
+}
+
+.btn.success {
+  background: #1587c7 !important;
+  color: #fff;
+}
+
+@keyframes loading {
+  0% { left: 0; opacity: 0; }
+  10% { opacity: 1;  }
+  40% { opacity: 1; }
+  100% { left: 99%; opacity: 0;}
+}
+
+@-webkit-keyframes loading {
+  0% { left: 0; opacity: 0; }
+  10% { opacity: 1;  }
+  40% { opacity: 1; }
+  100% { left: 99%; opacity: 0;}
+}
+
+@-moz-keyframes loading {
+  0% { left: 0; opacity: 0; }
+  10% { opacity: 1;  }
+  40% { opacity: 1; }
+  100% { left: 99%; opacity: 0;}
+}
+@-ms-keyframes loading {
+  0% { left: 0; opacity: 0; }
+  10% { opacity: 1;  }
+  40% { opacity: 1; }
+  100% { left: 99%; opacity: 0;}
+}
+@-o-keyframes loading {
+  0% { left: 0; opacity: 0; }
+  10% { opacity: 1;  }
+  40% { opacity: 1; }
+  100% { left: 99%; opacity: 0;}
+}

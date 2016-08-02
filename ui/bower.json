@@ -1,0 +1,15 @@
+{
+  "name": "iota-ui",
+  "authors": [
+    "Iota Foundation <info@iotatoken.com>"
+  ],
+  "homepage": "https://www.iotatoken.com/",
+  "dependencies": {
+    "font-awesome": "^4.6.3",
+    "clipboard": "^1.5.10",
+    "jquery-qrcode": "lrsjng/jquery-qrcode#^0.12.0",
+    "jquery": "^2.2.4",
+    "remodal": "^1.0.7",
+    "toastr": "^2.1.2"
+  }
+}

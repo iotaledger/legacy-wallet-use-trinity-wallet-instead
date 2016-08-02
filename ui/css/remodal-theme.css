@@ -1,0 +1,95 @@
+.remodal-overlay {
+  opacity: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.remodal-overlay.remodal-is-opened {
+  -webkit-transition: opacity .2s ease;
+  transition: opacity .2s ease;
+  opacity: 1;
+}
+
+.remodal-wrapper {
+  padding: 10px 10px 0;
+}
+
+.remodal {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 35px;
+  -webkit-transform: scale(0.7);
+  -moz-transform: scale(0.7);
+  -ms-transform: scale(0.7);
+  transform: scale(0.7);
+  opacity: 0;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  transition: all 0.3s;
+  color: #2b2e38;
+  background: #fff;
+}
+
+.remodal-is-opened .remodal {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+  opacity: 1;
+}
+
+.remodal,
+.remodal-wrapper:after {
+  vertical-align: middle;
+}
+
+.remodal-close {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  display: block;
+  overflow: visible;
+
+  width: 35px;
+  height: 35px;
+  margin: 0;
+  padding: 0;
+
+  cursor: pointer;
+  text-decoration: none;
+
+  color: #95979c;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+.remodal-close:hover,
+.remodal-close:focus {
+  color: #2b2e38;
+}
+
+.remodal-close:before {
+  font-family: Arial, "Helvetica CY", "Nimbus Sans L", sans-serif !important;
+  font-size: 25px;
+  line-height: 35px;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  display: block;
+
+  width: 35px;
+
+  content: "\00d7";
+  text-align: center;
+}
+
+@media only screen and (min-width: 641px) {
+  .remodal {
+    max-width: 700px;
+  }
+}
