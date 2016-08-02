@@ -1901,6 +1901,27 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.upgradeIRI = function(sourceFile) {
+    console.log("App.upgradeIRI: " + sourceFile);
+
+    if (sourceFile.match(/IRI.*\.jar$/i)) {
+      try {
+        App.killAlreadyRunningProcess(true);
+
+        var jarDirectory = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "IRI");
+
+        var targetFile = path.join(jarDirectory, "IRI.jar");
+
+        fs.unlinkSync(targetFile);
+        fs.writeFileSync(targetFile, fs.readFileSync(sourceFile));
+      } catch (err) {
+        console.log(err);
+      }
+
+      App.relaunchApplication();
+    }
+  }
+
   App.deleteDbIfExists = function() {
     console.log("DELETING DATABASE");
 
@@ -1946,8 +1967,12 @@ const shouldQuit = electron.app.makeSingleInstance(function(commandLine, working
     if (win.isMinimized()) win.restore();
     win.focus();
 
-    if (process.platform == "win32" && commandLine.length == 2 && String(commandLine[1]).match(/^iota:\/\//i)) {
-      App.handleURL(commandLine[1]);
+    if (process.platform == "win32" && commandLine.length == 2) {
+      if (String(commandLine[1]).match(/^iota:\/\//i)) {
+        App.handleURL(commandLine[1]);
+      } else if (String(commandLine[1]).match(/IRI.*\.jar$/i)) {
+        App.upgradeIRI(commandLine[1]);
+      }
     }
   }
 });
@@ -1966,6 +1991,12 @@ electron.app.on("open-url", function(event, url) {
   console.log("open url");
   console.log(url);
   App.handleURL(url);
+});
+
+electron.app.on("open-file", function(event, file) {
+  if (file.match(/IRI.*\.jar$/i)) {
+    App.upgradeIRI(commandLine[1]);
+  }
 });
 
 electron.app.on("window-all-closed", function () {
@@ -2034,6 +2065,10 @@ electron.ipcMain.on("editServerConfiguration", App.editServerConfiguration);
 
 electron.ipcMain.on("addNeighborNode", function(event, node) {
   App.addNeighborNode(node);
+});
+
+electron.ipcMain.on("upgradeIRI", function(event, sourceFile) {
+  App.upgradeIRI(sourceFile);
 });
 
 electron.ipcMain.on("showServerLog", App.showServerLog);
