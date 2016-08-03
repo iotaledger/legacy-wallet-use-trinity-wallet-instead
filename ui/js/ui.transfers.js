@@ -4,6 +4,13 @@ var UI = (function(UI, $, undefined) {
       console.log("UI.handleTransfers: Click");
 
       var $stack = $("#transfer-stack");
+
+      if ($("#transfer-autofill").val() == "1") {
+        UI.formError("transfer", "Are you sure?", {"initial": "Yes, Send It Now"});
+        $("#transfer-autofill").val("0");
+        return;
+      }
+
       $stack.addClass("loading");
 
       try {
@@ -35,12 +42,12 @@ var UI = (function(UI, $, undefined) {
         UI.formUpdate("transfer", msg, {"timeout": 500});
       }).done(function(msg) {
         console.log("UI.handleTransfers: " + msg);
-        UI.formSuccess("transfer", msg);
+        UI.formSuccess("transfer", msg, {"initial": "Send It Now"});
         UI.createStateInterval(60000, true);
       }).fail(function(err) {
         console.log("UI.handleTransfers: Error");
         console.log(err);
-        UI.formError("transfer", err);
+        UI.formError("transfer", err, {"initial": "Send It Now"});
       }).always(function() {
         $stack.removeClass("loading");
       });
