@@ -43,6 +43,12 @@ var UI = (function(UI, $, undefined) {
           $("#spam-cnt").html(spamCount);
         } else {
           data = String(data).escapeHTML();
+          if (data == "Not synced") {
+            $("#spam-not-synced").show();
+          } else if (data == "Attaching to tangle...") {
+            $("#spam-not-synced").hide();
+          }
+
           if (data != $("#spam-msg").html()) {
             $("#spam-msg").html(data);
           }
