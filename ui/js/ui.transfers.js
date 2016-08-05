@@ -43,7 +43,9 @@ var UI = (function(UI, $, undefined) {
       }).done(function(msg) {
         console.log("UI.handleTransfers: " + msg);
         UI.formSuccess("transfer", msg, {"initial": "Send It Now"});
-        UI.createStateInterval(60000, true);
+        setTimeout(function() {
+          UI.createStateInterval(60000, true);
+        }, 1000);
       }).fail(function(err) {
         console.log("UI.handleTransfers: Error");
         console.log(err);

@@ -29,7 +29,7 @@ var UI = (function(UI, $, undefined) {
           return;
         }
 
-        $btn.loadingUpdate("Attach to Tangle", {"icon": false, "initial": "Attach to Tangle", "loading": "Attaching to Tangle..."});
+        $btn.loadingUpdate("Attach to Tangle", {"icon": false, "initial": "Attach to Tangle", "loading": "Preparing..."});
 
         // Different from the previous result, update...
         if (result.checksummedAddress != $btn.data("address")) {
@@ -47,7 +47,7 @@ var UI = (function(UI, $, undefined) {
         console.log("UI.handleAddressGeneration: GetNewAddress Error:");
         console.log(err);
         $stack.find(".padded").css("visibility", "hidden");
-        $btn.loadingUpdate("Generate New Address", {"initial": "Generate New Address", "loading": "Generating Address..."});
+        $btn.loadingUpdate("Generate New Address", {"initial": "Generate New Address", "loading": "Preparing..."});
         UI.animateStacks(0);
       });
     });
@@ -101,9 +101,11 @@ var UI = (function(UI, $, undefined) {
 
           console.log("UI.handleAddressGeneration: Attached to Tangle");
 
-          UI.formSuccess("generate-address", "Address Attached", {"initial": "Generate New Address", "loading": "Generating Address..."});
+          UI.formSuccess("generate-address", "Address Attached", {"initial": "Generate New Address", "loading": "Preparing..."});
 
-          UI.createStateInterval(60000, true);
+          setTimeout(function() {
+            UI.createStateInterval(60000, true);
+          }, 1000);
         }).fail(function(err) {
           console.log("UI.handleAddressGeneration: Error:");
           console.log(err);

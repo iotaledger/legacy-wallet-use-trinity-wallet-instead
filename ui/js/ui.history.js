@@ -82,7 +82,9 @@ var UI = (function(UI, $, undefined) {
         Server.rebroadcast(hash).done(function(msg) {
           console.log("UI.rebroadcast: Success: " + msg);
           $("#rebroadcast-btn").loadingSuccess(msg);
-          UI.createStateInterval(60000, true);
+          setTimeout(function() {
+            UI.createStateInterval(60000, true);
+          }, 1000);
         }).fail(function(err) {
           console.log("UI.rebroadcast: Error");
           console.log(err);
@@ -101,7 +103,9 @@ var UI = (function(UI, $, undefined) {
             UI.notifyDesktop(msg);
           }
           $("#replay-btn").loadingSuccess(msg);
-          UI.createStateInterval(60000, true);
+          setTimeout(function() {
+            UI.createStateInterval(60000, true);
+          }, 1000);
         }).fail(function(err) {
           console.log("UI.replay: Error");
           console.log(err);
