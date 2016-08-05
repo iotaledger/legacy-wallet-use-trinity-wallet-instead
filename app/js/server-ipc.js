@@ -103,12 +103,6 @@ ipcRenderer.on("shutdown", function() {
   }
 });
 
-ipcRenderer.on("setConfig", function(event, lines) {
-  if (typeof(Server) != "undefined") {
-    Server.setConfig(lines);
-  }
-});
-
 function _powStarted() {
   ipcRenderer.send("powStarted");
 }

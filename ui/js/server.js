@@ -495,25 +495,6 @@ var Server = (function(Server, $, undefined) {
     return deferred.promise();
   }
 
-  Server.setConfig = function(lines) {
-    var deferred = $.Deferred();
-
-    Server.sendRequest("setConfig", {"lines": lines}).done(function() {
-      deferred.resolve("Configuration applied.");
-      setTimeout(function() {
-        Server.resetNeighborsActivityCounters();
-      }, 1000);
-    }).fail(function(err) {
-      deferred.reject(err);
-    });
-
-    return deferred.promise();
-  }
-
-  Server.resetNeighborsActivityCounters = function() {
-    return Server.sendRequest("resetNeighborsActivityCounters");
-  }
-
   Server.rebroadcast = function(transaction) {
     console.log("Server.rebroadcast: " + transaction);
 

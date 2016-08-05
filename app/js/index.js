@@ -392,38 +392,6 @@ var UI = (function(UI, undefined) {
     modal.open();
   }
 
-  UI.addNeighborNode = function(node) {
-    if (showQuitAlert) {
-      return;
-    }
-
-    UI.hideAlerts();
-
-    var modal = new tingle.modal({
-      footer: true,
-      onOpen: function() {
-        var close = document.querySelector(".tingle-modal__close");
-        var modalContent = document.querySelector(".tingle-modal-box__content");
-        modalContent.appendChild(close);
-      }
-    });
-
-    modal.setContent("<h1>Add Neighbor Node</h1>" + 
-                     "<p>Are you sure you want to add this node to your server configuration?</p>" + 
-                     "<p style='font-weight:bold'>" + String(node).escapeHTML() + "</p>");
-
-    modal.addFooterBtn("Yes, Add This Node", "tingle-btn tingle-btn--primary", function() {
-      modal.close();
-      electron.ipcRenderer.send("addNeighborNode", node);
-    });
-
-    modal.addFooterBtn("No, Cancel", "tingle-btn tingle-btn--default", function() {
-      modal.close();
-    });
-
-    modal.open();
-  }
-
   UI.showUpdateAvailable = function() {
     UI.showAlert("<h1>Update Available</h1><p>An update is available and is being downloaded.</p>");
   }
@@ -606,12 +574,6 @@ var UI = (function(UI, undefined) {
     }
   }
 
-  UI.setConfig = function(lines) {
-    if (webviewIsLoaded && webview) {
-      webview.send("setConfig", lines);
-    }
-  }
-
   UI.handleURL = function(url) {
     UI.hideAlerts();
     
@@ -628,12 +590,7 @@ var UI = (function(UI, undefined) {
     } else if (url == "generateseed" || url == "seed") {
       UI.sendToWebview("generateSeed");
     } else {
-      var match = url.match(/(?:addnode|addneighbou?r)\/(.*)/i);
-      if (match && match[1] && match[1].charAt(0) != "-") {
-        UI.addNeighborNode(match[1]);
-      } else {
-        UI.sendToWebview("handleURL", url);
-      }
+      UI.sendToWebview("handleURL", url);
     }
   }
 
@@ -784,10 +741,6 @@ electron.ipcRenderer.on("setIsProofOfWorking", function(event, isProofOfWorking)
 
 electron.ipcRenderer.on("notify", function(event, type, msg) {
   UI.notify(type, msg);
-});
-
-electron.ipcRenderer.on("setConfig", function(event, lines) {
-  UI.setConfig(lines);
 });
 
 electron.ipcRenderer.on("relaunch", UI.relaunch);

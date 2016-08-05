@@ -1581,68 +1581,6 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.addNeighborNode = function(node) {
-    console.log("Add neighbor node: " + node);
-
-    try {
-      if (!node) {
-        return;
-      }
-
-      node = String(node);
-
-      if (!node.match(/^\+udp:\/\//i)) {
-        node = "+udp://" + node;
-      }
-      if (!node.match(/:14265$/i)) {
-        node += ":14265";
-      }
-
-      var match = node.match(/\+udp:\/\/(.*):14265$/i);
-
-      if (!match || !match[1]) {
-        return;
-      }
-
-      if (match[1].indexOf(":") != -1) {
-        var before = match[1];
-        var after  = match[1];
-
-        // We'll assume all nodes with double colon are IPV6.. These need to be wrapped in "[]".
-        if (after.charAt(0) != "[") {
-          after = "[" + after;
-        }
-        if (after.substr(-1) != "]") {
-          after += "]";
-        }
-
-        if (before != after) {
-          node = node.replace(before, after);
-        }
-      }
-
-
-      var configurationFile = String(fs.readFileSync(path.join(serverDirectory, "IRI.cfg"), "utf8"));
-
-      if (configurationFile.toLowerCase().indexOf(node.toLowerCase() == -1)) {
-        try {
-          fs.appendFileSync(path.join(serverDirectory, "IRI.cfg"), "\r\n" + node);
-        } catch (err) {
-          App.notify("error", "Error writing to configuration file.");
-          throw err;
-        }
-
-        configurationFile = configurationFile.split(/\r?\n/);
-        configurationFile.push(node);
-
-        win.webContents.send("setConfig", configurationFile);
-      }
-    } catch (err) {
-      console.log("Error");
-      console.log(err);
-    }
-  }
-
   App.showServerLog = function() {
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
@@ -1963,10 +1901,6 @@ electron.ipcMain.on("showNoJavaInstalledWindow", function(event, params) {
 
 electron.ipcMain.on("openServerFolder", function(event, file) {
   App.openServerFolder(file);
-});
-
-electron.ipcMain.on("addNeighborNode", function(event, node) {
-  App.addNeighborNode(node);
 });
 
 electron.ipcMain.on("upgradeIRI", function(event, sourceFile) {
