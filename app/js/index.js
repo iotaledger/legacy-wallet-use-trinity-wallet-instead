@@ -424,53 +424,6 @@ var UI = (function(UI, undefined) {
     modal.open();
   }
 
-  UI.editServerConfiguration = function(configuration) {
-    if (showQuitAlert) {
-      return;
-    }
-
-    UI.hideAlerts();
-
-    var modal = new tingle.modal({
-      footer: true,
-      onOpen: function() {
-        var close = document.querySelector(".tingle-modal__close");
-        var modalContent = document.querySelector(".tingle-modal-box__content");
-        modalContent.appendChild(close);
-
-        var el = document.getElementById("server_config_tx_fetch_intensity_gap");
-
-        var temp = el.value;
-        el.value = "";
-        el.value = temp;
-        el.focus();
-      }
-    });
-
-    modal.setContent("<h1>Server Config</h1>" + 
-                     "<div class='input-group'><label>Transactions to Fetch Gap (ms):</label>" + 
-                     "<input type='number' min='0' step='1' name='tx_fetch_intensity_gap' id='server_config_tx_fetch_intensity_gap' placeholder='' value='" + (configuration.txFetchIntensityGap ? String(configuration.txFetchIntensityGap).escapeHTML() : "1000") + "' /></div>" + 
-                     "<div class='input-group'><label># Cores (POW):</label>" + 
-                     "<input type='number' min='1' step='1' name='nr_of_cores' id='server_config_nr_of_cores' placeholder='' value='" + (configuration.nrOfCores ? String(configuration.nrOfCores).escapeHTML() : "1") + "' /></div>" + 
-                     "<div class='input-group input-group'><label>Neighboring Nodes:</label>" + 
-                     "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>" + 
-                     "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='babysit' id='server_config_babysit' class='checkbox' value='1'" + (configuration.babysit ? " checked='checked'" : "") + " />Babysit the network</label></div>");
-
-    modal.addFooterBtn("Save", "tingle-btn tingle-btn--primary", function() {
-      var config = {};
-      config.txFetchIntensityGap = parseInt(document.getElementById("server_config_tx_fetch_intensity_gap").value, 10);
-      config.nrOfCores = parseInt(document.getElementById("server_config_nr_of_cores").value, 10);
-      config.nodes = document.getElementById("server_config_neighboring_nodes").value;
-      config.babysit = document.getElementById("server_config_babysit").checked;
-
-      modal.close();
-
-      electron.ipcRenderer.send("updateServerConfiguration", config);
-    });
-
-    modal.open();
-  }
-
   UI.showUpdateAvailable = function() {
     UI.showAlert("<h1>Update Available</h1><p>An update is available and is being downloaded.</p>");
   }
@@ -664,9 +617,7 @@ var UI = (function(UI, undefined) {
     
     url = decodeURI(url.replace("iota://", "").toLowerCase().replace(/\/$/, ""));
 
-    if (url == "config" || url == "configuration" || url == "setup") {
-      electron.ipcRenderer.send("editServerConfiguration");
-    } else if (url == "log") {
+    if (url == "log") {
       electron.ipcRenderer.send("showServerLog");
     } else if (url == "nodeinfo" || url == "node") {
       UI.sendToWebview("showNodeInfo");
@@ -803,10 +754,6 @@ electron.ipcRenderer.on("showNetworkSpammer", function() {
 electron.ipcRenderer.on("generateSeed", function() {
   UI.hideAlerts();
   UI.sendToWebview("generateSeed");
-});
-
-electron.ipcRenderer.on("editServerConfiguration", function(event, serverConfiguration) {
-  UI.editServerConfiguration(serverConfiguration);
 });
 
 electron.ipcRenderer.on("toggleDeveloperTools", UI.toggleDeveloperTools);

@@ -4,32 +4,15 @@ var UI = (function(UI, undefined) {
   UI.initialize = function() {
     document.getElementById("quit-btn").addEventListener("click", function(e) {
       document.getElementById("quit-btn").disabled = true;
-      if (document.getElementById("edit-configuration-content").style.display == "block") {
-        UI.saveServerConfig(document.getElementById("server_config").value);
-      }
       electron.ipcRenderer.send("quit");
     });
     document.getElementById("restart-btn").addEventListener("click", function(e) {
       document.getElementById("restart-btn").disabled = true;
-      if (document.getElementById("edit-configuration-content").style.display == "block") {
-        UI.saveServerConfig(document.getElementById("server_config").value);
-        UI.relaunchApplication();
-      } else {
-        UI.relaunchApplication(String(document.getElementById("java_parameters").value).trim());
-      }
+      UI.relaunchApplication(String(document.getElementById("java_parameters").value).trim());
     });
     document.getElementById("download-java").addEventListener("click", function(e) {
       document.getElementById("download-java").disabled = true;
       UI.showNoJavaInstalledWindow();
-    });
-    document.getElementById("edit-configuration-file").addEventListener("click", function(e) {
-      document.getElementById("edit-configuration-file").style.display = "none";
-      document.getElementById("edit-configuration-content").style.display = "block";
-      document.getElementById("default-content").style.display = "none";
-      document.getElementById("quit-btn").innerHTML = "Save and Quit";
-      document.getElementById("restart-btn").innerHTML = "Save and Restart";
-
-      electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);
     });
   }
 
@@ -78,16 +61,8 @@ var UI = (function(UI, undefined) {
           log = "No server output.";
         }
 
-        if (log.match(/Illegal character in authority|hostname|UnresolvedAddressException|illegalargument|URISyntaxException|NumberFormatException|SocketException/i)) {
-          document.getElementById("edit-configuration-file").style.display = "block";
-        }
-
         document.getElementById("server_output").value = log;
         //document.getElementById("server_output").scrollTop = document.getElementById("server_output").scrollHeight;
-      }
-
-      if (params.serverConfig) {
-        document.getElementById("server_config").value = params.serverConfig;
       }
 
       if (params.javaArgs) {
@@ -107,10 +82,6 @@ var UI = (function(UI, undefined) {
     setTimeout(function() {
       electron.remote.getCurrentWindow().show();
     }, 20);
-  }
-
-  UI.saveServerConfig = function(serverConfig) {
-    electron.ipcRenderer.send("updateServerConfiguration", serverConfig);
   }
 
   UI.relaunchApplication = function(javaArgs) {

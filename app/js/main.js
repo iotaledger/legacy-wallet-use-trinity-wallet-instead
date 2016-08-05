@@ -507,13 +507,6 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: "Edit Server Configuration",
-            //accelerator: "CmdOrCtrl+E",
-            click(item) {
-              App.editServerConfiguration();
-            }
-          },
-          {
             type: "separator"
           },
           {
@@ -647,7 +640,7 @@ var App = (function(App, undefined) {
       }*/
 
       // Remove preferences (other location on mac)
-      template[3].submenu.splice(8, 2);
+      template[3].submenu.splice(7, 2);
     } else if (process.platform == "win32") {
       if (!isDevelopment) {
         /*
@@ -696,6 +689,12 @@ var App = (function(App, undefined) {
             fsExtra.removeSync(uiFolder);
           }
         }
+
+        if (!settings.hasDefaultNodes) {
+          console.log("Append default nodes");
+          fs.appendFileSync(path.join(serverDirectory, "IRI.cfg"), "\r\n+udp://104.238.171.31:14265\r\n+udp://46.101.118.240:14265\r\n+udp://178.62.203.156:14265\r\n+udp://139.59.134.213:14265\r\n+udp://104.238.181.100:14265\r\n+udp://66.11.119.73:14265\r\n+udp://167.114.182.68:14265");
+          settings.hasDefaultNodes = 1;
+        }
       } else {
         console.log("Creating server directory.");
         fs.mkdirSync(serverDirectory);
@@ -708,7 +707,7 @@ var App = (function(App, undefined) {
           fsExtra.copySync(defaultConfigPath, path.join(serverDirectory, "IRI.cfg"));
         } else {
           console.log("Creating default IRI.cfg.");
-          fs.writeFileSync(path.join(serverDirectory, "IRI.cfg"), "+udp://188.138.57.93:14265");
+          fs.writeFileSync(path.join(serverDirectory, "IRI.cfg"), "+udp://104.238.171.31:14265\r\n+udp://46.101.118.240:14265\r\n+udp://178.62.203.156:14265\r\n+udp://139.59.134.213:14265\r\n+udp://104.238.181.100:14265\r\n+udp://66.11.119.73:14265\r\n+udp://167.114.182.68:14265");
         }
       }
     } catch (err) {
@@ -1582,99 +1581,6 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.editServerConfiguration = function() {
-    console.log("Edit server configuration.");
-
-    if (win && win.webContents) {
-      App.showWindowIfNotVisible();
-
-      try {
-        var configLines = String(fs.readFileSync(path.join(serverDirectory, "IRI.cfg"), "utf8")).split(/\r?\n/);
-
-        var txFetchIntensityGap = 1000; 
-        var nrOfCores           = 1;
-        var babysit             = false;
-        var nodes               = [];
-
-        for (var i=0; i<configLines.length; i++) {
-          var configLine = configLines[i].trim();
-
-          if (configLine == "babysit") {
-            babysit = true;
-          } else {
-            var match = String(configLine).match(/^\^\s*([0-9]+)\s*$/);
-            if (match) {
-              txFetchIntensityGap = match[1];
-            } else {
-              match = String(configLine).match(/^\#\s*([0-9]+)\s*$/);
-              if (match) {
-                nrOfCores = match[1];
-              } else {
-                nodes.push(configLine);
-              }
-            }
-          }
-        }
-
-        win.webContents.send("editServerConfiguration", {"babysit": babysit, "txFetchIntensityGap": txFetchIntensityGap, "nrOfCores": nrOfCores, "nodes": nodes.join("\r\n")});
-      } catch (err) {
-        console.log("error");
-        console.log(err);
-      }
-    }
-  }
-
-  App.updateServerConfiguration = function(configuration) {
-    console.log("Update server configuration.");
-
-    try { 
-      if (typeof(configuration) != "string") { 
-        var nodesArr = configuration.nodes.match(/[^\r\n]+/g).unique();
-        
-        nodes = "";
-
-        for (var i=0; i<nodesArr.length; i++) {
-          var node = nodesArr[i].trim();
-          if (node) {
-            nodes += node + "\r\n";
-          }
-        }
-
-        nodes = nodes.trim();
-
-        var configurationFile = "";
-
-        if (configuration.txFetchIntensityGap && configuration.txFetchIntensityGap != 1000) {
-          configurationFile += "^" + configuration.txFetchIntensityGap + "\r\n";
-        }
-
-        if (configuration.nrOfCores && configuration.nrOfCores != 1) {
-          configurationFile += "#" + configuration.nrOfCores + "\r\n";
-        }
-
-        if (configuration.babysit) {
-          configurationFile += "babysit" + "\r\n";
-        }
-
-        configurationFile += nodes;
-      } else {
-        configurationFile = configuration.trim();
-      }
-
-      try {
-        fs.writeFileSync(path.join(serverDirectory, "IRI.cfg"), configurationFile);
-      } catch (err) {
-        App.notify("error", "Error writing to configuration file.");
-        throw err;
-      }
-
-      win.webContents.send("setConfig", configurationFile.split(/\r?\n/));
-    } catch (err) {
-      console.log("Error");
-      console.log(err);
-    }
-  }
-
   App.addNeighborNode = function(node) {
     console.log("Add neighbor node: " + node);
 
@@ -2031,10 +1937,6 @@ electron.ipcMain.on("updatePreferences", function(event, checkForUpdatesOption) 
   App.updatePreferences(checkForUpdatesOption);
 });
 
-electron.ipcMain.on("updateServerConfiguration", function(event, configuration) {
-  App.updateServerConfiguration(configuration);
-});
-
 electron.ipcMain.on("installUpdate", function() {
   App.installUpdate();
 });
@@ -2062,8 +1964,6 @@ electron.ipcMain.on("showNoJavaInstalledWindow", function(event, params) {
 electron.ipcMain.on("openServerFolder", function(event, file) {
   App.openServerFolder(file);
 });
-
-electron.ipcMain.on("editServerConfiguration", App.editServerConfiguration);
 
 electron.ipcMain.on("addNeighborNode", function(event, node) {
   App.addNeighborNode(node);
