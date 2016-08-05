@@ -937,6 +937,8 @@ var App = (function(App, undefined) {
       }
 
       params.push("-XX:+DisableAttachMechanism");
+      params.push("-Xms32m");
+      params.push("-Xmx32m");
 
       params = params.unique();
 
