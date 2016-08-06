@@ -640,8 +640,8 @@ var Server = (function(Server, $, undefined) {
     return Server.sendRequest("getNodeInfo");
   }
 
-  Server.getNeighborsActivity = function() {
-    return Server.sendRequest("getNeighborsActivity");
+  Server.getPeers = function() {
+    return Server.sendRequest("getPeers");
   }
 
   Server.attachStoreAndBroadcast = function(trytes) {

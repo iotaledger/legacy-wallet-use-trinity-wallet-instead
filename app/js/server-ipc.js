@@ -16,16 +16,16 @@ ipcRenderer.on("showNodeInfo", function() {
   }
 });
 
-ipcRenderer.on("showNeighborsActivity", function() {
+ipcRenderer.on("showPeers", function() {
   if (typeof(UI) != "undefined") {
     if (!UI.initialConnection) {
       $(document).one("initialConnection", function() {
-        UI.showNeighborsActivity(true).done(function(identifier, html) {
+        UI.showPeers(true).done(function(identifier, html) {
           ipcRenderer.send("showModal", identifier, html);
         });
       })
     } else {
-      UI.showNeighborsActivity(true).done(function(identifier, html) {
+      UI.showPeers(true).done(function(identifier, html) {
         ipcRenderer.send("showModal", identifier, html);
       });
     }

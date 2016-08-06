@@ -92,10 +92,6 @@ var UI = (function(UI, undefined) {
     electron.ipcRenderer.send("showNoJavaInstalledWindow", {"downloadImmediatelyIfWindows": true});
   }
 
-  UI.showConfigurationFile = function() {
-    electron.ipcRenderer.send("openServerFolder", "IRI.cfg");
-  }
-
   return UI;
 }(UI || {}));
 

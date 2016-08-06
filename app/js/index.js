@@ -237,8 +237,8 @@ var UI = (function(UI, undefined) {
 
   UI.updateStatusBar = function(data) {
     /*
-    if (data.hasOwnProperty("activeNeighbors")) {
-      document.getElementById("status-bar-neighbors").innerHTML = data.activeNeighbors + " active neighbors";
+    if (data.hasOwnProperty("activePeers")) {
+      document.getElementById("status-bar-peers").innerHTML = data.activePeers + " active peers";
     }
     */
 
@@ -583,8 +583,8 @@ var UI = (function(UI, undefined) {
       electron.ipcRenderer.send("showServerLog");
     } else if (url == "nodeinfo" || url == "node") {
       UI.sendToWebview("showNodeInfo");
-    } else if (url == "neighbors" || url == "neighbours" || url == "nodes") {
-      UI.sendToWebview("showNeighborsActivity");
+    } else if (url == "peers") {
+      UI.sendToWebview("showPeers");
     } else if (url == "spam" || url == "spammer") {
       UI.sendToWebview("showNetworkSpammer");
     } else if (url == "generateseed" || url == "seed") {
@@ -698,9 +698,9 @@ electron.ipcRenderer.on("handleURL", function(event, url) {
   UI.handleURL(url);
 });
 
-electron.ipcRenderer.on("showNeighborsActivity", function() {
+electron.ipcRenderer.on("showPeers", function() {
   UI.hideAlerts();
-  UI.sendToWebview("showNeighborsActivity");
+  UI.sendToWebview("showPeers");
 });
 
 electron.ipcRenderer.on("showNetworkSpammer", function() {

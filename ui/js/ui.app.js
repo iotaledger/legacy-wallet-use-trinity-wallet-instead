@@ -51,8 +51,8 @@ var UI = (function(UI, $, undefined) {
       case "showNodeInfo": 
         UI.showNodeInfo();
         break;
-      case "showNeighborsActivity": 
-        UI.showNeighborsActivity();
+      case "showPeers": 
+        UI.showPeers();
         break;
       case "hideAlerts":
         UI.hideAlerts();

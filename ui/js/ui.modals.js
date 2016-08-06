@@ -20,46 +20,46 @@ var UI = (function(UI, $, undefined) {
     }
   }
 
-  UI.showNeighborsActivity = function(returnHTML) {
-    console.log("UI.showNeighborsActivity");
+  UI.showPeers = function(returnHTML) {
+    console.log("UI.showPeers");
 
     if (returnHTML) {
       var deferred = $.Deferred();
     } else {
       if (UI.isLocked) {
-        console.log("UI.showNeighborsActivity: UI is locked");
+        console.log("UI.showPeers: UI is locked");
         return;
       }
     }
 
-    Server.getNeighborsActivity(true).done(function(activity) {
+    Server.getPeers(true).done(function(activity) {
       var html = "";
 
-      if (!activity.neighbors) {
-        html = "<p>No neighbors found.</p>"; 
+      if (!activity.peers) {
+        html = "<p>No peers found.</p>"; 
       } else {
-        for (var i=0; i<activity.neighbors.length; i++) {
-          var neighbor = activity.neighbors[i];
+        for (var i=0; i<activity.peers.length; i++) {
+          var peer = activity.peers[i];
 
           html += "<div class='list'><ul>";
  
-          $.each(neighbor, function(key, value) {
+          $.each(peer, function(key, value) {
             html += "<li><div class='details'><div class='address'>" + String(key).escapeHTML() + "</div></div><div class='value'>" + String(value).escapeHTML() + "</div></li>";
           });
 
           html += "</ul></div>";
 
-          if (i<activity.neighbors.length-1) {
+          if (i<activity.peers.length-1) {
             html += "<br><br>";
           }
         }
 
-        console.log(html);
-
         if (returnHTML) {
-          deferred.resolve("neighbors-activity-modal", "<h1>Neighbors' Activity</h1><div class='contents'>" + html + "</div>");
+          deferred.resolve("peers-modal", "<h1>Peers (" + activity.peers.length + ")</h1><div class='contents'>" + html + "</div>");
         } else {
-          var $modal = $("#neighbors-activity-modal");
+          var $modal = $("#peers-modal");
+
+          $("#peer-count").html(activity.peers.length);
   
           $modal.find(".contents").html(html);
 
@@ -95,7 +95,9 @@ var UI = (function(UI, $, undefined) {
       var html = "<div class='list'><ul>";
 
       $.each(nodeInfo, function(key, value) {
-        html += "<li><div class='details details-" + String(key).escapeHTML() + "' title='" + String(key).escapeHTML() + "'><div class='address'>" + String(key).escapeHTML() + "</div></div><div class='value value-" + String(key).escapeHTML() + "' title='" + String(value).escapeHTML() + "'>" + String(value).escapeHTML() + "</div></li>";
+        if (key != "duration") {
+          html += "<li><div class='details details-" + String(key).escapeHTML() + "' title='" + String(key).escapeHTML() + "'><div class='address'>" + String(key).escapeHTML() + "</div></div><div class='value value-" + String(key).escapeHTML() + "' title='" + String(value).escapeHTML() + "'>" + String(value).escapeHTML() + "</div></li>";
+        }
       });
 
       html += "</ul></div>";

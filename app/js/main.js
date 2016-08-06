@@ -471,10 +471,10 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: "View Neighbors' Activity",
+            label: "View Peers",
             //accelerator: "CmdOrCtrl+N",
             click(item) {
-              App.showNeighborsActivity();
+              App.showPeers();
             }
           },
           {
@@ -500,10 +500,10 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: "Open Server Folder",
+            label: "Open Database Folder",
             //accelerator: "CmdOrCtrl+I",
             click(item) {
-              App.openServerFolder();
+              App.openDatabaseFolder();
             }
           },
           {
@@ -1050,7 +1050,7 @@ var App = (function(App, undefined) {
     }, 500);
   }
 
-  App.openServerFolder = function(file) {
+  App.openDatabaseFolder = function(file) {
     if (!file) {
       file = "IRI.cfg";
     }
@@ -1560,10 +1560,10 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.showNeighborsActivity = function() {
+  App.showPeers = function() {
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
-      win.webContents.send("showNeighborsActivity");
+      win.webContents.send("showPeers");
     }
   }
 
@@ -1897,10 +1897,6 @@ electron.ipcMain.on("stopLookingAtServerLog", App.stopLookingAtServerLog);
 
 electron.ipcMain.on("showNoJavaInstalledWindow", function(event, params) {
   App.showNoJavaInstalledWindow(true, params);
-});
-
-electron.ipcMain.on("openServerFolder", function(event, file) {
-  App.openServerFolder(file);
 });
 
 electron.ipcMain.on("upgradeIRI", function(event, sourceFile) {
