@@ -34,6 +34,7 @@ var UI = (function(UI, $, undefined) {
           throw "Amount cannot be zero";
         }
       } catch (err) {
+        $stack.removeClass("loading");
         UI.formError("transfer", err);
         return;
       }
