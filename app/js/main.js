@@ -1172,7 +1172,7 @@ var App = (function(App, undefined) {
           while (App.getAlreadyRunningProcess()) {
             console.log("Waiting...");
             //wait..
-            if (!forceKilled && new Date() - then > 7500) {
+            if (!forceKilled && new Date() - then > 60000) {
               console.log("Force Kill");
               forceKilled = true;
               if (process.platform == "win32") {
