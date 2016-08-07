@@ -113,7 +113,13 @@ var App = (function(App, undefined) {
 
   App.loadSettings = function() {
     try {
-      settings = JSON.parse(fs.readFileSync(path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json"), "utf8"));
+      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json");
+
+      if (!fs.existsSync(settingsFile)) {
+        throw "Settings file does not exist.";
+      }
+
+      settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
 
       if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object") {
         settings.bounds = {width: 520, height: 736};
@@ -175,7 +181,9 @@ var App = (function(App, undefined) {
 
       settings.isFirstRun = 0;
 
-      fs.writeFileSync(path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json"), JSON.stringify(settings));
+      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json");
+
+      fs.writeFileSync(settingsFile, JSON.stringify(settings));
     } catch (err) {
       console.log("Error writing settings.");
       console.log(err);
