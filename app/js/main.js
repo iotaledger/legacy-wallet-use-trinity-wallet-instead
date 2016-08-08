@@ -1062,7 +1062,7 @@ var App = (function(App, undefined) {
 
   App.openDatabaseFolder = function(file) {
     if (!file) {
-      file = "IRI.cfg";
+      file = "transactions.iri";
     }
 
     try {
