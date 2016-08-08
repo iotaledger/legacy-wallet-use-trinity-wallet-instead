@@ -251,8 +251,6 @@ var Server = (function(Server, $, undefined) {
     if (!milestoneIndex) {
       console.log("No milestone index, get from node info.");
       Server.getNodeInfo().done(function(info) {
-        info.milestoneIndex--;
-
         console.log("Got milestone index from node info: " + info.milestoneIndex);
 
         Server.sendRequest("getMilestone", {"index": info.milestoneIndex}, "milestone").done(function(milestone) {
