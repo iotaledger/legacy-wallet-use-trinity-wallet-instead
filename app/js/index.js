@@ -110,7 +110,12 @@ var UI = (function(UI, undefined) {
       return false;
     },false);
 
-    webview.addEventListener('drop',function(e) {
+    webview.addEventListener('drop',function(e, b) {
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0] && e.dataTransfer.files[0].path) {
+        if (String(e.dataTransfer.files[0].path).match(/IRI.*\.jar$/i)) {
+          electron.ipcRenderer.send("upgradeIRI", e.dataTransfer.files[0].path);
+        }
+      }
       e.preventDefault();
       return false;
     },false);
@@ -232,8 +237,8 @@ var UI = (function(UI, undefined) {
 
   UI.updateStatusBar = function(data) {
     /*
-    if (data.hasOwnProperty("activeNeighbors")) {
-      document.getElementById("status-bar-neighbors").innerHTML = data.activeNeighbors + " active neighbors";
+    if (data.hasOwnProperty("activePeers")) {
+      document.getElementById("status-bar-peers").innerHTML = data.activePeers + " active peers";
     }
     */
 
@@ -382,85 +387,6 @@ var UI = (function(UI, undefined) {
 
       modal.close();
       electron.ipcRenderer.send("updatePreferences", settings);
-    });
-
-    modal.open();
-  }
-
-  UI.addNeighborNode = function(node) {
-    if (showQuitAlert) {
-      return;
-    }
-
-    UI.hideAlerts();
-
-    var modal = new tingle.modal({
-      footer: true,
-      onOpen: function() {
-        var close = document.querySelector(".tingle-modal__close");
-        var modalContent = document.querySelector(".tingle-modal-box__content");
-        modalContent.appendChild(close);
-      }
-    });
-
-    modal.setContent("<h1>Add Neighbor Node</h1>" + 
-                     "<p>Are you sure you want to add this node to your server configuration?</p>" + 
-                     "<p style='font-weight:bold'>" + String(node).escapeHTML() + "</p>");
-
-    modal.addFooterBtn("Yes, Add This Node", "tingle-btn tingle-btn--primary", function() {
-      modal.close();
-      electron.ipcRenderer.send("addNeighborNode", node);
-    });
-
-    modal.addFooterBtn("No, Cancel", "tingle-btn tingle-btn--default", function() {
-      modal.close();
-    });
-
-    modal.open();
-  }
-
-  UI.editServerConfiguration = function(configuration) {
-    if (showQuitAlert) {
-      return;
-    }
-
-    UI.hideAlerts();
-
-    var modal = new tingle.modal({
-      footer: true,
-      onOpen: function() {
-        var close = document.querySelector(".tingle-modal__close");
-        var modalContent = document.querySelector(".tingle-modal-box__content");
-        modalContent.appendChild(close);
-
-        var el = document.getElementById("server_config_tx_fetch_intensity_gap");
-
-        var temp = el.value;
-        el.value = "";
-        el.value = temp;
-        el.focus();
-      }
-    });
-
-    modal.setContent("<h1>Server Config</h1>" + 
-                     "<div class='input-group'><label>Transactions to Fetch Gap (ms):</label>" + 
-                     "<input type='number' min='0' step='1' name='tx_fetch_intensity_gap' id='server_config_tx_fetch_intensity_gap' placeholder='' value='" + (configuration.txFetchIntensityGap ? String(configuration.txFetchIntensityGap).escapeHTML() : "1000") + "' /></div>" + 
-                     "<div class='input-group'><label># Cores (POW):</label>" + 
-                     "<input type='number' min='1' step='1' name='nr_of_cores' id='server_config_nr_of_cores' placeholder='' value='" + (configuration.nrOfCores ? String(configuration.nrOfCores).escapeHTML() : "1") + "' /></div>" + 
-                     "<div class='input-group input-group'><label>Neighboring Nodes:</label>" + 
-                     "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>" + 
-                     "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='babysit' id='server_config_babysit' class='checkbox' value='1'" + (configuration.babysit ? " checked='checked'" : "") + " />Babysit the network</label></div>");
-
-    modal.addFooterBtn("Save", "tingle-btn tingle-btn--primary", function() {
-      var config = {};
-      config.txFetchIntensityGap = parseInt(document.getElementById("server_config_tx_fetch_intensity_gap").value, 10);
-      config.nrOfCores = parseInt(document.getElementById("server_config_nr_of_cores").value, 10);
-      config.nodes = document.getElementById("server_config_neighboring_nodes").value;
-      config.babysit = document.getElementById("server_config_babysit").checked;
-
-      modal.close();
-
-      electron.ipcRenderer.send("updateServerConfiguration", config);
     });
 
     modal.open();
@@ -648,36 +574,23 @@ var UI = (function(UI, undefined) {
     }
   }
 
-  UI.setConfig = function(lines) {
-    if (webviewIsLoaded && webview) {
-      webview.send("setConfig", lines);
-    }
-  }
-
   UI.handleURL = function(url) {
     UI.hideAlerts();
     
     url = decodeURI(url.replace("iota://", "").toLowerCase().replace(/\/$/, ""));
 
-    if (url == "config" || url == "configuration" || url == "setup") {
-      electron.ipcRenderer.send("editServerConfiguration");
-    } else if (url == "log") {
+    if (url == "log") {
       electron.ipcRenderer.send("showServerLog");
     } else if (url == "nodeinfo" || url == "node") {
       UI.sendToWebview("showNodeInfo");
-    } else if (url == "neighbors" || url == "neighbours" || url == "nodes") {
-      UI.sendToWebview("showNeighborsActivity");
+    } else if (url == "peers") {
+      UI.sendToWebview("showPeers");
     } else if (url == "spam" || url == "spammer") {
       UI.sendToWebview("showNetworkSpammer");
     } else if (url == "generateseed" || url == "seed") {
       UI.sendToWebview("generateSeed");
     } else {
-      var match = url.match(/(?:addnode|addneighbou?r)\/(.*)/i);
-      if (match && match[1] && match[1].charAt(0) != "-") {
-        UI.addNeighborNode(match[1]);
-      } else {
-        UI.sendToWebview("handleURL", url);
-      }
+      UI.sendToWebview("handleURL", url);
     }
   }
 
@@ -785,9 +698,9 @@ electron.ipcRenderer.on("handleURL", function(event, url) {
   UI.handleURL(url);
 });
 
-electron.ipcRenderer.on("showNeighborsActivity", function() {
+electron.ipcRenderer.on("showPeers", function() {
   UI.hideAlerts();
-  UI.sendToWebview("showNeighborsActivity");
+  UI.sendToWebview("showPeers");
 });
 
 electron.ipcRenderer.on("showNetworkSpammer", function() {
@@ -798,10 +711,6 @@ electron.ipcRenderer.on("showNetworkSpammer", function() {
 electron.ipcRenderer.on("generateSeed", function() {
   UI.hideAlerts();
   UI.sendToWebview("generateSeed");
-});
-
-electron.ipcRenderer.on("editServerConfiguration", function(event, serverConfiguration) {
-  UI.editServerConfiguration(serverConfiguration);
 });
 
 electron.ipcRenderer.on("toggleDeveloperTools", UI.toggleDeveloperTools);
@@ -832,10 +741,6 @@ electron.ipcRenderer.on("setIsProofOfWorking", function(event, isProofOfWorking)
 
 electron.ipcRenderer.on("notify", function(event, type, msg) {
   UI.notify(type, msg);
-});
-
-electron.ipcRenderer.on("setConfig", function(event, lines) {
-  UI.setConfig(lines);
 });
 
 electron.ipcRenderer.on("relaunch", UI.relaunch);

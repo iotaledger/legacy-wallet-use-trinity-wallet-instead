@@ -44,19 +44,6 @@ var UI = (function(UI, $, undefined) {
         // After initial connection, update state every 2 seconds
         UI.createStateInterval(2000, false);
       }
-
-      if (connection.nodeInfo.neighbors < 7) {
-        var options = {timeOut: 30000, 
-                       extendedTimeOut: 30000};
-
-        if (connection.inApp) {
-          options.onclick = function() {
-            editServerConfiguration();
-          }
-        }
-
-        UI.notify("error", "Add more nodes, you only have " + parseInt(connection.nodeInfo.neighbors, 10) + ". Try to have between 7-10 nodes.", options);
-      }
     }
 
     if (!connection.isLoggedIn) {

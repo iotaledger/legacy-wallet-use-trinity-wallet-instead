@@ -113,7 +113,13 @@ var App = (function(App, undefined) {
 
   App.loadSettings = function() {
     try {
-      settings = JSON.parse(fs.readFileSync(path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json"), "utf8"));
+      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json");
+
+      if (!fs.existsSync(settingsFile)) {
+        throw "Settings file does not exist.";
+      }
+
+      settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
 
       if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object") {
         settings.bounds = {width: 520, height: 736};
@@ -175,7 +181,9 @@ var App = (function(App, undefined) {
 
       settings.isFirstRun = 0;
 
-      fs.writeFileSync(path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json"), JSON.stringify(settings));
+      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json");
+
+      fs.writeFileSync(settingsFile, JSON.stringify(settings));
     } catch (err) {
       console.log("Error writing settings.");
       console.log(err);
@@ -471,10 +479,10 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: "View Neighbors' Activity",
+            label: "View Peers",
             //accelerator: "CmdOrCtrl+N",
             click(item) {
-              App.showNeighborsActivity();
+              App.showPeers();
             }
           },
           {
@@ -500,17 +508,10 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: "Open Server Folder",
+            label: "Open Database Folder",
             //accelerator: "CmdOrCtrl+I",
             click(item) {
-              App.openServerFolder();
-            }
-          },
-          {
-            label: "Edit Server Configuration",
-            //accelerator: "CmdOrCtrl+E",
-            click(item) {
-              App.editServerConfiguration();
+              App.openDatabaseFolder();
             }
           },
           {
@@ -647,7 +648,7 @@ var App = (function(App, undefined) {
       }*/
 
       // Remove preferences (other location on mac)
-      template[3].submenu.splice(8, 2);
+      template[3].submenu.splice(7, 2);
     } else if (process.platform == "win32") {
       if (!isDevelopment) {
         /*
@@ -676,6 +677,8 @@ var App = (function(App, undefined) {
       console.log("Server directory is: " + serverDirectory);
       console.log("Jar directory is: " + jarDirectory);
 
+      var defaultNodes = "+udp://188.138.57.93:14265\r\n+udp://104.238.171.31:14265\r\n+udp://46.101.118.240:14265\r\n+udp://178.62.203.156:14265\r\n+udp://139.59.134.213:14265\r\n+udp://104.238.181.100:14265\r\n+udp://66.11.119.73:14265\r\n+udp://167.114.182.68:14265\r\n+udp://104.198.4.96:14265\r\n+udp://46.101.147.184:14265\r\n+udp://107.170.52.140:14265\r\n+udp://104.198.15.213:14265";
+
       if (fs.existsSync(serverDirectory)) {
         var uiFolder = path.join(serverDirectory, "ui");
         var srcFolder = path.join(serverDirectory, "src");
@@ -696,6 +699,12 @@ var App = (function(App, undefined) {
             fsExtra.removeSync(uiFolder);
           }
         }
+
+        if (!settings.hasDefaultNodes) {
+          console.log("Append default nodes");
+          fs.appendFileSync(path.join(serverDirectory, "IRI.cfg"), "\r\n" + defaultNodes);
+          settings.hasDefaultNodes = 1;
+        }
       } else {
         console.log("Creating server directory.");
         fs.mkdirSync(serverDirectory);
@@ -708,7 +717,7 @@ var App = (function(App, undefined) {
           fsExtra.copySync(defaultConfigPath, path.join(serverDirectory, "IRI.cfg"));
         } else {
           console.log("Creating default IRI.cfg.");
-          fs.writeFileSync(path.join(serverDirectory, "IRI.cfg"), "+udp://188.138.57.93:14265");
+          fs.writeFileSync(path.join(serverDirectory, "IRI.cfg"), defaultNodes);
         }
       }
     } catch (err) {
@@ -937,6 +946,8 @@ var App = (function(App, undefined) {
       }
 
       params.push("-XX:+DisableAttachMechanism");
+      params.push("-Xms32m");
+      params.push("-Xmx32m");
 
       params = params.unique();
 
@@ -1049,9 +1060,9 @@ var App = (function(App, undefined) {
     }, 500);
   }
 
-  App.openServerFolder = function(file) {
+  App.openDatabaseFolder = function(file) {
     if (!file) {
-      file = "IRI.cfg";
+      file = "transactions.iri";
     }
 
     try {
@@ -1156,22 +1167,11 @@ var App = (function(App, undefined) {
           var out = childProcess.exec("kill " + pid);
         }
 
-        var forceKilled = false;
         var then = new Date();
 
         if (wait) {
           while (App.getAlreadyRunningProcess()) {
             console.log("Waiting...");
-            //wait..
-            if (!forceKilled && new Date() - then > 7500) {
-              console.log("Force Kill");
-              forceKilled = true;
-              if (process.platform == "win32") {
-                out = childProcess.exec("taskkill /F /T /PID " + pid);
-              } else {
-                out = childProcess.exec("kill -9 " + pid);
-              }
-            }
           }
         }
       } catch (err) {
@@ -1559,10 +1559,10 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.showNeighborsActivity = function() {
+  App.showPeers = function() {
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
-      win.webContents.send("showNeighborsActivity");
+      win.webContents.send("showPeers");
     }
   }
 
@@ -1577,161 +1577,6 @@ var App = (function(App, undefined) {
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
       win.webContents.send("showNetworkSpammer");
-    }
-  }
-
-  App.editServerConfiguration = function() {
-    console.log("Edit server configuration.");
-
-    if (win && win.webContents) {
-      App.showWindowIfNotVisible();
-
-      try {
-        var configLines = String(fs.readFileSync(path.join(serverDirectory, "IRI.cfg"), "utf8")).split(/\r?\n/);
-
-        var txFetchIntensityGap = 1000; 
-        var nrOfCores           = 1;
-        var babysit             = false;
-        var nodes               = [];
-
-        for (var i=0; i<configLines.length; i++) {
-          var configLine = configLines[i].trim();
-
-          if (configLine == "babysit") {
-            babysit = true;
-          } else {
-            var match = String(configLine).match(/^\^\s*([0-9]+)\s*$/);
-            if (match) {
-              txFetchIntensityGap = match[1];
-            } else {
-              match = String(configLine).match(/^\#\s*([0-9]+)\s*$/);
-              if (match) {
-                nrOfCores = match[1];
-              } else {
-                nodes.push(configLine);
-              }
-            }
-          }
-        }
-
-        win.webContents.send("editServerConfiguration", {"babysit": babysit, "txFetchIntensityGap": txFetchIntensityGap, "nrOfCores": nrOfCores, "nodes": nodes.join("\r\n")});
-      } catch (err) {
-        console.log("error");
-        console.log(err);
-      }
-    }
-  }
-
-  App.updateServerConfiguration = function(configuration) {
-    console.log("Update server configuration.");
-
-    try { 
-      if (typeof(configuration) != "string") { 
-        var nodesArr = configuration.nodes.match(/[^\r\n]+/g).unique();
-        
-        nodes = "";
-
-        for (var i=0; i<nodesArr.length; i++) {
-          var node = nodesArr[i].trim();
-          if (node) {
-            nodes += node + "\r\n";
-          }
-        }
-
-        nodes = nodes.trim();
-
-        var configurationFile = "";
-
-        if (configuration.txFetchIntensityGap && configuration.txFetchIntensityGap != 1000) {
-          configurationFile += "^" + configuration.txFetchIntensityGap + "\r\n";
-        }
-
-        if (configuration.nrOfCores && configuration.nrOfCores != 1) {
-          configurationFile += "#" + configuration.nrOfCores + "\r\n";
-        }
-
-        if (configuration.babysit) {
-          configurationFile += "babysit" + "\r\n";
-        }
-
-        configurationFile += nodes;
-      } else {
-        configurationFile = configuration.trim();
-      }
-
-      try {
-        fs.writeFileSync(path.join(serverDirectory, "IRI.cfg"), configurationFile);
-      } catch (err) {
-        App.notify("error", "Error writing to configuration file.");
-        throw err;
-      }
-
-      win.webContents.send("setConfig", configurationFile.split(/\r?\n/));
-    } catch (err) {
-      console.log("Error");
-      console.log(err);
-    }
-  }
-
-  App.addNeighborNode = function(node) {
-    console.log("Add neighbor node: " + node);
-
-    try {
-      if (!node) {
-        return;
-      }
-
-      node = String(node);
-
-      if (!node.match(/^\+udp:\/\//i)) {
-        node = "+udp://" + node;
-      }
-      if (!node.match(/:14265$/i)) {
-        node += ":14265";
-      }
-
-      var match = node.match(/\+udp:\/\/(.*):14265$/i);
-
-      if (!match || !match[1]) {
-        return;
-      }
-
-      if (match[1].indexOf(":") != -1) {
-        var before = match[1];
-        var after  = match[1];
-
-        // We'll assume all nodes with double colon are IPV6.. These need to be wrapped in "[]".
-        if (after.charAt(0) != "[") {
-          after = "[" + after;
-        }
-        if (after.substr(-1) != "]") {
-          after += "]";
-        }
-
-        if (before != after) {
-          node = node.replace(before, after);
-        }
-      }
-
-
-      var configurationFile = String(fs.readFileSync(path.join(serverDirectory, "IRI.cfg"), "utf8"));
-
-      if (configurationFile.toLowerCase().indexOf(node.toLowerCase() == -1)) {
-        try {
-          fs.appendFileSync(path.join(serverDirectory, "IRI.cfg"), "\r\n" + node);
-        } catch (err) {
-          App.notify("error", "Error writing to configuration file.");
-          throw err;
-        }
-
-        configurationFile = configurationFile.split(/\r?\n/);
-        configurationFile.push(node);
-
-        win.webContents.send("setConfig", configurationFile);
-      }
-    } catch (err) {
-      console.log("Error");
-      console.log(err);
     }
   }
 
@@ -1901,6 +1746,27 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.upgradeIRI = function(sourceFile) {
+    console.log("App.upgradeIRI: " + sourceFile);
+
+    if (sourceFile.match(/IRI.*\.jar$/i)) {
+      try {
+        App.killAlreadyRunningProcess(true);
+
+        var jarDirectory = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "IRI");
+
+        var targetFile = path.join(jarDirectory, "IRI.jar");
+
+        fs.unlinkSync(targetFile);
+        fs.writeFileSync(targetFile, fs.readFileSync(sourceFile));
+      } catch (err) {
+        console.log(err);
+      }
+
+      App.relaunchApplication();
+    }
+  }
+
   App.deleteDbIfExists = function() {
     console.log("DELETING DATABASE");
 
@@ -1946,8 +1812,12 @@ const shouldQuit = electron.app.makeSingleInstance(function(commandLine, working
     if (win.isMinimized()) win.restore();
     win.focus();
 
-    if (process.platform == "win32" && commandLine.length == 2 && String(commandLine[1]).match(/^iota:\/\//i)) {
-      App.handleURL(commandLine[1]);
+    if (process.platform == "win32" && commandLine.length == 2) {
+      if (String(commandLine[1]).match(/^iota:\/\//i)) {
+        App.handleURL(commandLine[1]);
+      } else if (String(commandLine[1]).match(/IRI.*\.jar$/i)) {
+        App.upgradeIRI(commandLine[1]);
+      }
     }
   }
 });
@@ -1966,6 +1836,12 @@ electron.app.on("open-url", function(event, url) {
   console.log("open url");
   console.log(url);
   App.handleURL(url);
+});
+
+electron.app.on("open-file", function(event, file) {
+  if (file.match(/IRI.*\.jar$/i)) {
+    App.upgradeIRI(commandLine[1]);
+  }
 });
 
 electron.app.on("window-all-closed", function () {
@@ -1998,10 +1874,6 @@ electron.ipcMain.on("updatePreferences", function(event, checkForUpdatesOption) 
   App.updatePreferences(checkForUpdatesOption);
 });
 
-electron.ipcMain.on("updateServerConfiguration", function(event, configuration) {
-  App.updateServerConfiguration(configuration);
-});
-
 electron.ipcMain.on("installUpdate", function() {
   App.installUpdate();
 });
@@ -2026,14 +1898,8 @@ electron.ipcMain.on("showNoJavaInstalledWindow", function(event, params) {
   App.showNoJavaInstalledWindow(true, params);
 });
 
-electron.ipcMain.on("openServerFolder", function(event, file) {
-  App.openServerFolder(file);
-});
-
-electron.ipcMain.on("editServerConfiguration", App.editServerConfiguration);
-
-electron.ipcMain.on("addNeighborNode", function(event, node) {
-  App.addNeighborNode(node);
+electron.ipcMain.on("upgradeIRI", function(event, sourceFile) {
+  App.upgradeIRI(sourceFile);
 });
 
 electron.ipcMain.on("showServerLog", App.showServerLog);

@@ -2,9 +2,7 @@
 
 ## Prerequisites
 
-1. Download NodeJS:
-
-[NodeJS](https://nodejs.org/en/download/)
+1. Download [NodeJS](https://nodejs.org/en/download/)
 
 2. Install [Electron](http://electron.atom.io):
 
@@ -35,10 +33,12 @@
 3. Clone repositories:
 
   ```
-  https://github.com/iotaledger/wallet
+  git clone https://github.com/iotaledger/wallet
   git clone https://github.com/iotaledger/iri
   ```
 
+  Note: iri project does not exist yet -- make an IRI directory manually and place IRI.jar in it.
+  
 4. Install components
 
   ```

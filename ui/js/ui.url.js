@@ -38,19 +38,26 @@ var UI = (function(UI, $, undefined) {
         var match = url.match(/(?:transfer|send)\/([A-Z9]{90})\/([0-9\.]+)\-?([TGMK]?i)?$/i);
 
         if (match && match[1] && match[2]) {
-          $("#transfer-address").val(match[1].toUpperCase());
-          $("#transfer-amount").val(match[2]);
-
-          if (!match[3] || match[3] == "i") {
-            $("#transfer-units-value").html("i");
+          if ($("#transfer-address").val() || $("#transfer-amount").val()) {
+            UI.notify("error", "Address and/or amount are already filled, won't overwrite.");
           } else {
-            $("#transfer-units-value").html(match[3].charAt(0).toUpperCase() + match[3].charAt(1).toLowerCase());          
-          }
+            UI.notify("success", "Address and amount have been prefilled from a clicked link.");
 
-          var $stack = $("#transfer-stack");
+            $("#transfer-address").val(match[1].toUpperCase());
+            $("#transfer-amount").val(match[2]);
+            $("#transfer-autofill").val("1");
 
-          if (!$stack.hasClass("open")) {
-            $stack.trigger("click");
+            if (!match[3] || match[3] == "i") {
+              $("#transfer-units-value").html("i");
+            } else {
+              $("#transfer-units-value").html(match[3].charAt(0).toUpperCase() + match[3].charAt(1).toLowerCase());          
+            }
+
+            var $stack = $("#transfer-stack");
+
+            if (!$stack.hasClass("open")) {
+              $stack.trigger("click");
+            }
           }
         } else {
           UI.notify("error", "Unknown or invalid URL.");

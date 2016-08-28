@@ -1036,7 +1036,7 @@ dt, dd {
   font-size: 100%;
 }
 
-#node-info-modal .list .details, #neighbors-activity-modal .list .details {
+#node-info-modal .list .details, #peers-modal .list .details {
   -webkit-box-flex: none;
   -webkit-flex: none;
   -ms-flex: none;
@@ -1047,7 +1047,7 @@ dt, dd {
   color: #696969;
 }
 
-#neighbors-activity-modal .contents {
+#peers-modal .contents {
   max-height: 450px;
   overflow: none;
   overflow-y: auto;

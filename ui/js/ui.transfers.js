@@ -4,6 +4,13 @@ var UI = (function(UI, $, undefined) {
       console.log("UI.handleTransfers: Click");
 
       var $stack = $("#transfer-stack");
+
+      if ($("#transfer-autofill").val() == "1") {
+        UI.formError("transfer", "Are you sure?", {"initial": "Yes, Send It Now"});
+        $("#transfer-autofill").val("0");
+        return;
+      }
+
       $stack.addClass("loading");
 
       try {
@@ -27,6 +34,7 @@ var UI = (function(UI, $, undefined) {
           throw "Amount cannot be zero";
         }
       } catch (err) {
+        $stack.removeClass("loading");
         UI.formError("transfer", err);
         return;
       }
@@ -35,12 +43,14 @@ var UI = (function(UI, $, undefined) {
         UI.formUpdate("transfer", msg, {"timeout": 500});
       }).done(function(msg) {
         console.log("UI.handleTransfers: " + msg);
-        UI.formSuccess("transfer", msg);
-        UI.createStateInterval(60000, true);
+        UI.formSuccess("transfer", msg, {"initial": "Send It Now"});
+        setTimeout(function() {
+          UI.createStateInterval(60000, true);
+        }, 1000);
       }).fail(function(err) {
         console.log("UI.handleTransfers: Error");
         console.log(err);
-        UI.formError("transfer", err);
+        UI.formError("transfer", err, {"initial": "Send It Now"});
       }).always(function() {
         $stack.removeClass("loading");
       });

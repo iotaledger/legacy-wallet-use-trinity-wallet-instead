@@ -79,6 +79,7 @@
               <label id="transfer-units-value">i</label>
             </div>
           </div>
+          <input type="hidden" name="transfer-autofill" id="transfer-autofill" value="0" />
           <button id="transfer-btn" type="button" class="btn" data-initial="Send It Now" data-loading="Sending...">SEND IT NOW</button>
         </div>
       </div>
@@ -102,7 +103,7 @@
           <li data-type="transfers" class="active">Transfers</li>
           <li data-type="addresses">Addresses</li>
         </ul>
-        <div class="content"> 
+        <div class="content">
           <div class="transfers list">
             <p>No transfers found.</p>
             <ul></ul>
@@ -133,9 +134,9 @@
   <div class="contents"></div>
 </div>
 
-<div id="neighbors-activity-modal" class="modal" data-remodal-id="neighbors-activity">
+<div id="peers-modal" class="modal" data-remodal-id="peers">
   <button data-remodal-action="close" class="remodal-close"></button>
-  <h1>Neighbors' Activity</h1>
+  <h1>Peers (<span id="peer-count"></span>)</h1>
   <div class="contents"></div>
 </div>
 
@@ -150,7 +151,8 @@
   <h1>Network Spammer</h1>
   <div class="contents"><p>Help the network by spamming it.</p></div>
   <button id="spam-btn" type="button" class="btn" data-initial="Spam the Network" data-loading="Spamming...">SPAM THE NETWORK</button>
-  <div id="spam-cnt" class="small"></div>
+  <div id="spam-output" class="small"><span id="spam-cnt">0</span> transactions generated. <span id="spam-msg"></span></div>
+  <div id="spam-not-synced" class="small" style="color:red;display:none;">Not synced</div>
 </div>
 
 <div id="help">
@@ -172,19 +174,19 @@
       <h3>FAQs</h3>
       <dl class="faq">
         <dt>Creating a New Account</dt>
-        <dd>Creating a new account is as easy as generating a new, unique seed (consisting of 81 characters, only uppercase latin letters and the number 9 is allowed). You do not need to make your seed 81-chars long, but that is suggested. If you already generated a seed before you can enter it and access your account directly.<br /><br />Your seed is your private key that is used to access your account, and thus your IOTA tokens. Do not share it with anyone and keep it stored safely somewhere where nobody else but you can access it. If you have forgotten your seed, you will lose access to your IOTA tokens. You can generate a seed via Tools &raquo; Generate Seed.</dd>
-        <dt>Neighbor Nodes</dt>
-        <dd>The first thing you should do after installation is adding more neighbor nodes. Only 1 is added by default. You should get between 7-9 to be able to sync to the network. To find nodes, sign up to our <a href="https://slack.iotatoken.com" target="_blank" rel="noopener noreferrer">chat</a>, then join the #nodesharing channel and ask for node IP's. You can add the nodes to your app via Tools &raquo; Edit Server Configuration.</dd>
+        <dd>Creating a new account is as easy as generating a new, unique seed (consisting of 81 characters, only uppercase latin letters and the number 9 is allowed). You do not need to make your seed 81-chars long, but that is suggested. If you already generated a seed before you can enter it and access your account directly.<br /><br />Your seed is your password that is used to access your account, and thus your IOTA tokens. Do not share it with anyone and keep it stored safely somewhere where nobody else but you can access it. If you have forgotten your seed, you will lose access to your IOTA tokens. You can generate a seed via Tools &raquo; Generate Seed.</dd>
+        <dt>When can I make another transfer?</dt>
+        <dd>In order to prevent double-spending, you should only make a new transfer after all of your previous value transfers have been confirmed. IOTA deterministically chooses inputs for new transfers, so you have to get your previous transactions confirmed in order to successfully make a new transfer without doublespending the inputs.</dd>
         <dt>Tangle Not Solid</dt>
-        <dd>If you get this error when trying to send Iota's or generating addresses, it means you are not yet in sync. If you've just installed the app, you may want to wait some time for the network to be in sync. To check sync status, go to View &raquo; Status Bar. In the status bar, you'll see: xx / yyyy (zz). Compare this to the output of the channel #botbox in our <a href="https://slack.iotatoken.com" target="_blank" rel="noopener noreferrer">chat</a>.<br /><br />If you can't catch up to the network after some time, you may have to find new neighbor IP's to use instead.</dd>
+        <dd>If you get this error when trying to send IOTAs or generating addresses, it means you are not yet in sync. If you've just installed the app, you may want to wait some time for the network to be in sync. To check sync status, go to View &raquo; Status Bar. In the status bar, you'll see: xx / yyyy (zz). Compare this to the output of the channel #botbox in our <a href="https://slack.iotatoken.com" target="_blank" rel="noopener noreferrer">chat</a>.<br /><br />If you can't catch up to the network after some time, you can find a download-able Tangle on the Forum.</dd>
         <dt>What is the difference between i, Ki, Mi, Gi, Ti and Pi?</dt>
         <dd>IOTA uses the 'International System of Units' or 'SI'. You are probably already familiar with this denomination from the world of computer storage (Kilobyte, Megabyte, Gigabyte etc.) IOTA follows the same system with Kilo-iotas (Ki) starting at 1'000 up to 1'000'000 where Mega-iotas (Mi) take over, then it's Giga (Gi), Tera (Ti) and finally Peta (Pi). This means that when you set the 'send field' to Ki you will be sending the amount you enter times thousand.</dd>
         <dt>How long should a transaction take?</dt>
-        <dd>When sending an iota transaction your CPU carries out an amount of Proof-of-Work to secure the Tangle network, this means that the time it takes to carry out a transaction depends on the power of your processor. Expect between 10-100 seconds.</dd>
+        <dd>When sending an iota transaction your CPU carries out an amount of Proof-of-Work to secure the Tangle network, this means that the time it takes to carry out a transaction depends on the power of your processor. Expect between 1 - 25 minutes.</dd>
         <dt>How long should address generation take?</dt>
-        <dd>The address generation itself is done instantly, but in order to save the address in the Tangle your processor has to carry out some Proof-of-Work, depending on what kind of processor you have this can take anywhere from 5-30 seconds.</dd>
+        <dd>The address generation itself is done instantly, but in order to save the address in the Tangle, you have to carry out some Proof-of-Work, depending on what kind of CPU you have this can take anywhere from 1 - 15 minutes.</dd>
         <dt>Can I reuse addresses?</dt>
-        <dd>You can reuse an address to receive iotas, but after you send an outgoing transaction you should change because IOTA uses Winternitz one-time signatures which degrade security exponentially after each reuse.</dd>
+        <dd>You can use an address for receiving as long as you have not used it for any outgoing transaction. What this means is that once you have sent a transaction with a specific address as input, you should never use it again. This is because IOTA uses Winternitz one-time signatures which degrade security exponentially after each reuse.</dd>
         <dt>How long and complex should my seed be?</dt>
         <dd>In order to ensure that only you got access to your iotas you ought to create a sufficiently complex seed. This means a randomized 81 character seed consisting of latin letters and the number 9.</dd>
       </dl>

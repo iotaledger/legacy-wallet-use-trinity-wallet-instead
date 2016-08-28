@@ -3,8 +3,6 @@ var Server = (function(Server, $, undefined) {
   var seedError = "";
   var emptyHash = "999999999999999999999999999999999999999999999999999999999999999999999999999999999";
 
-  var busyGettingTransactionsToApprove = false;
-
   Server.login = function(seed) {
     try {
       if (!seed) {
@@ -57,7 +55,7 @@ var Server = (function(Server, $, undefined) {
       }
     }
 
-    if (isPow || command == "getTransactionsToApprove" || command == "broadcastTransactions") {
+    if (isPow || command == "getTransactionsToApprove" || command == "pushTransactions") {
       var time = 10000000000; // This simply never times out
     } else if (command == "getTransfers") {
       var time = 55000; // 55 seconds
@@ -65,8 +63,8 @@ var Server = (function(Server, $, undefined) {
       var time = 10000; // 10 seconds
     }
 
-    var options = {type    : "POST", 
-                   url     : "http://localhost:14265", 
+    var options = {type    : "POST",
+                   url     : "http://localhost:14265",
                    data    : JSON.stringify(params),
                    timeout : time};
 
@@ -80,7 +78,7 @@ var Server = (function(Server, $, undefined) {
     if (isPow && connection.inApp) {
       powStarted();
     }
-    
+
     if (command != "getNodeInfo") {
       // Log to console, hide the seed
       if (params.seed && Object && Object.assign) {
@@ -115,18 +113,21 @@ var Server = (function(Server, $, undefined) {
       }
 
       if (data.error || data.exception) {
+        var isException = false;
+
         if (data.exception) {
           data.exception = data.exception.replace(/java\.lang\./i, "").replace("Exception", "");
+          isException = true;
         }
 
         //hackety
-        if (data.error == "The confirmed subtangle is not solid") {
+        if (data.error == "The confirmed subtangle is not solid" || data.error == "The subtangle is not solid") {
           data.error = "Subtangle not solid";
         }
 
         console.log("Server.sendRequest: " + command + ": " + (data.error ? data.error : data.exception));
 
-        deferred.reject(data.error ? data.error : data.exception);
+        deferred.reject(data.error ? data.error : data.exception, isException);
       } else {
         // If the optional returnKey was specified, we return only that field (or fields) from response data.
         if (returnKey) {
@@ -179,7 +180,7 @@ var Server = (function(Server, $, undefined) {
     return deferred.promise();
   }
 
-  // The state is updated every minute. 
+  // The state is updated every minute.
   Server.updateState = function() {
     var deferred = $.Deferred();
 
@@ -223,7 +224,6 @@ var Server = (function(Server, $, undefined) {
         })
       ).then(function() {
         deferred.resolve();
-        Server.checkMilestoneSolidity();
       }).fail(function(err) {
         console.log("Server.updateState: Error");
         console.log(err);
@@ -232,9 +232,6 @@ var Server = (function(Server, $, undefined) {
     } else {
       Server.getNodeInfo().done(function(info) {
         connection.nodeInfo = info;
-        if (connection.isSpamming) {
-          Server.checkMilestoneSolidity();
-        }
         deferred.resolve();
       }).fail(function(err) {
         console.log("err");
@@ -247,53 +244,44 @@ var Server = (function(Server, $, undefined) {
     return deferred.promise();
   }
 
-  Server.checkMilestoneSolidity = function() {
-    console.log("Server.checkMilestoneSolidity");
+  Server.getMilestone = function(milestoneIndex) {
+    console.log("Server.getMilestone: " + milestoneIndex);
+    var deferred = $.Deferred();
 
-    var milestone = connection.nodeInfo.milestone;
+    if (!milestoneIndex) {
+      console.log("No milestone index, get from node info.");
+      Server.getNodeInfo().done(function(info) {
+        console.log("Got milestone index from node info: " + info.milestoneIndex);
 
-    if (milestone != emptyHash) {
-      console.log("Checking milestone solidity: " + milestone);
-
-      Server.getTransactionsToApprove(milestone);
+        Server.sendRequest("getMilestone", {"index": info.milestoneIndex}, "milestone").done(function(milestone) {
+          console.log(milestone);
+          deferred.resolve(milestone, info.milestoneIndex);
+        }).fail(function(err) {
+          console.log(err);
+          deferred.reject(err);
+        });
+      }).fail(function(err) {
+        console.log(err);
+        deferred.reject(err);
+      });
     } else {
-      console.log("No new milestone to process.");
+      Server.sendRequest("getMilestone", {"index": milestoneIndex}, "milestone").done(function(milestone) {
+        console.log(milestone);
+        deferred.resolve(milestone, milestoneIndex);
+      }).fail(function(err) {
+        console.log(err);
+        deferred.reject(err);
+      });
     }
+
+    return deferred.promise();
   }
 
   Server.getTransactionsToApprove = function(milestone) {
     console.log("Server.getTransactionsToApprove: " + milestone);
-
-    if (busyGettingTransactionsToApprove) {
-      console.log("Busy");
-      return $.Deferred().reject();
-    }
-
-    if (milestone == null) {
-      milestone = connection.lastSolidMilestone;
-    }
-
-    if (milestone == null || milestone == emptyHash) {
-      if (connection.nodeInfo.milestone != emptyHash) {
-        console.log("Get milestone from connection.nodeInfo");
-        milestone = connection.nodeInfo.milestone;
-      } else {
-        console.log("No milestone found.");
-        return $.Deferred().reject("No milestone yet");
-      }
-    }
-
-    busyGettingTransactionsToApprove = true;
-
-    return Server.sendRequest("getTransactionsToApprove", {"milestone": milestone}).done(function(data) {
-      console.log("Server.getTransactionsToApprove:");
-      console.log(data);
-      connection.lastSolidMilestone = milestone;
-    }).always(function() {
-      busyGettingTransactionsToApprove = false;
-    });
+    return Server.sendRequest("getTransactionsToApprove", {"milestone": milestone});
   }
- 
+
   // Immediately returns a new address, does not do POW
   Server.getNewAddress = function(seed) {
     var deferred = $.Deferred();
@@ -302,7 +290,7 @@ var Server = (function(Server, $, undefined) {
       seed = userSeed;
     }
 
-    Server.sendRequest("getNewAddress", {"seed"          : seed, 
+    Server.sendRequest("getNewAddress", {"seed"          : seed,
                                          "securityLevel" : 1}).done(function(result) {
       if (!result.address || !Address.isAddress(result.address)) {
         console.log("Server.getNewAddress: Invalid address: " + result.address);
@@ -401,7 +389,7 @@ var Server = (function(Server, $, undefined) {
     return deferred.promise();
   }
 
-  Server.attachToTangle = function(trytes, trunkTransactionToApprove, branchTransactionToApprove, minWeightMagnitude) {
+  Server.attachToTangle = function(trytes, trunkTransaction, branchTransaction, minWeightMagnitude) {
     console.log("Server.attachToTangle:");
 
     var deferred = $.Deferred();
@@ -414,7 +402,7 @@ var Server = (function(Server, $, undefined) {
       minWeightMagnitude = 13;
     }
 
-    Server.sendRequest("attachToTangle", {"trytes": trytes, "trunkTransactionToApprove": trunkTransactionToApprove, "branchTransactionToApprove": branchTransactionToApprove, "minWeightMagnitude": minWeightMagnitude}, "trytes").done(function(trytes) {
+    Server.sendRequest("attachToTangle", {"trytes": trytes, "trunkTransaction": trunkTransaction, "branchTransaction": branchTransaction, "minWeightMagnitude": minWeightMagnitude}, "trytes").done(function(trytes) {
       console.log("Server.attachToTangle: Result:");
       console.log(trytes);
 
@@ -423,10 +411,10 @@ var Server = (function(Server, $, undefined) {
       } else {
         deferred.resolve(trytes);
       }
-    }).fail(function(err) {
+    }).fail(function(err, isException) {
       console.log("Server.attachToTangle: Error:");
       console.log(err);
-      deferred.reject(err);
+      deferred.reject(err, isException);
     })
 
     return deferred.promise();
@@ -438,12 +426,15 @@ var Server = (function(Server, $, undefined) {
     var deferred = $.Deferred();
 
     repeatUntilNotNull(function(data) {
-      return Server.transfer(emptyHash, 0, "", 1, emptyHash).then(function(data) {
-        console.log("SPAM FINISHED");
-        deferred.notify(data);
-        console.log("Spam finished:");
-        console.log(data);
+      return Server.transfer(emptyHash, 0, "", 1, emptyHash).progress(function(msg) {
+        if (msg) {
+          deferred.notify(msg);
+        }
+      }).then(function(data) {
+        deferred.notify("finished");
         return null;
+      }).fail(function(err) {
+        deferred.notify(err);
       });
     });
 
@@ -479,7 +470,7 @@ var Server = (function(Server, $, undefined) {
       return deferred.reject("Invalid checksum");
     }
 
-    deferred.notify("Preparing Transfer...");
+    deferred.notify("Preparing...");
 
     doPrepareTransfers([{"address" : address, "value" : value, "message": message}], securityLevel, seed).then(function(trytes) {
       Server.attachStoreAndBroadcast(trytes).progress(function(msg) {
@@ -488,6 +479,10 @@ var Server = (function(Server, $, undefined) {
         }
       }).done(function() {
         deferred.resolve("Transfer completed");
+      }).fail(function(err) {
+        console.log("Server.transfer: Error");
+        console.log(err);
+        deferred.reject(err);
       });
     }, function(err) {
       console.log("Server.transfer: Error");
@@ -498,32 +493,13 @@ var Server = (function(Server, $, undefined) {
     return deferred.promise();
   }
 
-  Server.setConfig = function(lines) {
-    var deferred = $.Deferred();
-
-    Server.sendRequest("setConfig", {"lines": lines}).done(function() {
-      deferred.resolve("Configuration applied.");
-      setTimeout(function() {
-        Server.resetNeighborsActivityCounters();
-      }, 1000);
-    }).fail(function(err) {
-      deferred.reject(err);
-    });
-
-    return deferred.promise();
-  }
-
-  Server.resetNeighborsActivityCounters = function() {
-    return Server.sendRequest("resetNeighborsActivityCounters");
-  }
-
   Server.rebroadcast = function(transaction) {
     console.log("Server.rebroadcast: " + transaction);
 
     var deferred = $.Deferred();
 
     Server.getTrytesFromBundle(transaction).done(function(trytes) {
-      Server.broadcastTransactions(trytes).done(function() {
+      Server.pushTransactions(trytes).done(function() {
         console.log("Server.rebroadcast: Completed");
         deferred.resolve("Rebroadcast completed");
       }).fail(function(err) {
@@ -548,13 +524,20 @@ var Server = (function(Server, $, undefined) {
     deferred.notify("Getting Trytes...");
 
     Server.getTrytesFromBundle(transaction).done(function(trytes) {
-      Server.attachStoreAndBroadcast(trytes).progress(function(msg) {
+
+      var reversedTrytes = trytes.reverse();
+
+      Server.attachStoreAndBroadcast(reversedTrytes).progress(function(msg) {
         if (msg) {
           deferred.notify(msg);
         }
       }).done(function() {
         console.log("Server.replay: completed");
         deferred.resolve("Replay completed");
+      }).fail(function(err) {
+        console.log("Server.replay: Error");
+        console.log(err);
+        deferred.reject("Not synced");
       });
     }).fail(function(err) {
       console.log("Server.replay: Error");
@@ -620,9 +603,9 @@ var Server = (function(Server, $, undefined) {
     return deferred.promise();
   }
 
-  Server.broadcastTransactions = function(trytes) {
-    console.log("Server.broadcastTransactions");
-    return Server.sendRequest("broadcastTransactions", {"trytes": trytes});
+  Server.pushTransactions = function(trytes) {
+    console.log("Server.pushTransactions");
+    return Server.sendRequest("pushTransactions", {"trytes": trytes});
   }
 
   Server.storeTransactions = function(trytes) {
@@ -637,7 +620,7 @@ var Server = (function(Server, $, undefined) {
       seed = userSeed;
     }
 
-    Server.sendRequest("getTransfers", {"seed"          : seed, 
+    Server.sendRequest("getTransfers", {"seed"          : seed,
                                         "securityLevel" : 1}).done(function(result) {
       console.log("Server.getTransfers: " + result.transfers.length + " transactions");
       deferred.resolve(result.transfers.reverse());
@@ -658,47 +641,66 @@ var Server = (function(Server, $, undefined) {
     return Server.sendRequest("getNodeInfo");
   }
 
-  Server.getNeighborsActivity = function() {
-    return Server.sendRequest("getNeighborsActivity");
+  Server.getPeers = function() {
+    return Server.sendRequest("getPeers");
   }
 
   Server.attachStoreAndBroadcast = function(trytes) {
     var deferred = $.Deferred();
 
-    doAttachToTangle(trytes, deferred).then(function(signedTrytes) {
-      deferred.notify("Store Transaction...");
-      doStoreTransactions(signedTrytes).then(function() {
-        deferred.notify("Broadcast Transaction...");
-        doBroadcastTransactions(signedTrytes).then(function() {
-          console.log("Server.attachStoreAndBroadcast: Completed");
-          deferred.resolve();
+    deferred.notify("Getting tips...");
+    doGetTransactionsToApprove().then(function(data) {
+      if (data.trunkTransaction && data.branchTransaction) {
+        deferred.notify("Attaching to tangle...");
+        doAttachToTangle(trytes, data.trunkTransaction, data.branchTransaction).then(function(signedTrytes) {
+          deferred.notify("Store Transaction...");
+          doStoreTransactions(signedTrytes).then(function() {
+            deferred.notify("Broadcast Transaction...");
+            doPushTransactions(signedTrytes).then(function() {
+              console.log("Server.attachStoreAndBroadcast: Completed");
+              deferred.resolve();
+            }, function(err) {
+              deferred.reject(err);
+            });
+          }, function(err) {
+            deferred.reject(err);
+          });
+        }, function(err) {
+          deferred.reject(err);
         });
-      });
+      } else {
+        deferred.reject("Not synced");
+      }
+    }, function(err) {
+      deferred.reject(err);
     });
 
     return deferred.promise();
   }
 
-  function repeatUntilNotNull(callback, t) {
+  function repeatUntilNotNull(callback) {
     function delay() {
       return $.Deferred(function(dfrd) {
-        setTimeout(dfrd.resolve, t);
+        setTimeout(dfrd.resolve, 1);
       });
     }
 
     function poll() {
       console.log("repeatUntilFinished: Poll");
-      
       return $.when(callback()).then(function(data) {
         console.log("repeatUntilFinished: Data:");
         console.log(data);
         return (data === null) ? delay().then(poll) : data;
-      }, function(err) {
+      }, function(err, isException) {
         console.log("repeatUntilFinished: Error:");
         console.log(err);
 
-        if (err && err.stop && err.err) {
-          return err.err;
+        if (isException) {
+          console.log("Is exception");
+          return err;
+        } else if (err && err.isException) {
+          console.log("Is exception");
+          return err.error;
         } else {
           return delay().then(poll);
         }
@@ -708,42 +710,58 @@ var Server = (function(Server, $, undefined) {
     return poll();
   }
 
-  function doAttachToTangle(trytes, deferred) {
+  function doGetTransactionsToApprove() {
+    var startIndex     = null;
+    var milestoneIndex = null;
+
+    return repeatUntilNotNull(function() {
+      return Server.getMilestone(milestoneIndex).then(function(milestone, index) {
+        if (!milestoneIndex) {
+          milestoneIndex = startIndex = index;
+        }
+
+        if (milestone == null || startIndex - milestoneIndex > 100) {
+          return "Not synced";
+        }
+
+        return Server.getTransactionsToApprove(milestone).then(function(data) {
+          return data;
+        }, function(err, isException) {
+          console.log(err);
+
+          if (isException) {
+            return {"error": err, "isException": true};
+          } else {
+            milestoneIndex--;
+          }
+        });
+      }, function(err, isException) {
+        console.log(err);
+        if (isException) {
+          return {"error": err, "isException": true};
+        }
+      });
+    });
+  }
+
+  function doAttachToTangle(trytes, trunkTransaction, branchTransaction) {
     console.log("doAttachToTangle");
 
     return repeatUntilNotNull(function() {
-      if (deferred) {
-        deferred.notify("Getting Tips...");
-      }
-      return Server.getTransactionsToApprove().then(function(data) {
-        console.log("doAttachToTangle: Result:");
-        console.log(data);
-        if (deferred) {
-          deferred.notify("Attaching to Tangle...");
-        }
-        return Server.attachToTangle(trytes, data.trunkTransactionToApprove, data.branchTransactionToApprove);
-      }, function(err) {
-        if (deferred && err) {
-          deferred.notify(err + "...");
-        }
-      }).then(function(signedTrytes) {
-        console.log("doAttachToTangle: Result:");
-        console.log(signedTrytes);
-        return signedTrytes || null;
-      });
-    }, 5000);
+      return Server.attachToTangle(trytes, trunkTransaction, branchTransaction);
+    });
   }
 
- function doBroadcastTransactions(trytes) {
-    console.log("doBroadcastTransactions");
+  function doPushTransactions(trytes) {
+    console.log("doPushTransactions");
 
     return repeatUntilNotNull(function() {
-      return Server.broadcastTransactions(trytes).then(function(data) {
-        console.log("Server.tryToBroadcast: Result:");
+      return Server.pushTransactions(trytes).then(function(data) {
+        console.log("doPushTransactions: Result:");
         console.log(data);
-        return ($.isPlainObject(data) && $.isEmptyObject(data) ? true : null);
+        return (data.hasOwnProperty("duration") ? true : null);
       })
-    }, 5000);
+    });
   }
 
   function doStoreTransactions(trytes) {
@@ -753,9 +771,9 @@ var Server = (function(Server, $, undefined) {
       return Server.storeTransactions(trytes).then(function(data) {
         console.log("doStoreTransactions: Result:");
         console.log(data);
-        return ($.isPlainObject(data) && $.isEmptyObject(data) ? true : null);
+        return (data.hasOwnProperty("duration") ? true : null);
       });
-    }, 5000);
+    });
   }
 
   function doPrepareTransfers(transfers, securityLevel, seed) {
@@ -766,14 +784,14 @@ var Server = (function(Server, $, undefined) {
         console.log("doPrepareTransfers: Result:");
         console.log(trytes);
         return trytes || null;
-      }, function(err) {
-        if (err == "Illegal 'value'" || err == "Not enough iotas") {
-          return {"stop": true, "err": err};
+      }, function(err, isException) {
+        if (isException || err == "Illegal 'value'" || err == "Not enough iotas") {
+          return {"error": err, "isException": true};
         } else {
           return err;
         }
       });
-    }, 5000);
+    });
   }
 
   return Server;
