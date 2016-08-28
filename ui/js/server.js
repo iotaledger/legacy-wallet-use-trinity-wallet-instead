@@ -63,8 +63,8 @@ var Server = (function(Server, $, undefined) {
       var time = 10000; // 10 seconds
     }
 
-    var options = {type    : "POST", 
-                   url     : "http://localhost:14265", 
+    var options = {type    : "POST",
+                   url     : "http://localhost:14265",
                    data    : JSON.stringify(params),
                    timeout : time};
 
@@ -78,7 +78,7 @@ var Server = (function(Server, $, undefined) {
     if (isPow && connection.inApp) {
       powStarted();
     }
-    
+
     if (command != "getNodeInfo") {
       // Log to console, hide the seed
       if (params.seed && Object && Object.assign) {
@@ -180,7 +180,7 @@ var Server = (function(Server, $, undefined) {
     return deferred.promise();
   }
 
-  // The state is updated every minute. 
+  // The state is updated every minute.
   Server.updateState = function() {
     var deferred = $.Deferred();
 
@@ -281,7 +281,7 @@ var Server = (function(Server, $, undefined) {
     console.log("Server.getTransactionsToApprove: " + milestone);
     return Server.sendRequest("getTransactionsToApprove", {"milestone": milestone});
   }
- 
+
   // Immediately returns a new address, does not do POW
   Server.getNewAddress = function(seed) {
     var deferred = $.Deferred();
@@ -290,7 +290,7 @@ var Server = (function(Server, $, undefined) {
       seed = userSeed;
     }
 
-    Server.sendRequest("getNewAddress", {"seed"          : seed, 
+    Server.sendRequest("getNewAddress", {"seed"          : seed,
                                          "securityLevel" : 1}).done(function(result) {
       if (!result.address || !Address.isAddress(result.address)) {
         console.log("Server.getNewAddress: Invalid address: " + result.address);
@@ -524,7 +524,10 @@ var Server = (function(Server, $, undefined) {
     deferred.notify("Getting Trytes...");
 
     Server.getTrytesFromBundle(transaction).done(function(trytes) {
-      Server.attachStoreAndBroadcast(trytes).progress(function(msg) {
+
+      var reversedTrytes = trytes.reverse();
+
+      Server.attachStoreAndBroadcast(reversedTrytes).progress(function(msg) {
         if (msg) {
           deferred.notify(msg);
         }
@@ -617,7 +620,7 @@ var Server = (function(Server, $, undefined) {
       seed = userSeed;
     }
 
-    Server.sendRequest("getTransfers", {"seed"          : seed, 
+    Server.sendRequest("getTransfers", {"seed"          : seed,
                                         "securityLevel" : 1}).done(function(result) {
       console.log("Server.getTransfers: " + result.transfers.length + " transactions");
       deferred.resolve(result.transfers.reverse());
@@ -731,7 +734,7 @@ var Server = (function(Server, $, undefined) {
           } else {
             milestoneIndex--;
           }
-        }); 
+        });
       }, function(err, isException) {
         console.log(err);
         if (isException) {
