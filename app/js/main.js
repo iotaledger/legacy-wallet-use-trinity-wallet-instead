@@ -124,7 +124,7 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object") {
         settings.bounds = {width: 520, height: 736};
       }
-        
+
       if (settings.hasOwnProperty("javaArgs") && settings.javaArgs == "undefined") {
         settings.javaArgs = "";
       }
@@ -308,10 +308,10 @@ var App = (function(App, undefined) {
   }
 
   App.createWindow = function(onReady) {
-    var windowOptions = {"width"           : settings.bounds.width, 
+    var windowOptions = {"width"           : settings.bounds.width,
                          "height"          : settings.bounds.height,
-                         "minWidth"        : 305, 
-                         "minHeight"       : 424, 
+                         "minWidth"        : 305,
+                         "minHeight"       : 424,
                          "backgroundColor" : "#4DC1B5",
                          "center"          : true,
                          "show"            : false};
@@ -344,7 +344,7 @@ var App = (function(App, undefined) {
           win.webContents.closeDevTools();
         }
       }
-      
+
       if (isClosed) {
         return;
       } else if (isClosing) {
@@ -362,7 +362,7 @@ var App = (function(App, undefined) {
       App.killServer(function() {
         isClosed = true;
         electron.app.quit();
-      });  
+      });
     });
 
     win.on("closed", function () {
@@ -382,7 +382,7 @@ var App = (function(App, undefined) {
     win.webContents.once("did-finish-load", function() {
       console.log("Set Window Title");
 
-      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML());     
+      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML());
 
       if (onReady) {
         onReady();
@@ -677,8 +677,6 @@ var App = (function(App, undefined) {
       console.log("Server directory is: " + serverDirectory);
       console.log("Jar directory is: " + jarDirectory);
 
-      var defaultNodes = "+udp://188.138.57.93:14265\r\n+udp://104.238.171.31:14265\r\n+udp://46.101.118.240:14265\r\n+udp://178.62.203.156:14265\r\n+udp://139.59.134.213:14265\r\n+udp://104.238.181.100:14265\r\n+udp://66.11.119.73:14265\r\n+udp://167.114.182.68:14265\r\n+udp://104.198.4.96:14265\r\n+udp://46.101.147.184:14265\r\n+udp://107.170.52.140:14265\r\n+udp://104.198.15.213:14265";
-
       if (fs.existsSync(serverDirectory)) {
         var uiFolder = path.join(serverDirectory, "ui");
         var srcFolder = path.join(serverDirectory, "src");
@@ -700,25 +698,9 @@ var App = (function(App, undefined) {
           }
         }
 
-        if (!settings.hasDefaultNodes) {
-          console.log("Append default nodes");
-          fs.appendFileSync(path.join(serverDirectory, "IRI.cfg"), "\r\n" + defaultNodes);
-          settings.hasDefaultNodes = 1;
-        }
       } else {
         console.log("Creating server directory.");
         fs.mkdirSync(serverDirectory);
-
-        var defaultConfigPath = path.join(jarDirectory, "IRI.cfg");
-
-        if (fs.existsSync(defaultConfigPath)) {
-          console.log("Copying default IRI.cfg.");
-          var fsExtra = require("fs-extra");
-          fsExtra.copySync(defaultConfigPath, path.join(serverDirectory, "IRI.cfg"));
-        } else {
-          console.log("Creating default IRI.cfg.");
-          fs.writeFileSync(path.join(serverDirectory, "IRI.cfg"), defaultNodes);
-        }
       }
     } catch (err) {
       console.log("err:");
@@ -928,7 +910,7 @@ var App = (function(App, undefined) {
       }
 
       var params = [];
-      
+
       try {
         if (oneTimeJavaArgs) {
           if (oneTimeJavaArgs != -1) {
@@ -984,7 +966,7 @@ var App = (function(App, undefined) {
         App.logServerOutput(data);
         App.checkServerOutput(data);
 
-        if (!isStarted && !didKillServer && !serverInitializationError) { 
+        if (!isStarted && !didKillServer && !serverInitializationError) {
           //&& data.match(/java\.lang\.ExceptionInInitializerError|java\.net\.BindException|java\.lang\.IllegalArgumentException/i)) {
           serverInitializationError = true;
 
@@ -1041,7 +1023,7 @@ var App = (function(App, undefined) {
   App.killServer = function(fn) {
     if (server && server.exitCode == null) {
       App.showKillAlert();
-    }      
+    }
 
     setTimeout(function() {
       if (server && server.exitCode == null) {
@@ -1330,7 +1312,7 @@ var App = (function(App, undefined) {
     if (server && server.pid) {
       var pid = server.pid;
 
-      pusage.stat(pid, function(err, stat) {        
+      pusage.stat(pid, function(err, stat) {
         if (err) {
           console.log("Error tracking CPU");
           console.log(err);
@@ -1404,14 +1386,6 @@ var App = (function(App, undefined) {
     if (!msg) {
       msg = "A server initialization error occurred.";
     }
-    
-    var serverConfig = "";
-
-    if (serverDirectory) {
-      try {
-        var serverConfig = fs.readFileSync(path.join(serverDirectory, "IRI.cfg"), "utf8");
-      } catch (err) {}
-    }
 
     if (!selectedJavaLocation) {
       selectedJavaLocation = "java";
@@ -1445,16 +1419,15 @@ var App = (function(App, undefined) {
       });
 
       child.on("exit", function() {
-        App.showOtherWindow("init_error.html", title, msg, {"javaArgs"      : args, 
+        App.showOtherWindow("init_error.html", title, msg, {"javaArgs"      : args,
                                                             "serverOutput"  : serverOutput,
-                                                            "serverConfig"  : serverConfig,
                                                             "javaVersionOK" : javaVersionOK,
                                                             "java64BitsOK"  : java64BitsOK,
                                                             "is64BitOS"     : is64BitOS});
       });
     } else {
       console.log("32-bit");
-      App.showOtherWindow("init_error.html", title, msg, {"javaArgs": args, "serverOutput": serverOutput, "serverConfig": serverConfig});
+      App.showOtherWindow("init_error.html", title, msg, {"javaArgs": args, "serverOutput": serverOutput});
     }
 
     selectedJavaLocation = "";
@@ -1516,7 +1489,7 @@ var App = (function(App, undefined) {
       var height = 300;
     }
 
-    otherWin = new electron.BrowserWindow({"width"          : 600, 
+    otherWin = new electron.BrowserWindow({"width"          : 600,
                                            "height"         : height,
                                            "show"           : false,
                                            "useContentSize" : true,
@@ -1524,9 +1497,9 @@ var App = (function(App, undefined) {
                                            "resizable"      : false});
 
     otherWin.loadURL("file://" + path.dirname(__dirname) + "/alerts/" + filename);
-    
+
     otherWin.setFullScreenable(false);
-    
+
     //otherWin.center();
 
     otherWin.on("closed", function() {
@@ -1608,7 +1581,7 @@ var App = (function(App, undefined) {
       } else {
         var loginSettings = {"openAtLogin": false};
       }
-      
+
       win.webContents.send("showPreferences", {"javaArgs": settings.javaArgs, "openAtLogin": loginSettings.openAtLogin});
     }
   }
