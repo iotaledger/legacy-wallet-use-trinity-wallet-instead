@@ -124,7 +124,7 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object") {
         settings.bounds = {width: 520, height: 736};
       }
-        
+
       if (settings.hasOwnProperty("javaArgs") && settings.javaArgs == "undefined") {
         settings.javaArgs = "";
       }
@@ -308,10 +308,10 @@ var App = (function(App, undefined) {
   }
 
   App.createWindow = function(onReady) {
-    var windowOptions = {"width"           : settings.bounds.width, 
+    var windowOptions = {"width"           : settings.bounds.width,
                          "height"          : settings.bounds.height,
-                         "minWidth"        : 305, 
-                         "minHeight"       : 424, 
+                         "minWidth"        : 305,
+                         "minHeight"       : 424,
                          "backgroundColor" : "#4DC1B5",
                          "center"          : true,
                          "show"            : false};
@@ -344,7 +344,7 @@ var App = (function(App, undefined) {
           win.webContents.closeDevTools();
         }
       }
-      
+
       if (isClosed) {
         return;
       } else if (isClosing) {
@@ -362,7 +362,7 @@ var App = (function(App, undefined) {
       App.killServer(function() {
         isClosed = true;
         electron.app.quit();
-      });  
+      });
     });
 
     win.on("closed", function () {
@@ -382,7 +382,7 @@ var App = (function(App, undefined) {
     win.webContents.once("did-finish-load", function() {
       console.log("Set Window Title");
 
-      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML());     
+      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML());
 
       if (onReady) {
         onReady();
@@ -928,7 +928,7 @@ var App = (function(App, undefined) {
       }
 
       var params = [];
-      
+
       try {
         if (oneTimeJavaArgs) {
           if (oneTimeJavaArgs != -1) {
@@ -946,8 +946,6 @@ var App = (function(App, undefined) {
       }
 
       params.push("-XX:+DisableAttachMechanism");
-      params.push("-Xms32m");
-      params.push("-Xmx32m");
 
       params = params.unique();
 
@@ -984,7 +982,7 @@ var App = (function(App, undefined) {
         App.logServerOutput(data);
         App.checkServerOutput(data);
 
-        if (!isStarted && !didKillServer && !serverInitializationError) { 
+        if (!isStarted && !didKillServer && !serverInitializationError) {
           //&& data.match(/java\.lang\.ExceptionInInitializerError|java\.net\.BindException|java\.lang\.IllegalArgumentException/i)) {
           serverInitializationError = true;
 
@@ -1041,7 +1039,7 @@ var App = (function(App, undefined) {
   App.killServer = function(fn) {
     if (server && server.exitCode == null) {
       App.showKillAlert();
-    }      
+    }
 
     setTimeout(function() {
       if (server && server.exitCode == null) {
@@ -1330,7 +1328,7 @@ var App = (function(App, undefined) {
     if (server && server.pid) {
       var pid = server.pid;
 
-      pusage.stat(pid, function(err, stat) {        
+      pusage.stat(pid, function(err, stat) {
         if (err) {
           console.log("Error tracking CPU");
           console.log(err);
@@ -1404,7 +1402,7 @@ var App = (function(App, undefined) {
     if (!msg) {
       msg = "A server initialization error occurred.";
     }
-    
+
     var serverConfig = "";
 
     if (serverDirectory) {
@@ -1445,7 +1443,7 @@ var App = (function(App, undefined) {
       });
 
       child.on("exit", function() {
-        App.showOtherWindow("init_error.html", title, msg, {"javaArgs"      : args, 
+        App.showOtherWindow("init_error.html", title, msg, {"javaArgs"      : args,
                                                             "serverOutput"  : serverOutput,
                                                             "serverConfig"  : serverConfig,
                                                             "javaVersionOK" : javaVersionOK,
@@ -1516,7 +1514,7 @@ var App = (function(App, undefined) {
       var height = 300;
     }
 
-    otherWin = new electron.BrowserWindow({"width"          : 600, 
+    otherWin = new electron.BrowserWindow({"width"          : 600,
                                            "height"         : height,
                                            "show"           : false,
                                            "useContentSize" : true,
@@ -1524,9 +1522,9 @@ var App = (function(App, undefined) {
                                            "resizable"      : false});
 
     otherWin.loadURL("file://" + path.dirname(__dirname) + "/alerts/" + filename);
-    
+
     otherWin.setFullScreenable(false);
-    
+
     //otherWin.center();
 
     otherWin.on("closed", function() {
@@ -1608,7 +1606,7 @@ var App = (function(App, undefined) {
       } else {
         var loginSettings = {"openAtLogin": false};
       }
-      
+
       win.webContents.send("showPreferences", {"javaArgs": settings.javaArgs, "openAtLogin": loginSettings.openAtLogin});
     }
   }

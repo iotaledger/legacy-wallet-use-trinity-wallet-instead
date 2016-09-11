@@ -2,7 +2,7 @@
   "name": "iota",
   "productName": "IOTA Wallet",
   "description": "IOTA Wallet",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "main": "app/js/main.js",
   "scripts": {
     "prepublish": "cd app && bower install && cd ../ui && bower install",
