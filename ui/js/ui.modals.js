@@ -32,14 +32,14 @@ var UI = (function(UI, $, undefined) {
       }
     }
 
-    Server.getPeers(true).done(function(activity) {
+    Server.getNeighbors(true).done(function(activity) {
       var html = "";
 
-      if (!activity.peers) {
-        html = "<p>No peers found.</p>"; 
+      if (!activity.neighbors) {
+        html = "<p>No neighbors found.</p>"; 
       } else {
-        for (var i=0; i<activity.peers.length; i++) {
-          var peer = activity.peers[i];
+        for (var i=0; i<activity.neighbors.length; i++) {
+          var peer = activity.neighbors[i];
 
           html += "<div class='list'><ul>";
  
@@ -49,17 +49,17 @@ var UI = (function(UI, $, undefined) {
 
           html += "</ul></div>";
 
-          if (i<activity.peers.length-1) {
+          if (i<activity.neighbors.length-1) {
             html += "<br><br>";
           }
         }
 
         if (returnHTML) {
-          deferred.resolve("peers-modal", "<h1>Peers (" + activity.peers.length + ")</h1><div class='contents'>" + html + "</div>");
+          deferred.resolve("peers-modal", "<h1>Neighbors (" + activity.neighbors.length + ")</h1><div class='contents'>" + html + "</div>");
         } else {
           var $modal = $("#peers-modal");
 
-          $("#peer-count").html(activity.peers.length);
+          $("#peer-count").html(activity.neighbors.length);
   
           $modal.find(".contents").html(html);
 

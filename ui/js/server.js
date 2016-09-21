@@ -493,6 +493,10 @@ var Server = (function(Server, $, undefined) {
     return deferred.promise();
   }
 
+  Server.resetNeighborsActivityCounters = function() {
+    return Server.sendRequest("resetNeighborsActivityCounters");
+  }
+
   Server.rebroadcast = function(transaction) {
     console.log("Server.rebroadcast: " + transaction);
 
@@ -641,8 +645,8 @@ var Server = (function(Server, $, undefined) {
     return Server.sendRequest("getNodeInfo");
   }
 
-  Server.getPeers = function() {
-    return Server.sendRequest("getPeers");
+  Server.getNeighbors = function() {
+    return Server.sendRequest("getNeighbors");
   }
 
   Server.attachStoreAndBroadcast = function(trytes) {

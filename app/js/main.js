@@ -93,12 +93,6 @@ var App = (function(App, undefined) {
 
     App.findServerDirectory();
 
-    /*
-    if (!settings.hasOwnProperty("dbDeletion") || settings.dbDeletion != "1.0.-1") {
-      App.deleteDbIfExists();
-      settings.dbDeletion = "1.0.-1";
-    }*/
-
     if (!electron.app.isDefaultProtocolClient("iota")) {
       console.log("Register iota as a default protocol");
       electron.app.setAsDefaultProtocolClient("iota"); //not linux
@@ -139,6 +133,12 @@ var App = (function(App, undefined) {
       }
       if (!settings.hasOwnProperty("isFirstRun")) {
         settings.isFirstRun = 1;
+      }
+      if (!settings.hasOwnProperty("port")) {
+        settings.port = 14265;
+      }
+      if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
+        settings.nodes = [];
       }
       console.log(settings);
     } catch (err) {
@@ -479,7 +479,7 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: "View Peers",
+            label: "View Neighbors",
             //accelerator: "CmdOrCtrl+N",
             click(item) {
               App.showPeers();
@@ -512,6 +512,13 @@ var App = (function(App, undefined) {
             //accelerator: "CmdOrCtrl+I",
             click(item) {
               App.openDatabaseFolder();
+            }
+          },
+          {
+            label: "Edit Server Configuration",
+            //accelerator: "CmdOrCtrl+E",
+            click(item) {
+              App.editServerConfiguration();
             }
           },
           {
@@ -648,7 +655,7 @@ var App = (function(App, undefined) {
       }*/
 
       // Remove preferences (other location on mac)
-      template[3].submenu.splice(7, 2);
+      template[3].submenu.splice(8, 2);
     } else if (process.platform == "win32") {
       if (!isDevelopment) {
         /*
@@ -677,48 +684,9 @@ var App = (function(App, undefined) {
       console.log("Server directory is: " + serverDirectory);
       console.log("Jar directory is: " + jarDirectory);
 
-      var defaultNodes = "+udp://188.138.57.93:14265\r\n+udp://104.238.171.31:14265\r\n+udp://46.101.118.240:14265\r\n+udp://178.62.203.156:14265\r\n+udp://139.59.134.213:14265\r\n+udp://104.238.181.100:14265\r\n+udp://66.11.119.73:14265\r\n+udp://167.114.182.68:14265\r\n+udp://104.198.4.96:14265\r\n+udp://46.101.147.184:14265\r\n+udp://107.170.52.140:14265\r\n+udp://104.198.15.213:14265";
-
-      if (fs.existsSync(serverDirectory)) {
-        var uiFolder = path.join(serverDirectory, "ui");
-        var srcFolder = path.join(serverDirectory, "src");
-
-        if (fs.existsSync(uiFolder)) {
-          console.log("Delete obsolete files.");
-
-          deleteFiles(["console.html", "IRI.jar", "IRI-prev.jar", "nostalgia.html", "VERSION", ".DS_Store"]);
-
-          var fsExtra = require("fs-extra");
-
-          if (fs.existsSync(srcFolder)) {
-            console.log("Delete " + srcFolder);
-            fsExtra.removeSync(srcFolder);
-          }
-          if (fs.existsSync(uiFolder)) {
-            console.log("Delete " + uiFolder);
-            fsExtra.removeSync(uiFolder);
-          }
-        }
-
-        if (!settings.hasDefaultNodes) {
-          console.log("Append default nodes");
-          fs.appendFileSync(path.join(serverDirectory, "IRI.cfg"), "\r\n" + defaultNodes);
-          settings.hasDefaultNodes = 1;
-        }
-      } else {
+      if (!fs.existsSync(serverDirectory)) {
         console.log("Creating server directory.");
         fs.mkdirSync(serverDirectory);
-
-        var defaultConfigPath = path.join(jarDirectory, "IRI.cfg");
-
-        if (fs.existsSync(defaultConfigPath)) {
-          console.log("Copying default IRI.cfg.");
-          var fsExtra = require("fs-extra");
-          fsExtra.copySync(defaultConfigPath, path.join(serverDirectory, "IRI.cfg"));
-        } else {
-          console.log("Creating default IRI.cfg.");
-          fs.writeFileSync(path.join(serverDirectory, "IRI.cfg"), defaultNodes);
-        }
       }
     } catch (err) {
       console.log("err:");
@@ -952,6 +920,12 @@ var App = (function(App, undefined) {
       params.push("-jar");
 
       params.push(path.join(jarDirectory, "IRI.jar"));
+
+      params.push(settings.port);
+
+      if (settings.nodes) {
+        params = params.concat(settings.nodes);
+      }
 
       console.log(params);
 
@@ -1248,9 +1222,14 @@ var App = (function(App, undefined) {
 
   App.checkServerOutput = function(data) {
     if (!isStarted && !didKillServer) {
-      if (data.match(/Transactions to request|Following coordinator/i)) {
+      // This can result in errors.. Need to have a real response from the console instead of just this.
+      if (data.match(/IRI [0-9]/i)) {
         App.serverStarted();
       }
+      /*
+      if (data.match(/Transactions to request|Following coordinator/i)) {
+        App.serverStarted();
+      }*/
     }
     if (settings.showStatusBar) {
       var transactions = data.match(/Transactions to request = ([0-9]+) \/ ([0-9]+)/i);
@@ -1403,14 +1382,6 @@ var App = (function(App, undefined) {
       msg = "A server initialization error occurred.";
     }
 
-    var serverConfig = "";
-
-    if (serverDirectory) {
-      try {
-        var serverConfig = fs.readFileSync(path.join(serverDirectory, "IRI.cfg"), "utf8");
-      } catch (err) {}
-    }
-
     if (!selectedJavaLocation) {
       selectedJavaLocation = "java";
     }
@@ -1445,14 +1416,13 @@ var App = (function(App, undefined) {
       child.on("exit", function() {
         App.showOtherWindow("init_error.html", title, msg, {"javaArgs"      : args,
                                                             "serverOutput"  : serverOutput,
-                                                            "serverConfig"  : serverConfig,
                                                             "javaVersionOK" : javaVersionOK,
                                                             "java64BitsOK"  : java64BitsOK,
                                                             "is64BitOS"     : is64BitOS});
       });
     } else {
       console.log("32-bit");
-      App.showOtherWindow("init_error.html", title, msg, {"javaArgs": args, "serverOutput": serverOutput, "serverConfig": serverConfig});
+      App.showOtherWindow("init_error.html", title, msg, {"javaArgs": args, "serverOutput": serverOutput});
     }
 
     selectedJavaLocation = "";
@@ -1575,6 +1545,51 @@ var App = (function(App, undefined) {
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
       win.webContents.send("showNetworkSpammer");
+    }
+  }
+
+  App.editServerConfiguration = function() {
+    console.log("Edit server configuration.");
+
+    if (win && win.webContents) {
+      App.showWindowIfNotVisible();
+      win.webContents.send("editServerConfiguration", {"port": settings.port, "nodes": settings.nodes.join("\r\n")});
+    }
+  }
+
+  App.updateServerConfiguration = function(configuration) {
+    console.log("Update server configuration.");
+
+    try { 
+      settings.nodes = configuration.nodes.match(/[^\r\n]+/g).unique();
+      settings.port = configuration.port;
+
+      App.saveSettings();
+    } catch (err) {
+      console.log("Error");
+      console.log(err);
+    }
+  }
+
+  App.addNeighborNode = function(node) {
+    console.log("Add neighbor node: " + node);
+
+    try {
+      if (!node) {
+        return;
+      }
+
+      node = String(node);
+
+      if (!node.match(/^udp:\/\//i)) {
+        return;
+      }
+
+      settings.nodes.push(node);
+      App.saveSettings();
+    } catch (err) {
+      console.log("Error");
+      console.log(err);
     }
   }
 
@@ -1872,6 +1887,10 @@ electron.ipcMain.on("updatePreferences", function(event, checkForUpdatesOption) 
   App.updatePreferences(checkForUpdatesOption);
 });
 
+electron.ipcMain.on("updateServerConfiguration", function(event, configuration) {
+  App.updateServerConfiguration(configuration);
+});
+
 electron.ipcMain.on("installUpdate", function() {
   App.installUpdate();
 });
@@ -1894,6 +1913,12 @@ electron.ipcMain.on("stopLookingAtServerLog", App.stopLookingAtServerLog);
 
 electron.ipcMain.on("showNoJavaInstalledWindow", function(event, params) {
   App.showNoJavaInstalledWindow(true, params);
+});
+
+electron.ipcMain.on("editServerConfiguration", App.editServerConfiguration);
+
+electron.ipcMain.on("addNeighborNode", function(event, node) {
+  App.addNeighborNode(node);
 });
 
 electron.ipcMain.on("upgradeIRI", function(event, sourceFile) {

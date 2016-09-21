@@ -392,6 +392,80 @@ var UI = (function(UI, undefined) {
     modal.open();
   }
 
+  UI.addNeighborNode = function(node) {
+    if (showQuitAlert) {
+      return;
+    }
+
+    UI.hideAlerts();
+
+    var modal = new tingle.modal({
+      footer: true,
+      onOpen: function() {
+        var close = document.querySelector(".tingle-modal__close");
+        var modalContent = document.querySelector(".tingle-modal-box__content");
+        modalContent.appendChild(close);
+      }
+    });
+
+    modal.setContent("<h1>Add Neighbor Node</h1>" + 
+                     "<p>Are you sure you want to add this node to your server configuration?</p>" + 
+                     "<p style='font-weight:bold'>" + String(node).escapeHTML() + "</p>");
+
+    modal.addFooterBtn("Yes, Add This Node", "tingle-btn tingle-btn--primary", function() {
+      modal.close();
+      electron.ipcRenderer.send("addNeighborNode", node);
+    });
+
+    modal.addFooterBtn("No, Cancel", "tingle-btn tingle-btn--default", function() {
+      modal.close();
+    });
+
+    modal.open();
+  }
+
+  UI.editServerConfiguration = function(configuration) {
+    if (showQuitAlert) {
+      return;
+    }
+
+    UI.hideAlerts();
+
+    var modal = new tingle.modal({
+      footer: true,
+      onOpen: function() {
+        var close = document.querySelector(".tingle-modal__close");
+        var modalContent = document.querySelector(".tingle-modal-box__content");
+        modalContent.appendChild(close);
+
+        var el = document.getElementById("server_config_port");
+
+        var temp = el.value;
+        el.value = "";
+        el.value = temp;
+        el.focus();
+      }
+    });
+
+    modal.setContent("<h1>Server Config</h1>" + 
+                     "<div class='input-group'><label>Server Port:</label>" + 
+                     "<input type='number' min='1' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" + 
+                     "<div class='input-group input-group'><label>Neighboring Nodes:</label>" + 
+                     "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>");
+
+    modal.addFooterBtn("Save", "tingle-btn tingle-btn--primary", function() {
+      var config = {};
+      config.port = parseInt(document.getElementById("server_config_port").value, 10);
+      config.nodes = document.getElementById("server_config_neighboring_nodes").value;
+
+      modal.close();
+
+      electron.ipcRenderer.send("updateServerConfiguration", config);
+    });
+
+    modal.open();
+  }
+
   UI.showUpdateAvailable = function() {
     UI.showAlert("<h1>Update Available</h1><p>An update is available and is being downloaded.</p>");
   }
@@ -579,7 +653,9 @@ var UI = (function(UI, undefined) {
     
     url = decodeURI(url.replace("iota://", "").toLowerCase().replace(/\/$/, ""));
 
-    if (url == "log") {
+    if (url == "config" || url == "configuration" || url == "setup") {
+      electron.ipcRenderer.send("editServerConfiguration");
+    } else if (url == "log") {
       electron.ipcRenderer.send("showServerLog");
     } else if (url == "nodeinfo" || url == "node") {
       UI.sendToWebview("showNodeInfo");
@@ -590,7 +666,12 @@ var UI = (function(UI, undefined) {
     } else if (url == "generateseed" || url == "seed") {
       UI.sendToWebview("generateSeed");
     } else {
-      UI.sendToWebview("handleURL", url);
+      var match = url.match(/(?:addnode|addneighbou?r)\/(.*)/i);
+      if (match && match[1] && match[1].charAt(0) != "-") {
+        UI.addNeighborNode(match[1]);
+      } else {
+        UI.sendToWebview("handleURL", url);
+      }
     }
   }
 
@@ -711,6 +792,10 @@ electron.ipcRenderer.on("showNetworkSpammer", function() {
 electron.ipcRenderer.on("generateSeed", function() {
   UI.hideAlerts();
   UI.sendToWebview("generateSeed");
+});
+
+electron.ipcRenderer.on("editServerConfiguration", function(event, serverConfiguration) {
+  UI.editServerConfiguration(serverConfiguration);
 });
 
 electron.ipcRenderer.on("toggleDeveloperTools", UI.toggleDeveloperTools);
