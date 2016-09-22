@@ -451,7 +451,7 @@ var UI = (function(UI, undefined) {
                      "<div class='input-group'><label>Server Port:</label>" + 
                      "<input type='number' min='1' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" + 
                      "<div class='input-group input-group'><label>Neighboring Nodes:</label>" + 
-                     "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>");
+                     "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;' placeholder='Add nodes in the following format (one per line):\r\n\r\nudp://ip:12345'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>");
 
     modal.addFooterBtn("Save", "tingle-btn tingle-btn--primary", function() {
       var config = {};
