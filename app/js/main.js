@@ -1557,14 +1557,50 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.checkNodeValidity = function(node) {
+    var result = /^udp:\/\/(.*):([0-9]+)$/i.exec(node);
+
+    if (!result) {
+      console.log("Node: " + node + " is invalid.");
+      return false;
+    }
+
+    //ipv6: https://bitbucket.org/intermapper/ipv6-validator/
+    var REGEX_IPV6 = /^((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))$/;
+
+    //ipv4: https://github.com/subchen/snack-validation/blob/7526a73831276d33115ee090575428b7cb2ec639/lib/ipv4.js
+    var REGEX_IPV4 = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}?(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+    var valid = REGEX_IPV4.exec(result[1]) || REGEX_IPV6.exec(result[1]);
+
+    if (!valid) {
+      console.log("Node: " + node + " is invalid.");
+    }
+
+    return valid;
+  }
+
   App.updateServerConfiguration = function(configuration) {
     console.log("Update server configuration.");
 
-    try { 
-      settings.nodes = configuration.nodes.match(/[^\r\n]+/g).unique();
-      settings.port = configuration.port;
+    try {
+      var nodes = [];
+
+      var newNodes = configuration.nodes.match(/[^\r\n]+/g).unique();
+
+      for (var i=0; i<newNodes.length; i++) {
+        newNodes[i] = String(newNodes[i]).trim();
+
+        if (newNodes[i] && App.checkNodeValidity(newNodes[i])) {
+          nodes.push(newNodes[i]);
+        }
+      }
+
+      settings.nodes = nodes;
+      settings.port  = configuration.port;
 
       App.saveSettings();
+      App.relaunchApplication();
     } catch (err) {
       console.log("Error");
       console.log(err);
@@ -1575,17 +1611,15 @@ var App = (function(App, undefined) {
     console.log("Add neighbor node: " + node);
 
     try {
-      if (!node) {
-        return;
-      }
+      node = String(node).trim();
 
-      node = String(node);
-
-      if (!node.match(/^udp:\/\//i)) {
+      if (!node || !App.checkNodeValidity(node)) {
         return;
       }
 
       settings.nodes.push(node);
+      settings.nodes = settings.nodes.unique();
+
       App.saveSettings();
     } catch (err) {
       console.log("Error");
