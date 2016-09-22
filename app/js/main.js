@@ -144,7 +144,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings.");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, javaArgs: "", checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1};
+      settings = {bounds: {width: 520, height: 736}, javaArgs: "", checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: 14265, nodes: []};
     }
 
     try {
@@ -921,7 +921,11 @@ var App = (function(App, undefined) {
 
       params.push(path.join(jarDirectory, "IRI.jar"));
 
-      params.push(settings.port);
+      if (settings.port) {
+        params.push(settings.port);
+      } else {
+        params.push(14265);
+      }
 
       if (settings.nodes) {
         params = params.concat(settings.nodes);
@@ -1586,7 +1590,13 @@ var App = (function(App, undefined) {
     try {
       var nodes = [];
 
-      var newNodes = configuration.nodes.match(/[^\r\n]+/g).unique();
+      var newNodes = configuration.nodes.match(/[^\r\n]+/g);
+
+      if (newNodes) {
+        newNodes = newNodes.unique();
+      } else {
+        newNodes = [];
+      }
 
       for (var i=0; i<newNodes.length; i++) {
         newNodes[i] = String(newNodes[i]).trim();
@@ -1597,7 +1607,7 @@ var App = (function(App, undefined) {
       }
 
       settings.nodes = nodes;
-      settings.port  = configuration.port;
+      settings.port  = parseInt(configuration.port, 10);
 
       App.saveSettings();
       App.relaunchApplication();
