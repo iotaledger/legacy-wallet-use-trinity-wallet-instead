@@ -55,7 +55,7 @@ var Server = (function(Server, $, undefined) {
       }
     }
 
-    if (isPow || command == "getTransactionsToApprove" || command == "pushTransactions") {
+    if (isPow || command == "getTransactionsToApprove" || command == "broadcastTransactions") {
       var time = 10000000000; // This simply never times out
     } else if (command == "getTransfers") {
       var time = 55000; // 55 seconds
@@ -503,7 +503,7 @@ var Server = (function(Server, $, undefined) {
     var deferred = $.Deferred();
 
     Server.getTrytesFromBundle(transaction).done(function(trytes) {
-      Server.pushTransactions(trytes).done(function() {
+      Server.broadcastTransactions(trytes).done(function() {
         console.log("Server.rebroadcast: Completed");
         deferred.resolve("Rebroadcast completed");
       }).fail(function(err) {
@@ -607,9 +607,9 @@ var Server = (function(Server, $, undefined) {
     return deferred.promise();
   }
 
-  Server.pushTransactions = function(trytes) {
-    console.log("Server.pushTransactions");
-    return Server.sendRequest("pushTransactions", {"trytes": trytes});
+  Server.broadcastTransactions = function(trytes) {
+    console.log("Server.broadcastTransactions");
+    return Server.sendRequest("broadcastTransactions", {"trytes": trytes});
   }
 
   Server.storeTransactions = function(trytes) {
@@ -660,7 +660,7 @@ var Server = (function(Server, $, undefined) {
           deferred.notify("Store Transaction...");
           doStoreTransactions(signedTrytes).then(function() {
             deferred.notify("Broadcast Transaction...");
-            doPushTransactions(signedTrytes).then(function() {
+            doBroadcastTransactions(signedTrytes).then(function() {
               console.log("Server.attachStoreAndBroadcast: Completed");
               deferred.resolve();
             }, function(err) {
@@ -756,12 +756,12 @@ var Server = (function(Server, $, undefined) {
     });
   }
 
-  function doPushTransactions(trytes) {
-    console.log("doPushTransactions");
+  function doBroadcastTransactions(trytes) {
+    console.log("doBroadcastTransactions");
 
     return repeatUntilNotNull(function() {
-      return Server.pushTransactions(trytes).then(function(data) {
-        console.log("doPushTransactions: Result:");
+      return Server.broadcastTransactions(trytes).then(function(data) {
+        console.log("doBroadcastTransactions: Result:");
         console.log(data);
         return (data.hasOwnProperty("duration") ? true : null);
       })
