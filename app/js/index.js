@@ -249,13 +249,13 @@ var UI = (function(UI, undefined) {
       statusbar.transactions = String(data.nonSeenTransactions + " / " + data.seenTransactions).escapeHTML();
     }
 
-    if (data.hasOwnProperty("coordinator")) {
+    if (data.hasOwnProperty("milestone")) {
       updateTransactions = true;
-      statusbar.coordinator = String(data.coordinator).escapeHTML();
+      statusbar.milestone = String(data.milestone).escapeHTML();
     }
 
     if (updateTransactions && statusbar.transactions) {
-      document.getElementById("status-bar-transactions").innerHTML = statusbar.transactions + (statusbar.coordinator ? " (" + statusbar.coordinator + ")" : "");
+      document.getElementById("status-bar-transactions").innerHTML = statusbar.transactions + (statusbar.milestone ? " ( #" + statusbar.milestone + " )" : "");
     }
 
     if (data.hasOwnProperty("cpu")) {

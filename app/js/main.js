@@ -58,7 +58,7 @@ var App = (function(App, undefined) {
   var ia32JavaLocation          = null;
   var is64BitOS                 = 64;
   var seenNonSeen               = "";
-  var lastCoordinator           = "";
+  var lastMilestone             = "";
 
   var launchArguments           = [];
   var launchURL                 = null;
@@ -1243,11 +1243,11 @@ var App = (function(App, undefined) {
           win.webContents.send("updateStatusBar", {"nonSeenTransactions": transactions[1], "seenTransactions": transactions[2]});
         }
       } else {
-        var coordinator = data.match(/following coordinator.*\(([0-9]+)\)/i);
-        if (coordinator && coordinator[1] && coordinator[1] != lastCoordinator) {
-          lastCoordinator = coordinator[1];
+        var milestone = data.match(/milestone \#([0-9]+)/i);
+        if (milestone && milestone[1] && milestone[1] != lastMilestone) {
+          lastMilestone = milestone[1];
           if (win && win.webContents) {
-            win.webContents.send("updateStatusBar", {"coordinator": lastCoordinator});
+            win.webContents.send("updateStatusBar", {"milestone": lastMilestone});
           }
         }
       }
