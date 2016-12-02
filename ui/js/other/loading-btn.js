@@ -48,7 +48,7 @@
           // Only start showing the bar if the action is not finished within 200 ms.
           barTimeout = setTimeout(function() {
             // If the message has already been updated before barTimeout is called, then of course we do not overwrite it again.
-            if (!$btn.data("updated")) {
+            //if (!$btn.data("updated")) {
               var message = ($btn.data("loading") ? $btn.data("loading") : "Loading...");
               var icon = "<i class='fa fa-cog fa-spin fa-fw'></i> ";
 
@@ -57,7 +57,9 @@
               }
 
               $btn.find(".content").html(icon + message.toUpperCase().escapeHTML());
-            }
+           // } else {
+           //   console.log("ALREADY UPDATED");
+           // }
 
             $btn.append($bar);
             $bar.fadeIn(800);
@@ -75,8 +77,6 @@
       });
 
       $btn.on("finished", function(e, data) {
-        console.log("In on finished");
-        console.log(data);
         $("body").css("cursor", "default");
 
         $bar.remove();
