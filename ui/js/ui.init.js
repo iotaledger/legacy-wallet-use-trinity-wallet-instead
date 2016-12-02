@@ -1,14 +1,14 @@
-var connection = {"balance"              : -1,
-                  "isLoggedIn"           : false,
-                  "isProofOfWorking"     : false,
-                  "isSpamming"           : false,
-                  "transactions"         : [],
-                  "hashes"               : [],
-                  "spentAddresses"       : [],
-                  "transactionsTxt"      : "",
-                  "transactionsChange"   : true,
-                  "lastSolidMilestone"   : null,
-                  "handleURL"            : false};
+var iota = new IOTA();
+
+var connection = {"accountData"         : false,
+                  "previousAccountData" : false,
+                  "isLoggedIn"          : false,
+                  "showStatus"          : false,
+                  "inApp"               : false,
+                  "isSpamming"          : false,
+                  "handleURL"           : false,
+                  "depth"               : 3,
+                  "minWeightMagnitude"  : 18};
 
 var __entityMap = {
   "&": "&amp;",
@@ -51,13 +51,17 @@ var UI = (function(UI, $, undefined) {
     if (!supported || String(2779530283277761) != "2779530283277761") {
       showOutDatedBrowserMessage();
     } else {
-      if (typeof(URLSearchParams) != "undefined") {
+      if (typeof(URLSearchParams) != "undefined" && parent) {
         var params = new URLSearchParams(location.search.slice(1));
-        connection.inApp = params.get("inApp") == 1 && parent;
-        connection.showStatus = params.get("showStatus") == 1 && parent;
+        connection.inApp = params.get("inApp") == "true";
+        connection.showStatus = params.get("showStatus") == 1;
+        connection.depth = parseInt(params.get("depth"), 10);
+        connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
       } else {
-       connection.inApp = false;
-       connection.showstatus = false;
+        connection.inApp = false;
+        connection.showStatus = false;
+        connection.depth = 3;
+        connection.minWeightMagnitude = 18;
       }
       setTimeout(initialize, 100);
    }
@@ -94,7 +98,7 @@ var UI = (function(UI, $, undefined) {
     });
 
     UI.showLoginScreen();
-
+    
     // Until we have a server connection we will check every 500ms..
     UI.createStateInterval(500, true);
 
@@ -103,14 +107,9 @@ var UI = (function(UI, $, undefined) {
       UI.inAppInitialize();
     }
   }
-
-  UI.setIsProofOfWorking = function(isProofOfWorking) {
-    console.log("here we are " + isProofOfWorking);
-    connection.isProofOfWorking = isProofOfWorking;
-  }
   
   function showOutdatedBrowserMessage() {
-    console.log("UI.showOutdatedBrowserMessage");
+    console.log("showOutdatedBrowserMessage");
 
     var html = "";
 
