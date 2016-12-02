@@ -304,7 +304,7 @@ body.new-user-active #new-user {
   font-weight: bold;
 }
 
-#status-bar-transactions {
+#status-bar-milestone, #status-bar-solid-milestone {
   cursor: pointer;
 }
 
@@ -408,7 +408,7 @@ body.new-user-active #new-user {
   overflow: none;
 }
 
-.list .value.value-milestone {
+.list .value.value-latestSolidSubtangleMilestone, .list .value.value-latestMilestone {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -14,8 +14,6 @@ let server;
 let powerSaver = -1;
 let cpuTrackInterval;
 
-global.powStarted = false;
-
 var __entityMap = {
   "&": "&amp;",
   "<": "&lt;",
@@ -57,11 +55,10 @@ var App = (function(App, undefined) {
   var oneTimeJavaArgs           = null;
   var ia32JavaLocation          = null;
   var is64BitOS                 = 64;
-  var seenNonSeen               = "";
-  var lastMilestone             = "";
 
   var launchArguments           = [];
   var launchURL                 = null;
+  var iriVersion                = "";
 
   App.uiIsReady                 = false;
   App.uiIsInitialized           = false;
@@ -136,6 +133,12 @@ var App = (function(App, undefined) {
       }
       if (!settings.hasOwnProperty("port")) {
         settings.port = 14265;
+      }
+      if (!settings.hasOwnProperty("depth")) {
+        settings.depth = 3;
+      }
+      if (!settings.hasOwnProperty("minWeightMagnitude")) {
+        settings.minWeightMagnitude = 18;
       }
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
         settings.nodes = [];
@@ -382,7 +385,7 @@ var App = (function(App, undefined) {
     win.webContents.once("did-finish-load", function() {
       console.log("Set Window Title");
 
-      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML());
+      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML() + " - IRI " + String(iriVersion).escapeHTML());
 
       if (onReady) {
         onReady();
@@ -502,10 +505,19 @@ var App = (function(App, undefined) {
             }
           },
           {
+            label: "Claim Process",
+            click(item) {
+              App.claimProcess();
+            }
+          },
+          {
             label: "Network Spammer",
             click(item) {
               App.showNetworkSpammer();
             }
+          },
+          {
+            type: "separator"
           },
           {
             label: "Open Database Folder",
@@ -568,10 +580,6 @@ var App = (function(App, undefined) {
           {
             label: "Documentation",
             click() { shell.openExternal("https://iota.readme.io/docs"); }
-          },
-          {
-            label: "Foundation",
-            click() { shell.openExternal("https://foundation.iotatoken.com/"); }
           }
         ]
       },
@@ -655,7 +663,7 @@ var App = (function(App, undefined) {
       }*/
 
       // Remove preferences (other location on mac)
-      template[3].submenu.splice(8, 2);
+      template[3].submenu.splice(10, 2);
     } else if (process.platform == "win32") {
       if (!isDevelopment) {
         /*
@@ -1217,7 +1225,7 @@ var App = (function(App, undefined) {
     isStarted = true;
 
     try {
-      win.webContents.send("serverStarted", "file://" + path.join(path.dirname(path.dirname(__dirname)), "ui").replace(path.sep, "/") + "/index.html?inApp=1&showStatus=" + settings.showStatusBar);
+      win.webContents.send("serverStarted", "file://" + path.join(path.dirname(path.dirname(__dirname)), "ui").replace(path.sep, "/") + "/index.html", {"inApp": true, "showStatus": settings.showStatusBar, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
     } catch (err) {
       console.log("err:");
       console.log(err);
@@ -1227,7 +1235,9 @@ var App = (function(App, undefined) {
   App.checkServerOutput = function(data) {
     if (!isStarted && !didKillServer) {
       // This can result in errors.. Need to have a real response from the console instead of just this.
-      if (data.match(/IRI [0-9]/i)) {
+      var iri = data.match(/IRI ([0-9\.]+)/i);
+      if (iri) {
+        iriVersion = iri[1];
         App.serverStarted();
       }
       /*
@@ -1236,20 +1246,21 @@ var App = (function(App, undefined) {
       }*/
     }
     if (settings.showStatusBar) {
-      var transactions = data.match(/Transactions to request = ([0-9]+) \/ ([0-9]+)/i);
-      if (transactions && transactions[1] + "/" + transactions[2] != seenNonSeen) {
-        seenNonSeen = transactions[1] + "/" + transactions[2];
-        if (win && win.webContents) {
-          win.webContents.send("updateStatusBar", {"nonSeenTransactions": transactions[1], "seenTransactions": transactions[2]});
-        }
-      } else {
-        var milestone = data.match(/milestone \#([0-9]+)/i);
-        if (milestone && milestone[1] && milestone[1] != lastMilestone) {
-          lastMilestone = milestone[1];
-          if (win && win.webContents) {
-            win.webContents.send("updateStatusBar", {"milestone": lastMilestone});
-          }
-        }
+      var milestone = {};
+
+      var latestSolid = data.match(/Latest SOLID SUBTANGLE milestone has changed from #[0-9]+ to #([0-9]+)/i);
+      var latest      = data.match(/Latest milestone has changed from #[0-9]+ to #([0-9]+)/i);
+
+      if (latestSolid) {
+        milestone.latestSolidSubtangleMilestoneIndex = latestSolid[1];
+      }
+
+      if (latest) {
+        milestone.latestMilestoneIndex = latest[1];
+      }
+
+      if (latestSolid || latest) {
+        App.updateStatusBar(milestone);
       }
     }
   }
@@ -1302,9 +1313,7 @@ var App = (function(App, undefined) {
     if (cpuTrackInterval) {
       clearInterval(cpuTrackInterval);
     }
-    if (win && win.webContents) {
-      win.webContents.send("updateStatusBar", {"cpu": ""});
-    }
+    App.updateStatusBar({"cpu": ""});
   }
 
   App.trackCPU = function() {
@@ -1315,13 +1324,9 @@ var App = (function(App, undefined) {
         if (err) {
           console.log("Error tracking CPU");
           console.log(err);
-          if (win && win.webContents) {
-            win.webContents.send("updateStatusBar", {"cpu": ""});
-          }
+          App.updateStatusBar({"cpu": ""});
         } else {
-          if (win && win.webContents) {
-            win.webContents.send("updateStatusBar", {"cpu": Math.round(stat.cpu).toFixed(2)});
-          }
+          App.updateStatusBar({"cpu": Math.round(stat.cpu).toFixed(2)});
         }
        });
 
@@ -1545,6 +1550,13 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.claimProcess = function() {
+    if (win && win.webContents) {
+      App.showWindowIfNotVisible();
+      win.webContents.send("showClaimProcess");
+    }
+  }
+  
   App.showNetworkSpammer = function() {
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
@@ -1557,7 +1569,7 @@ var App = (function(App, undefined) {
 
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
-      win.webContents.send("editServerConfiguration", {"port": settings.port, "nodes": settings.nodes.join("\r\n")});
+      win.webContents.send("editServerConfiguration", {"port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "nodes": settings.nodes.join("\r\n")});
     }
   }
 
@@ -1568,6 +1580,8 @@ var App = (function(App, undefined) {
       console.log("Node: " + node + " is invalid.");
       return false;
     }
+
+    return true;
 
     //ipv6: https://bitbucket.org/intermapper/ipv6-validator/
     var REGEX_IPV6 = /^((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))$/;
@@ -1606,8 +1620,10 @@ var App = (function(App, undefined) {
         }
       }
 
-      settings.nodes = nodes;
-      settings.port  = parseInt(configuration.port, 10);
+      settings.nodes              = nodes;
+      settings.port               = parseInt(configuration.port, 10);
+      settings.depth              = parseInt(configuration.depth, 10);
+      settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
 
       App.saveSettings();
       App.relaunchApplication();
@@ -1753,37 +1769,6 @@ var App = (function(App, undefined) {
     //App.autoUpdate();
   }
 
-  App.powStarted = function() {
-    console.log("POW started");
-
-    global.powStarted = true;
-    if (powerSaver == -1 || !powerSaveBlocker.isStarted(powerSaver)) {
-      powerSaver = powerSaveBlocker.start("prevent-app-suspension");
-    }
-
-    setTimeout(function() {
-      if (settings.showStatusBar) {
-        App.startTrackingCPU();
-      }
-    }, 2000);
-  }
-
-  App.powEnded = function() {
-    console.log("POW ended");
-
-    global.powStarted = false;
-    if (powerSaver != -1 && powerSaveBlocker.isStarted(powerSaver)) {
-      powerSaveBlocker.stop(powerSaver);
-      powerSaver = -1;
-    }
-
-    setTimeout(function() {
-      if (settings.showStatusBar) {
-        App.startTrackingCPU();
-      }
-    }, 2000);
-  }
-
   App.notify = function(type, msg) {
     if (win && win.webContents) {
       win.webContents.send("notify", type, msg);
@@ -1800,6 +1785,12 @@ var App = (function(App, undefined) {
       }
     } else if (!launchURL) {
       launchURL = url;
+    }
+  }
+
+  App.updateStatusBar = function(data) {
+    if (win && win.webContents) {
+      win.webContents.send("updateStatusBar", data);
     }
   }
 
@@ -1943,10 +1934,6 @@ electron.ipcMain.on("quit", function() {
   App.quit();
 });
 
-electron.ipcMain.on("powStarted", App.powStarted);
-
-electron.ipcMain.on("powEnded", App.powEnded);
-
 electron.ipcMain.on("hoverAmountStart", function(event, amount) {
   App.hoverAmountStart(amount);
 });
@@ -1973,4 +1960,8 @@ electron.ipcMain.on("showServerLog", App.showServerLog);
 
 electron.ipcMain.on("showModal", function(event, identifier, html) {
   App.showModal(identifier, html);
+});
+
+electron.ipcMain.on("updateStatusBar", function(event, data) {
+  App.updateStatusBar(data);
 });
