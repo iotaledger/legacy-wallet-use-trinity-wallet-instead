@@ -1586,3 +1586,33 @@ input[type="number"] {
     max-height: 155px;
   }
 }
+
+#claim-modal label {
+  font-weight:bold;
+  text-align:left;
+  font-size:22px;
+  margin:0;
+  margin-bottom: 5px;
+  padding: 0;
+  display: block;
+}
+
+#claim-modal input {
+  box-sizing: border-box;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  border-bottom: 1px solid #7e8688;
+  color: #000;
+  padding: 0;
+  font-size: 20px;
+}
+
+#claim-modal .input-group {
+  margin-bottom: 10px;
+}
+
+#claim-modal .input-group-last {
+  margin-bottom: 0 !important;
+}

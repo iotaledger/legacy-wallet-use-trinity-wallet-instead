@@ -7,12 +7,9 @@
   <script type="text/javascript" src="bower_components/jquery-qrcode/dist/jquery.qrcode.min.js"></script>
   <script type="text/javascript" src="bower_components/remodal/dist/remodal.min.js"></script>
   <script type="text/javascript" src="bower_components/toastr/toastr.js"></script>
+  <script type="text/javascript" src="bower_components/async/dist/async.min.js"></script>
+  <script type="text/javascript" src="bower_components/iota.lib.js/dist/iota.js"></script>
   <script type="text/javascript" src="js/other/loading-btn.js"></script>
-  <script type="text/javascript" src="js/converter.js"></script>
-  <script type="text/javascript" src="js/curl.js"></script>
-  <script type="text/javascript" src="js/sam.js"></script>
-  <script type="text/javascript" src="js/address.js"></script>
-  <script type="text/javascript" src="js/server.js"></script>
   <script type="text/javascript" src="js/ui.init.js"></script>
   <script type="text/javascript" src="js/ui.addresses.js"></script>
   <script type="text/javascript" src="js/ui.animation.js"></script>
@@ -22,14 +19,15 @@
   <script type="text/javascript" src="js/ui.login.js"></script>
   <script type="text/javascript" src="js/ui.modals.js"></script>
   <script type="text/javascript" src="js/ui.spam.js"></script>
+  <script type="text/javascript" src="js/ui.claim.js"></script>
   <script type="text/javascript" src="js/ui.transfers.js"></script>
-  <script type="text/javascript" src="js/ui.update.js"></script>
   <script type="text/javascript" src="js/ui.url.js"></script>
+  <script type="text/javascript" src="js/ui.update.js"></script>
   <script type="text/javascript" src="js/ui.utils.js"></script>
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
   <link rel="stylesheet" href="bower_components/remodal/dist/remodal.css" />
-  <link rel="stylesheet" href="css/remodal-theme.css" />
   <link rel="stylesheet" href="bower_components/toastr/toastr.css" />
+  <link rel="stylesheet" href="css/remodal-theme.css" />
   <link rel="stylesheet" href="css/loading-btn.css" />
   <link rel="stylesheet" href="css/ui.css" />
   <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
@@ -144,6 +142,21 @@
   <button data-remodal-action="close" class="remodal-close"></button>
   <h1>Generated Seed</h1>
   <div class="contents"></div>
+</div>
+
+<div id="claim-modal" class="modal gray" data-remodal-id="claim">
+  <button data-remodal-action="close" class="remodal-close"></button>
+  <h1>Claim Process</h1>
+  <div class="contents">
+    <div class='input-group'><label>Old Seed:</label> 
+    <input type='password' name='old_seed' id='claim_process_old_seed' placeholder='Seed of Old Account' value='' /></div>
+    <div class='input-group input-group'><label>New Seed:</label>
+    <input type='password' name='new_seed' id='claim_process_new_seed' placeholder='Seed of New Account' value='' /></div>
+    <div class='input-group input-group'><label>Repeat New Seed:</label>
+    <input type='password' name='new_seed' id='claim_process_repeat_new_seed' placeholder='Type New Seed Again' value='' /></div>
+    <button id="claim-btn" type="button" class="btn" data-initial="Claim" data-loading="Claiming...">CLAIM</button>
+    <div id="claim-output" class="small"></div>
+  </div>
 </div>
 
 <div id="spam-modal" class="modal" data-remodal-id="spam">
