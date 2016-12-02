@@ -22,36 +22,33 @@ var UI = (function(UI, $, undefined) {
           throw "Missing address checksum";
         } else if (address.length != 90) {
           throw "Incorrect address length";
-        } else if (!Address.hasValidChecksum(address)) {
+        } else if (!iota.utils.isValidChecksum(address)) {
           throw "Incorrect address checksum";
         }
-    
-        address = Address.getAddressWithoutChecksum(address);
+      
+        var amount = iota.utils.convertUnits(parseInt($("#transfer-amount").val(), 10), $("#transfer-units-value").html(), "i");
 
-        var amount = UI.convertToBaseAmount($("#transfer-amount").val(), $("#transfer-units-value").html().toLowerCase());
-
-        if (amount == "0") {
+        if (!amount) {
           throw "Amount cannot be zero";
         }
-      } catch (err) {
+      } catch (error) {
         $stack.removeClass("loading");
-        UI.formError("transfer", err);
+        UI.formError("transfer", error);
         return;
       }
 
-      Server.transfer(address, amount).progress(function(msg) {
-        UI.formUpdate("transfer", msg, {"timeout": 500});
-      }).done(function(msg) {
-        console.log("UI.handleTransfers: " + msg);
-        UI.formSuccess("transfer", msg, {"initial": "Send It Now"});
-        setTimeout(function() {
-          UI.createStateInterval(60000, true);
-        }, 1000);
-      }).fail(function(err) {
-        console.log("UI.handleTransfers: Error");
-        console.log(err);
-        UI.formError("transfer", err, {"initial": "Send It Now"});
-      }).always(function() {
+      console.log("Server.transfer: " + address + " -> " + amount);
+
+      iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": ""}], function(error, transfers) {
+        if (error) {
+          console.log("UI.handleTransfers: Error");
+          console.log(error);
+          UI.formError("transfer", error, {"initial": "Send It Now"});
+        } else {
+          console.log("UI.handleTransfers: Success");
+          UI.formSuccess("transfer", "Transfer Completed", {"initial": "Send It Now"});
+          UI.updateState(1000);
+        }
         $stack.removeClass("loading");
       });
     });

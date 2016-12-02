@@ -6,6 +6,46 @@ var UI = (function(UI, $, undefined) {
   UI.isShuttingDown     = false;
 
   var loginGradientInterval;
+  var seedError;
+
+  function getSeed(value) {
+    value = value.toUpperCase();
+
+    var seed = "";
+
+    for (var i = 0; i < 81; i++) {
+      var char = value.charAt(i);
+
+      if (!char || ("9ABCDEFGHIJKLMNOPQRSTUVWXYZ").indexOf(char) < 0) {
+        seed += "9";
+      } else {
+        seed += char;
+      }
+    }
+
+    return seed;
+  }
+
+  function checkSeedStrength(value) {
+    value = String(value);
+
+    var invalidCharacters = value.match(/[^A-Z9]/i);
+
+    //don't care if the user has all his characters lowercased, but we do care if he uses mixed case.
+    var mixedCase = value.match(/[a-z]/) && value.match(/[A-Z]/);
+
+    if (invalidCharacters) {
+      return "Your seed contains invalid characters. Only A-Z and the number 9 are accepted." + (value.length > 81 ? " Your seed is also too long." : (value.length < 60 ? " Your seed is also too short." : ""));
+    } else if (mixedCase) {
+      return "Your seed contains mixed case characters. Lowercase is converted to uppercase." + (value.length > 81 ? " Your seed is also too long." : (value.length < 60 ? " Your seed is also too short." : ""));
+    } else if (value.length > 81) {
+      return "Your seed should not contain more than 81 characters. Extra characters are ignored.";
+    } else if (value.length < 60) {
+      return "Your seed does not contain enough characters. This is not secure.";
+    } else {
+      return "";
+    }
+  }
 
   UI.showLoginScreen = function() {
     console.log("UI.showLoginScreen");
@@ -36,33 +76,44 @@ var UI = (function(UI, $, undefined) {
 
     $("#login-btn").on("click", function(e) {
       try {
-        Server.login($("#login-password").val());
-      } catch (err) {
+        var seed = $("#login-password").val();
+
+        if (!seed) {
+          throw "Seed is required";
+        }
+
+        connection.seed = getSeed(seed);
+        seedError = checkSeedStrength(seed);
+      } catch (error) {
         console.log("UI.login: Error");
-        console.log(err);
-        $("#login-btn").loadingError(err);
+        console.log(error);
+        $("#login-btn").loadingError(error);
         $("#login-password").focus();
         return;
       }
 
       UI.isLoggingIn = true;
 
-      Server.updateState().done(function() {
-        $("#login-password").val("");
-        $("#login-btn").loadingReset("Logging in...", {"icon": "fa-cog fa-spin fa-fw"});
-        UI.showAppScreen();
-      }).fail(function(err) {
-        Server.logout();
-        $("#login-btn").loadingError("Connection refused");
-        UI.initialConnection = false;
-        UI.createStateInterval(500, false);
-      }).always(function() {
-        UI.isLoggingIn = false;
-      })
+      setTimeout(function() {
+        UI.executeState(function(error) {
+          if (error) {
+            connection.seed = "";
+            $("#login-btn").loadingError("Connection refused");
+            UI.initialConnection = false;
+            UI.createStateInterval(500, false);
+          } else {
+            $("#login-password").val("");
+            $("#login-btn").loadingReset("Logging in...", {"icon": "fa-cog fa-spin fa-fw"});
+            UI.showAppScreen();
+          }
+          UI.isLoggingIn = false;
+        });
+      }, 150);
     });
 
     UI.handleHelpMenu();
     UI.handleNetworkSpamming();
+    UI.handleClaiming();
   }
 
    UI.showAppScreen = function() {
@@ -70,8 +121,8 @@ var UI = (function(UI, $, undefined) {
 
     clearInterval(loginGradientInterval);
 
-    // After logging in, update state every minute
-    UI.createStateInterval(60000, false);
+    // After logging in, update state every 5 minutes
+    UI.createStateInterval(60000*5, false);
 
     UI.update();
 
@@ -80,8 +131,6 @@ var UI = (function(UI, $, undefined) {
     });
 
     UI.animateStacks(0);
-
-    var seedError = Server.getSeedError();
 
     if (seedError) {
       var options = {timeOut: 10000, 
@@ -108,15 +157,9 @@ var UI = (function(UI, $, undefined) {
 
       UI.isLoggingOut = true;
       
-      /*
-      if (connection.isProofOfWorking) {
-        UI.notify("error", "Proof of Work is busy, cannot logout.");
-      } else {
+      iota.api.interruptAttachingToTangle(function() {
         window.location.reload();
-      }
-      */
-
-      window.location.reload();
+      });
     });
 
     UI.handleTransfers();

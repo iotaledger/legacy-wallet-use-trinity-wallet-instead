@@ -6,7 +6,7 @@ var UI = (function(UI, $, undefined) {
       if ($(this).hasClass("open") || $(this).hasClass("opening")) {
         return;
       }
-      
+
       console.log("UI.handleAddressGeneration: Open stack.");
 
       var $stack = $("#generate-address-stack");
@@ -20,22 +20,33 @@ var UI = (function(UI, $, undefined) {
       var $btn = $stack.find(".btn").first();
 
       //$btn.loadingUpdate("Generate New Address", {"icon": false, "initial": "Generate New Address", "loading": "Generating Address..."});
-
+      
       // Always get the newest address on click of stack, in case the user was out of sync, update
-      Server.getNewAddress().done(function(result) {
+      iota.api.getNewAddress(connection.seed, {"checksum": true}, function(error, newAddress) {
+        if (error) {
+          console.log("UI.handleAddressGeneration: GetNewAddress Error:");
+          console.log(error);
+          $stack.find(".padded").css("visibility", "hidden");
+          $btn.loadingUpdate("Generate New Address", {"initial": "Generate New Address", "loading": "Attaching to Tangle..."});
+          UI.animateStacks(0);
+          return;
+        }
+
+        console.log(newAddress);
+
         if (didClickGenerateAddress) {
-          // User already clicked the button, don't update. Abort..
+          // User already clicked the generate button, don't update. Abort..
           console.log("UI.handleAddressGeneration: Abort updating address.");
           return;
         }
 
-        $btn.loadingUpdate("Attach to Tangle", {"icon": false, "initial": "Attach to Tangle", "loading": "Preparing..."});
+        $btn.loadingUpdate("Attach to Tangle", {"icon": false, "initial": "Attach to Tangle", "loading": "Attaching to Tangle..."});
 
         // Different from the previous result, update...
-        if (result.checksummedAddress != $btn.data("address")) {
+        if (newAddress != $btn.data("address")) {
           console.log("UI.handleAddressGeneration: Address is different, update.");
 
-          updateGeneratedAddress(result.checksummedAddress, true);
+          updateGeneratedAddress(newAddress, true);
 
           $stack.find(".padded").css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
 
@@ -43,12 +54,6 @@ var UI = (function(UI, $, undefined) {
         } else {
           console.log("UI.handleAddressGeneration: Address has not changed.");
         }
-      }).fail(function(err) {
-        console.log("UI.handleAddressGeneration: GetNewAddress Error:");
-        console.log(err);
-        $stack.find(".padded").css("visibility", "hidden");
-        $btn.loadingUpdate("Generate New Address", {"initial": "Generate New Address", "loading": "Preparing..."});
-        UI.animateStacks(0);
       });
     });
 
@@ -74,50 +79,49 @@ var UI = (function(UI, $, undefined) {
           var gotAddress = true;
         }
 
-        Server.generateNewAddress().progress(function(msg) {
-          if (Address.isAddress(msg)) {
-            var address = msg;
-
-            console.log("UI.handleAddressGeneration: Got address: " + address);
-
-            gotAddress = true;
-
-            if (address != $btn.data("address")) {
-              updateGeneratedAddress(address);
-              $stack.find(".padded").css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
-            } else {
-              $("#generate-address-result, #generate-address-qr-code").off("click.notyetgenerated");
-              $stack.find(".padded").css("visibility", "visible");
-            }
-
-            //$btn.loadingUpdate("Attaching to tangle...", {"timeout": 200, "initial": "Attach to Tangle", "loading": "Attaching to Tangle..."});
-
-            UI.animateStacks(200);
-          } else {
-            $btn.loadingUpdate(msg, {"timeout": 500});
+        iota.api.getNewAddress(connection.seed, {"checksum": true}, function(error, newAddress) {
+          if (error) {
+            console.log("UI.handleAddressGeneration: Error:");
+            console.log(error);
+            UI.formError("generate-address", error);
+            $stack.removeClass("loading");
+            return;
           }
-        }).done(function() {
-          $btn.data("address", "");
 
-          console.log("UI.handleAddressGeneration: Attached to Tangle");
+          console.log("UI.handleAddressGeneration: Got address: " + newAddress);
 
-          UI.formSuccess("generate-address", "Address Attached", {"initial": "Generate New Address", "loading": "Preparing..."});
+          if (newAddress != $btn.data("address")) {
+            updateGeneratedAddress(newAddress);
+            $stack.find(".padded").css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
+          } else {
+            $("#generate-address-result, #generate-address-qr-code").off("click.notyetgenerated");
+            $stack.find(".padded").css("visibility", "visible");
+          }
 
-          setTimeout(function() {
-            UI.createStateInterval(60000, true);
-          }, 1000);
-        }).fail(function(err) {
-          console.log("UI.handleAddressGeneration: Error:");
-          console.log(err);
+          UI.animateStacks(200);
 
-          UI.formError("generate-address", err);
-        }).always(function() {
-          $stack.removeClass("loading");
+          console.log("send transfer to " + newAddress + ": " + newAddress.length);
+
+          //$btn.loadingUpdate("Attaching to Tangle...", {"timeout": 500});
+
+          newAddress = iota.utils.noChecksum(newAddress);
+          
+          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": newAddress, "value": 0, "message": "", "tag": ""}], function(error, transfers) {
+           if (error) {
+              UI.formError("generate-address", error);
+            } else {
+              $btn.data("address", "");
+              console.log("UI.handleAddressGeneration: Attached to Tangle");
+              UI.formSuccess("generate-address", "Address Attached", {"initial": "Generate New Address", "loading": "Attaching to Tangle..."});
+              UI.updateState(1000);
+            }
+            $stack.removeClass("loading");
+          });
         });
-      } catch (err) {
+      } catch (error) {
         console.log("UI.handleAddressGeneration: Error:");
-        console.log(err);
-        UI.formError("generate-address", err);
+        console.log(error);
+        UI.formError("generate-address", error);
       }
     });
   }

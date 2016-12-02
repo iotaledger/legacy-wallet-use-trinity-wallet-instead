@@ -2,10 +2,11 @@ var UI = (function(UI, $, undefined) {
   var spamCount  = 0;
 
   UI.showNetworkSpammer = function() {  
+    /*
     if (connection.isProofOfWorking) {
       UI.notify("error", "Proof of work is busy, cannot spam.");
       return;
-    }
+    }*/
 
     $("#spam-cnt").html("0");
 
@@ -16,43 +17,48 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.handleNetworkSpamming = function() {
+    var isSpamming = false;
+
     $(document).on("closed", "#spam-modal", function (e) {
-      if (connection.isSpamming && connection.inApp) {
-        relaunchApplication();
+      if (isSpamming) {
+        isSpamming = false;
+        $("#spam-btn").loadingReset({"msg": "Spam the Network"});
+        iota.api.interruptAttachingToTangle();
+        console.log("OK loading reset was called");
       }
     });
 
     $("#spam-btn").on("click", function(e) {
-      connection.isSpamming = true;
-
-      if (!connection.isLoggedIn) {
-        UI.createStateInterval(60000, false);
-        console.log("create a check for the milestones");
-      }
-
+      isSpamming = true;
       spamCount  = 0;
 
       e.preventDefault();
 
-      Server.startSpamming().progress(function(data) {
-        console.log("in progress");
-        console.log(data);
+      console.log("start spam");
 
-        if (data == "finished") {
-          spamCount++;
-          $("#spam-cnt").html(spamCount);
-        } else {
-          data = String(data).escapeHTML();
-          if (data == "Not synced") {
-            $("#spam-not-synced").show();
-          } else if (data == "Attaching to tangle...") {
-            $("#spam-not-synced").hide();
-          }
+      async.doWhilst(function(callback) {
+        console.log("send async transfer");
 
-          if (data != $("#spam-msg").html()) {
-            $("#spam-msg").html(data);
+        iota.api.sendTransfer("999999999999999999999999999999999999999999999999999999999999999999999999999999999", 3, 18, [{"address": "999999999999999999999999999999999999999999999999999999999999999999999999999999999", "value": 0, "message": "GUISPAMMER", "tag": "SPAM"}], function(error) {
+          if (!error) {
+            console.log("no error");
+            spamCount++;
+            $("#spam-cnt").html(spamCount);
+            $("#spam-msg").hide();
+          } else {
+            console.log("we have error: " + error);
+            if (isSpamming) {
+              $("#spam-msg").html(error).show();
+            } else {
+              $("#spam-msg").hide();
+            }
           }
-        }
+          callback(null);
+        });
+      }, function() {
+        return isSpamming == true;
+      }, function() {
+        console.log("Stopped spamming");
       });
     });
   }

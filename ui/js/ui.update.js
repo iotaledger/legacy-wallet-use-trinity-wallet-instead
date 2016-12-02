@@ -4,6 +4,41 @@ var UI = (function(UI, $, undefined) {
   var isUpdatingState  = false;
   var updateInterval   = null;
 
+  function stateExecution(callback) {
+    if (connection.seed) {
+      iota.api.getNodeInfo(function(error, info) {
+        connection.nodeInfo = info;
+
+        iota.api.getAccountData(connection.seed, function(error, accountData) {
+          connection.previousAccountData = connection.accountData;
+          connection.accountData = accountData;
+          callback(error, accountData);
+        });
+      });
+    } else {
+      iota.api.getNodeInfo(function(error, info) {
+        connection.nodeInfo = info;
+        if (callback) {
+          callback(error, info);
+        }
+      });
+    }
+  }
+
+  UI.executeState = function(callback) {
+    return stateExecution(callback);
+  }
+
+  UI.updateState = function(timeout) {
+    if (timeout) {
+      setTimeout(function() {
+        UI.createStateInterval(UI.updateIntervalTime, true);
+      }, timeout);
+    } else {
+      UI.createStateInterval(UI.updateIntervalTime, true);
+    }
+  }
+
   UI.createStateInterval = function(ms, immediately) {
     console.log("UI.createStateInterval: " + ms);
 
@@ -16,7 +51,10 @@ var UI = (function(UI, $, undefined) {
     updateInterval = setInterval(function() {
       if (!isUpdatingState && !UI.isLoggingIn) {
         isUpdatingState = true;
-        Server.updateState().done(UI.update).fail(UI.update).always(function() {
+        stateExecution(function(error) {
+          if (!error) {
+            UI.update();
+          }
           isUpdatingState = false;
         });
       }
@@ -26,7 +64,10 @@ var UI = (function(UI, $, undefined) {
       console.log("UI.createStateInterval: Execute immediately");
       if (!isUpdatingState) {
         isUpdatingState = true;
-        Server.updateState().done(UI.update).fail(UI.update).always(function() {
+        stateExecution(function(error) {
+          if (!error) {
+            UI.update();
+          }
           isUpdatingState = false;
         });
       } else {
@@ -40,13 +81,17 @@ var UI = (function(UI, $, undefined) {
       console.log("We have an initial connection.");
       UI.initialConnection = true;
       $(document).trigger("initialConnection");
-      if (!connection.isLoggedIn) {
+      if (!connection.seed) {
         // After initial connection, update state every 2 seconds
         UI.createStateInterval(2000, false);
       }
     }
 
-    if (!connection.isLoggedIn) {
+    if (connection.nodeInfo && connection.inApp) {
+      updateStatusBar({"latestMilestoneIndex": connection.nodeInfo.latestMilestoneIndex, "latestSolidSubtangleMilestoneIndex": connection.nodeInfo.latestSolidSubtangleMilestoneIndex});
+    }
+
+    if (!connection.seed) {
       if (!UI.showLoginForm) {
         UI.showLoginForm = true;
       } else if (!UI.loginFormShown) {
@@ -55,7 +100,7 @@ var UI = (function(UI, $, undefined) {
         UI.updateLoginForm();
       }
     } else {
-      if (connection.balance != -1) {
+      if (connection.accountData) {
         UI.updateBalance();
       }
 

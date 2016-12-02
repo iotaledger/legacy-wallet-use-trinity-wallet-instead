@@ -1,8 +1,8 @@
-var UI = (function(UI, $, undefined) { 
+var UI = (function(UI, $, undefined) {
   UI.showGeneratedSeed = function(returnHTML) {
     console.log("UI.showGeneratedSeed");
 
-    var seed = Address.generateSeed();
+    var seed = generateSeed();
 
     var html = "<p>Your generated seed is" + (connection.inApp ? " (<a href='#' id='generated-seed-value-copy'>copy</a>)" : "") + ":</p>";
 
@@ -20,19 +20,39 @@ var UI = (function(UI, $, undefined) {
     }
   }
 
-  UI.showPeers = function(returnHTML) {
-    console.log("UI.showPeers");
+  function generateSeed() {
+    var cryptoObj = window.crypto || window.msCrypto; // for IE 11
 
-    if (returnHTML) {
-      var deferred = $.Deferred();
-    } else {
-      if (UI.isLocked) {
-        console.log("UI.showPeers: UI is locked");
-        return;
-      }
+    if (!cryptoObj) {
+      throw "Crypto tools not available";
     }
 
-    Server.getNeighbors(true).done(function(activity) {
+    var seed       = "";
+    var characters = "9ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    var randomValues = new Uint32Array(81);
+    cryptoObj.getRandomValues(randomValues);
+
+    for (var i=0; i<81; i++) {
+      seed += characters.charAt(randomValues[i]%27);
+    }
+
+    return seed;
+  }
+  
+  UI.showPeers = function(callback) {
+    console.log("UI.showPeers");
+
+    if (!callback && UI.isLocked) {
+      console.log("UI.showPeers: UI is locked");
+      return;
+    }
+
+    iota.api.getNeighbors(function(error, activity) {
+      if (error) {
+        return (callback ? callback(error) : error);
+      }
+
       var html = "";
 
       if (!activity.neighbors) {
@@ -54,8 +74,8 @@ var UI = (function(UI, $, undefined) {
           }
         }
 
-        if (returnHTML) {
-          deferred.resolve("peers-modal", "<h1>Neighbors (" + activity.neighbors.length + ")</h1><div class='contents'>" + html + "</div>");
+        if (callback) {
+          callback(null, "peers-modal", "<h1>Neighbors (" + activity.neighbors.length + ")</h1><div class='contents'>" + html + "</div>");
         } else {
           var $modal = $("#peers-modal");
 
@@ -67,34 +87,25 @@ var UI = (function(UI, $, undefined) {
           modal.open();
         }
       }
-    }).fail(function(err) {
-      if (returnHTML) {
-        deferred.reject(err);
-      }
     });
-
-    if (returnHTML) {
-      return deferred.promise();
-    }
   }
 
-  UI.showNodeInfo = function(returnHTML) {
+  UI.showNodeInfo = function(callback) {
     console.log("UI.showNodeInfo");
 
-    if (returnHTML) {
-      var deferred = $.Deferred();
-    } else {
-      if (UI.isLocked) {
-        console.log("UI.showNodeInfo: UI is locked");
-        return;
-     }
+    if (!callback && UI.isLocked) {
+      console.log("UI.showNodeInfo: UI is locked");
+      return;
     }
 
-    Server.getNodeInfo().done(function(nodeInfo) {
-      console.log(nodeInfo);
+    iota.api.getNodeInfo(function(error, info) {
+      if (error) {
+        return (callback ? callback(error) : error);
+      }
+
       var html = "<div class='list'><ul>";
 
-      $.each(nodeInfo, function(key, value) {
+      $.each(info, function(key, value) {
         if (key != "duration") {
           html += "<li><div class='details details-" + String(key).escapeHTML() + "' title='" + String(key).escapeHTML() + "'><div class='address'>" + String(key).escapeHTML() + "</div></div><div class='value value-" + String(key).escapeHTML() + "' title='" + String(value).escapeHTML() + "'>" + String(value).escapeHTML() + "</div></li>";
         }
@@ -102,8 +113,8 @@ var UI = (function(UI, $, undefined) {
 
       html += "</ul></div>";
 
-      if (returnHTML) {
-        deferred.resolve("node-info-modal", "<h1>Node Info</h1><div class='contents'>" + html + "</div>");
+      if (callback) {
+        callback(null, "node-info-modal", "<h1>Node Info</h1><div class='contents'>" + html + "</div>");
       } else {
         var $modal = $("#node-info-modal");
 
@@ -112,15 +123,7 @@ var UI = (function(UI, $, undefined) {
         var modal = $modal.remodal({hashTracking: false});
         modal.open();
       }
-    }).fail(function(err) {
-      if (returnHTML) {
-        deferred.reject(err);
-      }
-    })
-
-    if (returnHTML) {
-      return deferred.promise();
-    }
+    });
   }
 
   return UI;

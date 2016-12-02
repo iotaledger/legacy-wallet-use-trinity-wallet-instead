@@ -13,11 +13,14 @@ var UI = (function(UI, $, undefined) {
 
       console.log("UI.handleHistory: Show bundle modal for hash " + hash);
 
-      Server.getBundle(hash).done(function(transactions) {
+      iota.api.getBundle(hash, function(error, transactions) {
+        if (error) { 
+          return;
+        }
         var html = "<div class='list'><ul>";
 
         for (var i=0; i<transactions.length; i++) {
-          html += "<li><div class='details'><div class='address'>" + UI.formatForClipboard(Address.getAddressWithChecksum(transactions[i].address)) + "</div></div><div class='value'>" + UI.formatAmount(transactions[i].value) + "</div></li>";
+          html += "<li><div class='details'><div class='address'>" + UI.formatForClipboard(iota.utils.addChecksum(transactions[i].address)) + "</div></div><div class='value'>" + UI.formatAmount(transactions[i].value) + "</div></li>";
         }
 
         html += "</ul></div>";
@@ -32,14 +35,14 @@ var UI = (function(UI, $, undefined) {
           $modal.find(".message").html("").hide();
         }*/
 
-        $modal.find(".persistence").html("Persistence: " + String(persistence).escapeHTML() + "%");  
+        $modal.find(".persistence").html("Persistence: " + (persistence ? "Confirmed" : "Pending")).show(); 
         $modal.find(".btn").data("hash", hash);
 
         $modal.find(".btn").each(function() {
           $(this).loadingReset($(this).data("initial"));
         });
 
-        if (persistence < 95) {
+        if (!persistence) {
           $modal.find(".btn").show();
         } else {
           $modal.find(".btn").hide();
@@ -79,38 +82,42 @@ var UI = (function(UI, $, undefined) {
       UI.isLocked = true;
 
       if (isRebroadcast) {
-        Server.rebroadcast(hash).done(function(msg) {
-          console.log("UI.rebroadcast: Success: " + msg);
-          $("#rebroadcast-btn").loadingSuccess(msg);
-          setTimeout(function() {
-            UI.createStateInterval(60000, true);
-          }, 1000);
-        }).fail(function(err) {
-          console.log("UI.rebroadcast: Error");
-          console.log(err);
-          $("#rebroadcast-btn").loadingError(err);
-        }).always(function() {
+        iota.api.broadcastBundle(hash, function(error, bundle) {
+          if (error) {
+            console.log("UI.rebroadcast: Error");
+            console.log(error);
+            $("#rebroadcast-btn").loadingError(error);
+          } else {
+            console.log("UI.rebroadcast: Success");
+            if (!UI.isFocused()) {
+              UI.notifyDesktop("Transaction rebroadcasted successfully");
+            }
+            $("#rebroadcast-btn").loadingSuccess("Rebroadcast Completed");
+            UI.updateState(1000);
+          }
+
           UI.isLocked = false;
           $(".remodal-close").off("click");
           $("#replay-btn").removeAttr("disabled");
         });
       } else {
-        Server.replay(hash).progress(function(msg) {
-          $("#replay-btn").loadingUpdate(msg, {"timeout": 500});
-        }).done(function(msg) {
-          console.log("UI.replay: Success: " + msg);
-          if (!UI.isFocused()) {
-            UI.notifyDesktop(msg);
+        iota.api.replayBundle(hash, connection.depth, connection.minWeightMagnitude, function(error, bundle) {
+          console.log(bundle);
+          if (error) {
+            console.log("UI.replay: Error");
+            console.log(error);
+            $("#replay-btn").loadingError(error);
+          } else {
+            console.log("UI.replay: Success");
+            if (!UI.isFocused()) {
+              UI.notifyDesktop("Transaction replayed successfully");
+            }
+            $("#replay-btn").loadingSuccess("Replay Completed");
+            $("#bundle-modal .persistence").hide();
+
+            UI.updateState(1000);
           }
-          $("#replay-btn").loadingSuccess(msg);
-          setTimeout(function() {
-            UI.createStateInterval(60000, true);
-          }, 1000);
-        }).fail(function(err) {
-          console.log("UI.replay: Error");
-          console.log(err);
-          $("#replay-btn").loadingError(err);
-        }).always(function() {
+
           UI.isLocked = false;
           $(".remodal-close").off("click");
           $("#rebroadcast-btn").removeAttr("disabled");
@@ -137,10 +144,9 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.updateHistory = function() {
-    if (!connection.transactionsChange) {
+    //no changes..
+    if (JSON.stringify(connection.accountData) == JSON.stringify(connection.previousAccountData)) {
       return;
-    } else {
-      connection.transactionsChange = false;
     }
 
     var $transfersBtn = $("#history-stack li[data-type=transfers]");
@@ -149,61 +155,47 @@ var UI = (function(UI, $, undefined) {
     var $transfers = $("#history-stack .transfers");
     var $addresses = $("#history-stack .addresses");
 
-    var nrTransfers = nrAddresses = 0;
-
     var transfersHtml = addressesHtml = "";
 
-    if (connection.transactions) {
-      //$("#history-stack h1 span").html(" (" + connection.transactions.length + ")");
+    if (connection.accountData) {
+      var addresses = iota.utils.addChecksum(connection.accountData.addresses).reverse();
 
-      $.each(connection.transactions, function(key, transaction) {
-        if (transaction.address) {
-          transaction.isSpentAddress = $.inArray(transaction.address, connection.spentAddresses) != -1;
-
-          var checkSummedAddress = Address.getAddressWithChecksum(transaction.address);
-
-          if (!checkSummedAddress) {
-            checkSummedAddress = "";
-          } else {
-            checkSummedAddress = String(checkSummedAddress).escapeHTML();
-          }
-        } else {
-          checkSummedAddress = "";
-        }
-
-        if (transaction.value == "0") {
-          nrAddresses++;
-
-          addressesHtml += "<li " + (transaction.isSpentAddress ? " class='spent'" : "") + " data-hash='" + String(transaction.hash).escapeHTML() + "' data-persistence='" + String(transaction.persistence).escapeHTML() + "'>";
-          addressesHtml += "<div class='details'>";
-          addressesHtml += "<div class='address'>" + (checkSummedAddress ? UI.formatForClipboard(checkSummedAddress) : "/") + "</div>";
-          addressesHtml += "<div class='action'>" + (transaction.hash ? "<a href='#' class='show-bundle'>Show bundle</a> " : "") + "<span>" + String(transaction.persistence).escapeHTML() + "%</span></div>";
-          addressesHtml += "</div>";
-          addressesHtml += "<div class='value'>" + UI.formatDate(transaction.timestamp) + "</div>";
-          addressesHtml += "</div>";
-          addressesHtml += "</li>";
-        } else {
-          nrTransfers++;
-
-          var value = parseInt(transaction.value, 10);
-
-          transfersHtml += "<li data-hash='" + String(transaction.hash).escapeHTML() + "' data-type='" + (transaction.value < 0 ? "spending" : "receiving") + "' data-persistence='" + String(transaction.persistence).escapeHTML() + "'>";
-          transfersHtml += "<div class='type'><i class='fa fa-arrow-circle-" + (transaction.value < 0 ? "left" : "right") + "'></i></div>";
-          transfersHtml += "<div class='details'>";
-          transfersHtml += "<div class='date'>" + (transaction.timestamp != "0" ? UI.formatDate(transaction.timestamp, true) : "Genesis") + "</div>";
-          transfersHtml += "<div class='address'>" + (checkSummedAddress ? UI.formatForClipboard(checkSummedAddress) : "/") + "</div>";
-          transfersHtml += "<div class='action'>" + (transaction.hash ? "<a href='#' class='show-bundle'>Show bundle</a> " : "") + "<span>" + String(transaction.persistence).escapeHTML() + "%</span></div>";
-          transfersHtml += "</div>";
-          transfersHtml += "<div class='value'>" + UI.formatAmount(transaction.value) + "</div>";
-          transfersHtml += "</li>";
-        }
+      $.each(addresses, function(i, address) {
+        addressesHtml += "<li>";
+        addressesHtml += "<div class='details'>";
+        addressesHtml += "<div class='address'>" + UI.formatForClipboard(address) + "</div>";
+        addressesHtml += "</div>";
+        addressesHtml += "<div class='value'></div>";
+        addressesHtml += "</div>";
+        addressesHtml += "</li>";
       });
-    } else {
-      //$("#history-stack h1 span").html("");
+
+      var categorizedTransfers = iota.utils.categorizeTransfers(connection.accountData.transfers, connection.accountData.addresses);
+
+      $.each(connection.accountData.transfers.reverse(), function(i, bundle) {
+        var persistence = bundle[0].persistence ? bundle[0].persistence : false;
+        var isSent = false;
+        $.each(categorizedTransfers.sent, function(i, sentBundle) {
+          if (sentBundle[0].hash == bundle[0].hash) {
+            isSent = true;
+            return false;
+          }
+        });
+
+        transfersHtml += "<li data-hash='" + String(bundle[0].hash).escapeHTML() + "' data-type='" + (isSent ? "spending" : "receiving") + "' data-persistence='" + persistence*1 + "'>";
+        transfersHtml += "<div class='type'><i class='fa fa-arrow-circle-" + (isSent ? "left" : "right") + "'></i></div>";
+        transfersHtml += "<div class='details'>";
+        transfersHtml += "<div class='date'>" + (bundle[0].timestamp != "0" ? UI.formatDate(bundle[0].timestamp, true) : "Genesis") + "</div>";
+        transfersHtml += "<div class='address'>" + (bundle[0].address ? UI.formatForClipboard(iota.utils.addChecksum(bundle[0].address)) : "/") + "</div>";
+        transfersHtml += "<div class='action'>" + (bundle[0].hash ? "<a href='#' class='show-bundle'>Show bundle</a> " : "") + "<span>" + (persistence ? "Confirmed" : "Pending") + "</span></div>";
+        transfersHtml += "</div>";
+        transfersHtml += "<div class='value'>" + UI.formatAmount(bundle[0].value) + "</div>";
+        transfersHtml += "</li>";
+      });
     }
 
-    $transfersBtn.html("<span>" + nrTransfers + " </span>Transfer" + (nrTransfers != "1" ? "s" : ""));
-    $addressesBtn.html("<span>" + nrAddresses + " </span>Address" + (nrAddresses != "1" ? "es" : ""));
+    $transfersBtn.html("<span>" + connection.accountData.transfers.length + " </span>Transfer" + (connection.accountData.transfers.length != "1" ? "s" : ""));
+    $addressesBtn.html("<span>" + connection.accountData.addresses.length + " </span>Address" + (connection.accountData.addresses.length != "1" ? "es" : ""));
 
     if (!transfersHtml) {
       $transfers.find("ul").empty().hide();
@@ -228,7 +220,7 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.updateBalance = function() {
-    $("#available-balance, #available-balance-always").html(UI.formatAmount(connection.balance));
+    $("#available-balance, #available-balance-always").html(UI.formatAmount(connection.accountData.balance));
   }
 
   return UI;
