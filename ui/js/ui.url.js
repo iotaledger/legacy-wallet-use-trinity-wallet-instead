@@ -2,7 +2,7 @@ var UI = (function(UI, $, undefined) {
   UI.handleURL = function(url) {
     if (url == "faq" || url == "help") {
       UI.openHelpMenu();
-    } else if (!connection.isLoggedIn) {
+    } else if (!connection.seed) {
       UI.notify("error", "Please log in first.");
       connection.handleURL = url;
     } else {

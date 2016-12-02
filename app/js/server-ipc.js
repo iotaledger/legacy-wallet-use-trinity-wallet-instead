@@ -4,13 +4,17 @@ ipcRenderer.on("showNodeInfo", function() {
   if (typeof(UI) != "undefined") {
     if (!UI.initialConnection) {
       $(document).one("initialConnection", function() {
-        UI.showNodeInfo(true).done(function(identifier, html) {
-          ipcRenderer.send("showModal", identifier, html);
+        UI.showNodeInfo(function(error, identifier, html) {
+          if (!error) {
+            ipcRenderer.send("showModal", identifier, html);
+          }
         });
       });
     } else {
-      UI.showNodeInfo(true).done(function(identifier, html) {
-        ipcRenderer.send("showModal", identifier, html);
+      UI.showNodeInfo(function(error, identifier, html) {
+        if (!error) {
+          ipcRenderer.send("showModal", identifier, html);
+        }
       });
     }
   }
@@ -20,13 +24,17 @@ ipcRenderer.on("showPeers", function() {
   if (typeof(UI) != "undefined") {
     if (!UI.initialConnection) {
       $(document).one("initialConnection", function() {
-        UI.showPeers(true).done(function(identifier, html) {
-          ipcRenderer.send("showModal", identifier, html);
-        });
+        UI.showPeers(function(error, identifier, html) {
+          if (!error) {
+            ipcRenderer.send("showModal", identifier, html);
+          }
+        })
       })
     } else {
-      UI.showPeers(true).done(function(identifier, html) {
-        ipcRenderer.send("showModal", identifier, html);
+      UI.showPeers(function(error, identifier, html) {
+        if (!error) {
+          ipcRenderer.send("showModal", identifier, html);
+        }
       });
     }
   }
@@ -36,7 +44,13 @@ ipcRenderer.on("showNetworkSpammer", function() {
   if (typeof(UI) != "undefined") {
     UI.showNetworkSpammer();
   }
-})
+});
+
+ipcRenderer.on("showClaimProcess", function() {
+  if (typeof(UI) != "undefined") {
+    UI.showClaimProcess();
+  }
+});
 
 ipcRenderer.on("generateSeed", function() {
   if (typeof(UI) != "undefined") {
@@ -73,12 +87,6 @@ ipcRenderer.on("hideStatusBar", function() {
   }
 });
 
-ipcRenderer.on("setIsProofOfWorking", function(event, isProofOfWorking) {
-  if (typeof(UI) != "undefined") {
-    UI.setIsProofOfWorking(isProofOfWorking);
-  }
-});
-
 ipcRenderer.on("notify", function(event, type, message) {
   if (typeof(UI) != "undefined") {
     UI.notify(type, message);
@@ -103,14 +111,6 @@ ipcRenderer.on("shutdown", function() {
   }
 });
 
-function _powStarted() {
-  ipcRenderer.send("powStarted");
-}
-
-function _powEnded() {
-  ipcRenderer.send("powEnded");
-}
-
 function _hoverAmountStart(amount) {
   ipcRenderer.send("hoverAmountStart", amount);
 }
@@ -130,6 +130,11 @@ function _rendererIsReady() {
 function _relaunchApplication() {
   ipcRenderer.send("relaunchApplication");
 }
+
+function _updateStatusBar(data) {
+  ipcRenderer.send("updateStatusBar", data);
+}
+
 /*
 function _logUINotification(type, message) {
   ipcRenderer.send("logUINotification", type, message);
@@ -137,8 +142,7 @@ function _logUINotification(type, message) {
 */
 
 process.once('loaded', function() {
-  global.powStarted = _powStarted;
-  global.powEnded = _powEnded;
+  global.updateStatusBar = _updateStatusBar;
   global.hoverAmountStart = _hoverAmountStart;
   global.hoverAmountStop = _hoverAmountStop;
   global.editServerConfiguration = _editServerConfiguration;
