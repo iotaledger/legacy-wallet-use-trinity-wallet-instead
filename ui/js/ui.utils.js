@@ -92,7 +92,7 @@ var UI = (function(UI, $, undefined) {
   UI.formatDate = function(timestamp, full) {
     var date = new Date(timestamp*1000);
 
-    return ("0"+date.getDate()).substr(-2) + "/" + ("0"+(date.getMonth()+1)).substr(-2) + (full ? "/" + date.getFullYear() : "");
+    return ("0"+date.getDate()).substr(-2) + "/" + ("0"+(date.getMonth()+1)).substr(-2) + (full ? "/" + date.getFullYear() : "") + " " + date.getHours() + ":" + date.getMinutes();
   }
 
   UI.notify = function(type, message, options) {
@@ -172,76 +172,6 @@ var UI = (function(UI, $, undefined) {
     var $btn = $stack.find(".btn").first();
 
     $btn.loadingUpdate(message, options);
-  }
-
-  UI.convertToBaseAmount = function(amount, units) {
-    var possibleUnits = ["i", "ki", "mi", "gi", "ti"];
-
-    amount  = String(amount);
-    units   = String(units).toLowerCase();
-
-    if (!amount) {
-      throw "Amount is required";
-    } else if (!units) {
-      throw "Units is required";
-    } else if ($.inArray(units, possibleUnits) == -1) {
-      throw "Invalid units";
-    } else if (!/^[0-9\.]+$/.test(amount)) {
-      throw "Invalid amount";
-    }
-
-    var beforeComma = "", afterComma = [], afterCommaDigits = 0;
-
-    if (units == "ti") {
-      afterCommaDigits = 12;
-    } else if (units == "gi") {
-      afterCommaDigits = 9;
-    } else if (units == "mi") {
-      afterCommaDigits = 6;
-    } else if (units == "ki") {
-      afterCommaDigits = 3;
-    } else if (units == "i") {
-      afterCommaDigits = 0;
-    } else {
-      throw "Invalid units";
-    }
-
-    var parts = amount.split(".");
-
-    if (parts.length > 2) {
-      throw "Invalid amount";
-    }
-
-    beforeComma = parts[0];
-
-    if (parts[1]) {
-      afterComma  = parts[1].split("");
-    } else {
-      afterComma = [];
-    }
-
-    if (afterComma.length != afterCommaDigits) {
-      if (afterComma.length > afterCommaDigits) {
-        throw "Too many digits after comma";
-      }
-      for (var i=afterComma.length; i<afterCommaDigits; i++) {
-        afterComma.push("0");
-      }
-    }
-
-    amount = beforeComma + "" + afterComma.join("");
-
-    var intAmount = parseInt(amount, 10);
-
-    if (isNaN(intAmount)) {
-      throw "Amount is not a number";
-    } else if (intAmount < 0) {
-      throw "Amount cannot be negative";
-    } else if (String(intAmount) != amount) {
-      throw "Invalid amount";
-    }
-
-    return amount;
   }
 
   return UI;
