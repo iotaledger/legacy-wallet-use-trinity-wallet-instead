@@ -385,7 +385,7 @@ var App = (function(App, undefined) {
     win.webContents.once("did-finish-load", function() {
       console.log("Set Window Title");
 
-      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML() + " - IRI " + String(iriVersion).escapeHTML());
+      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML() + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
 
       if (onReady) {
         onReady();
@@ -686,8 +686,8 @@ var App = (function(App, undefined) {
 
   App.findServerDirectory = function() {
     try {
-      serverDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "IRI");
-      jarDirectory    = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "IRI");
+      serverDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "iri");
+      jarDirectory    = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "iri");
 
       console.log("Server directory is: " + serverDirectory);
       console.log("Jar directory is: " + jarDirectory);
@@ -927,7 +927,7 @@ var App = (function(App, undefined) {
 
       params.push("-jar");
 
-      params.push(path.join(jarDirectory, "IRI.jar"));
+      params.push(path.join(jarDirectory, "iri.jar"));
 
       if (settings.port) {
         params.push(settings.port);
@@ -1060,7 +1060,7 @@ var App = (function(App, undefined) {
     try {
       if (process.platform == "win32") {
         //" + String(command).replace(/\\/g, "\\\\") + "
-        var output = childProcess.execSync("wmic process where \"commandline LIKE '%jar %IRI.jar'\" get processid");
+        var output = childProcess.execSync("wmic process where \"commandline LIKE '%jar %iri.jar'\" get processid");
 
         process.stdout.write(output);
 
@@ -1801,9 +1801,9 @@ var App = (function(App, undefined) {
       try {
         App.killAlreadyRunningProcess(true);
 
-        var jarDirectory = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "IRI");
+        var jarDirectory = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "iri");
 
-        var targetFile = path.join(jarDirectory, "IRI.jar");
+        var targetFile = path.join(jarDirectory, "iri.jar");
 
         fs.unlinkSync(targetFile);
         fs.writeFileSync(targetFile, fs.readFileSync(sourceFile));

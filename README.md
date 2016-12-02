@@ -37,7 +37,7 @@
   git clone https://github.com/iotaledger/iri
   ```
 
-  Note: iri project does not exist yet -- make an IRI directory manually and place IRI.jar in it.
+  Note: make sure compiled iri.jar is in the iri folder.
   
 4. Install components
 
