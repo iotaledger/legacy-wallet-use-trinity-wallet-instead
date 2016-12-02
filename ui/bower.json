@@ -10,6 +10,8 @@
     "jquery-qrcode": "lrsjng/jquery-qrcode#^0.12.0",
     "jquery": "^2.2.4",
     "remodal": "^1.0.7",
-    "toastr": "^2.1.2"
+    "toastr": "^2.1.2",
+    "async": "^2.1.4",
+    "iota.lib.js": "^0.0.9"
   }
 }
