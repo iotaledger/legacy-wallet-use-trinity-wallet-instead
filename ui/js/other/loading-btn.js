@@ -56,7 +56,7 @@
                 $btn.html("<span class='content'></span>");
               }
 
-              $btn.find(".content").html(icon + message.toUpperCase().escapeHTML());
+              $btn.find(".content").html(icon + String(message).toUpperCase().escapeHTML());
            // } else {
            //   console.log("ALREADY UPDATED");
            // }
