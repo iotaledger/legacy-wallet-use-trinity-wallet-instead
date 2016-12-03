@@ -59,6 +59,7 @@ var App = (function(App, undefined) {
   var launchArguments           = [];
   var launchURL                 = null;
   var iriVersion                = "";
+  var isTestNet                 = false;
 
   App.uiIsReady                 = false;
   App.uiIsInitialized           = false;
@@ -383,9 +384,7 @@ var App = (function(App, undefined) {
     win.webContents.on("will-navigate", handleRedirect);
 
     win.webContents.once("did-finish-load", function() {
-      console.log("Set Window Title");
-
-      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML() + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
+      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML() + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() + (isTestNet ? " Testnet" : "") : ""));
 
       if (onReady) {
         onReady();
@@ -975,10 +974,8 @@ var App = (function(App, undefined) {
           var msg = "";
 
           if (data.match(/java\.net\.BindException/i)) {
-            msg = "The server address is already in use. Please close any other apps/services that may be running on port 14265.";
+            msg = "The server address is already in use. Please close any other apps/services that may be running on port " + (settings.port ? String(settings.port).escapeHTML() : "14265") + ".";
           }
-
-          console.log("inside, show");
 
           App.showInitializationAlert(null, msg);
         }
@@ -1225,7 +1222,8 @@ var App = (function(App, undefined) {
     isStarted = true;
 
     try {
-      win.webContents.send("serverStarted", "file://" + path.join(path.dirname(path.dirname(__dirname)), "ui").replace(path.sep, "/") + "/index.html", {"inApp": true, "showStatus": settings.showStatusBar, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
+      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML() + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() + (isTestNet ? " Testnet" : "") : ""));
+      win.webContents.send("serverStarted", "file://" + path.join(path.dirname(path.dirname(__dirname)), "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
     } catch (err) {
       console.log("err:");
       console.log(err);
@@ -1235,9 +1233,20 @@ var App = (function(App, undefined) {
   App.checkServerOutput = function(data) {
     if (!isStarted && !didKillServer) {
       // This can result in errors.. Need to have a real response from the console instead of just this.
-      var iri = data.match(/IRI ([0-9\.]+)/i);
+      var iri = data.match(/IRI (Testnet)?\s*([0-9\.]+)/i);
       if (iri) {
-        iriVersion = iri[1];
+        if (iri[1]) {
+          isTestNet = true;
+          if (settings.minWeightMagnitude < 13) {
+            settings.minWeightMagnitude = 13;
+          }
+        } else {
+          isTestNet = false;
+          if (settings.minWeightMagnitude < 18) {
+            settings.minWeightMagnitude = 18;
+          }
+        }
+        iriVersion = iri[2];
         App.serverStarted();
       }
       /*
@@ -1569,7 +1578,7 @@ var App = (function(App, undefined) {
 
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
-      win.webContents.send("editServerConfiguration", {"port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "nodes": settings.nodes.join("\r\n")});
+      win.webContents.send("editServerConfiguration", {"port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "nodes": settings.nodes.join("\r\n"), "testNet": isTestNet});
     }
   }
 
@@ -1624,6 +1633,20 @@ var App = (function(App, undefined) {
       settings.port               = parseInt(configuration.port, 10);
       settings.depth              = parseInt(configuration.depth, 10);
       settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
+
+      if (settings.port < 1) {
+        settings.port = 14265;
+      }
+
+      if (settings.depth < 1) {
+        settings.depth = 3;
+      }
+
+      if (!isTestNet && settings.minWeightMagnitude < 18) {
+        settings.minWeightMagnitude = 18;
+      } else if (isTestNet && settings.minWeightMagnitude < 13) {
+        settings.minWeightMagnitude = 13;
+      }
 
       App.saveSettings();
       App.relaunchApplication();

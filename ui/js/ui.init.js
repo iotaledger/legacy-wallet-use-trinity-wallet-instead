@@ -7,6 +7,7 @@ var connection = {"accountData"         : false,
                   "inApp"               : false,
                   "isSpamming"          : false,
                   "handleURL"           : false,
+                  "testNet"             : false,
                   "depth"               : 3,
                   "minWeightMagnitude"  : 18};
 
@@ -53,16 +54,16 @@ var UI = (function(UI, $, undefined) {
     } else {
       if (typeof(URLSearchParams) != "undefined" && parent) {
         var params = new URLSearchParams(location.search.slice(1));
-        connection.inApp = params.get("inApp") == "true";
+        connection.inApp = params.get("inApp") == 1;
         connection.showStatus = params.get("showStatus") == 1;
-        connection.depth = parseInt(params.get("depth"), 10);
-        connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
-      } else {
-        connection.inApp = false;
-        connection.showStatus = false;
-        connection.depth = 3;
-        connection.minWeightMagnitude = 18;
+        if (params.has("depth")) {
+          connection.depth = parseInt(params.get("depth"), 10);
+        }
+        if (params.has("minWeightMagnitude")) {
+          connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
+        }
       }
+      
       setTimeout(initialize, 100);
    }
   }

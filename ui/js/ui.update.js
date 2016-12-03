@@ -80,6 +80,14 @@ var UI = (function(UI, $, undefined) {
     if (!UI.initialConnection && connection.nodeInfo) {
       console.log("We have an initial connection.");
       UI.initialConnection = true;
+      if (connection.nodeInfo.appName.match(/testnet/i)) {
+        connection.testNet = true;
+        if (connection.minWeightMagnitude < 13) {
+          connection.minWeightMagnitude = 13;
+        }
+      } else if (connection.minWeightMagnitude < 18) {
+        connection.minWeightMagnitude = 18;
+      }
       $(document).trigger("initialConnection");
       if (!connection.seed) {
         // After initial connection, update state every 2 seconds

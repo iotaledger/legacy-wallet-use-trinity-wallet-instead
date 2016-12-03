@@ -434,7 +434,7 @@ var UI = (function(UI, undefined) {
                      "<div class='input-group'><label>Depth:</label>" + 
                      "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" + 
                      "<div class='input-group'><label>Min Weight Magnitude:</label>" + 
-                     "<input type='number' min='18' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : "18") + "' /></div>" + 
+                     "<input type='number' min='" + (configuration.testNet ? "13" : "18") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : "18") + "' /></div>" + 
                      "<div class='input-group input-group'><label>Neighboring Nodes:</label>" + 
                      "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;' placeholder='Add nodes in the following format (one per line):\r\n\r\nudp://ip:12345'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>");
 
