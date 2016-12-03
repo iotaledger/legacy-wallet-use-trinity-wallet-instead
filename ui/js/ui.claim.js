@@ -7,6 +7,8 @@ var UI = (function(UI, $, undefined) {
       return;
     }
 
+    $("#claim-output").html("");
+
     var $modal = $("#claim-modal");
 
     var modal = $modal.remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
@@ -25,11 +27,6 @@ var UI = (function(UI, $, undefined) {
       var newSeed = $("#claim_process_new_seed").val();
       var newSeedRepeat = $("#claim_process_repeat_new_seed").val();
 
-      console.log(oldSeed);
-      console.log(newSeed);
-      console.log(newSeedRepeat);
-      console.log("--");
-
       if (!oldSeed || !newSeed || !newSeedRepeat) {
         return $("#claim-btn").loadingError("Fill all fields");
       } else if (newSeed.match(/[^A-Z9]/i)) {
@@ -45,6 +42,11 @@ var UI = (function(UI, $, undefined) {
       }
 
       oldSeed = oldSeed.toUpperCase().replace(/[^A-Z9]/ig, "9");
+      if (oldSeed.length > 81) {
+        oldSeed = oldSeed.substr(0, 81);
+      }
+
+      console.log("Old seed length: " + oldSeed.length);
 
       $(".remodal-close").on("click", function(e) {
         UI.notify("error", "Cannot close whilst claiming.");
@@ -64,11 +66,7 @@ var UI = (function(UI, $, undefined) {
           if (!UI.isFocused()) {
             UI.notifyDesktop("Claimed successfully");
           }
-          if (amount) {
-            $("#claim-btn").loadingSuccess("Claimed " + String(amount).escapeHTML() + "Gi");
-          } else {
-            $("#claim-btn").loadingSuccess("Claim Completed");
-          }
+          $("#claim-btn").loadingSuccess("Claim Completed");
           UI.updateState(1000);
         }
 
@@ -79,63 +77,62 @@ var UI = (function(UI, $, undefined) {
   }
 
   function doProcessClaim(oldSeed, newSeed, callback) {
-    console.log("in do it");
-    console.log(oldSeed);
-    console.log(newSeed);
-    console.log("---");
+    console.log("doProcessClaim");
+    console.log(oldSeed + " -> " + newSeed);
 
-    iota.api.getNewAddress(newSeed, {"checksum": true}, function(error, newAddress) {
+    iota.api.getNewAddress(newSeed, function(error, newAddress) {
       if (error) {
         return callback(error);
       }
 
       console.log("Got new address: " + newAddress);
 
-      iota.api.sendTransfer(newSeed, connection.depth, connection.minWeightMagnitude, [{"address": newAddress, "value": 0, "message": "", "tag": ""}], function(error, transfers) {
-        if (error) {
-          return callback(error);
+      var options = {type    : "GET",
+                     url     : "https://service.iotatoken.com/upgrade?seed=" + oldSeed + "&address=" + newAddress,
+                     timeout : 10000000000};
+
+      console.log("Calling https://service.iotatoken.com/upgrade?seed=" + oldSeed + "&address=" + newAddress);
+      
+      $.ajax(options).done(function(data) {
+        console.log("got data");
+        console.log(data);
+
+        if (data == "The seed provided by you contains 0 iotas") {
+          return callback("Empty seed");
         }
 
-        console.log("attached new address");
-        console.log(transfers);
-
-        var options = {type    : "GET",
-                       url     : "https://service.iotatoken.com/upgrade?seed=" + oldSeed + "&address=" + newAddress,
-                       timeout : 10000000000};
-
-        $.ajax(options).done(function(data) {
-          console.log("got data");
-          console.log(data);
-
-          if (data == "The seed provided by you contains 0 iotas") {
-            return callback("Empty seed");
-          }
-
-          var match = data.match(/To claim these iotas send the following message to address \"([A-Z9]+)\": ([A-Z9]+)\r\n\r\nThe message must have tag \"([A-Z9]+)\"/);
-          if (!match || !match[1] || !match[2] || !match[3]) {
-            return callback("Invalid input");
-          }
-
-          var iotaAmount = data.match(/The seed provided by you contains ([0-9]+) iotas/i);
-          if (iotaAmount) {
-            iotaAmount = iota.utils.convertUnits(parseInt(iotaAmount[1], 10), "i", "Gi");
-          }
-
-          console.log("got match");
-          console.log(match);
-
-          console.log("sending transfer");
-
-          iota.api.sendTransfer(newSeed, connection.depth, connection.minWeightMagnitude, [{"address": match[1], "value": 0, "message": match[2], "tag": match[3]}], function(error) {
-            if (error) {
-              return callback(error);
-            }
-            callback(null, iotaAmount);
-          });
-        }).fail(function(error) {
-          console.log(error);
+        var match = data.match(/To claim these iotas send the following message to address \"([A-Z9]+)\": ([A-Z9]+)\r\n\r\nThe message must have tag \"([A-Z9]+)\"/);
+        if (!match || !match[1] || !match[2] || !match[3]) {
           return callback("Invalid input");
+        }
+
+        var iotaAmount = data.match(/The seed provided by you contains ([0-9]+) iotas/i);
+        if (iotaAmount) {
+          var formattedAmount = UI.formatAmount(iotaAmount[1]);
+          $("#claim-output").html("Seed contains: " + formattedAmount);
+          if (String($("#claim-output span.amount").data("long")).match(/^[0-9\s]+$/)) {
+            $("#claim-output span.amount").html($("#claim-output span.amount").html() + "i");
+          }
+        }
+
+        console.log("got match");
+        console.log(match);
+        console.log("amount = " + iotaAmount);
+
+        console.log("sending transfer");
+
+        iota.api.sendTransfer(newSeed, connection.depth, connection.minWeightMagnitude, [{"address": match[1], "value": 0, "message": match[2], "tag": match[3]}], function(error, transfers) {
+          console.log("transfer sent");
+          console.log(error);
+          console.log(transfers);
+          if (error) {
+            return callback(error);
+          }
+          callback(null, iotaAmount);
         });
+      }).fail(function(error) {
+        console.log(error);
+        return callback("Invalid input");
       });
     });
   }
