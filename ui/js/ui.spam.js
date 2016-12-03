@@ -22,7 +22,7 @@ var UI = (function(UI, $, undefined) {
     $(document).on("closed", "#spam-modal", function (e) {
       if (isSpamming) {
         isSpamming = false;
-        $("#spam-btn").loadingReset({"msg": "Spam the Network"});
+        $("#spam-btn").loadingReset("Spam the Network");
         iota.api.interruptAttachingToTangle();
         console.log("OK loading reset was called");
       }
