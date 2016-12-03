@@ -36,27 +36,15 @@ var UI = (function(UI, $, undefined) {
         return $("#claim-btn").loadingError("Invalid characters");
       } else if (newSeed.match(/[a-z]/) && newSeed.match(/[A-Z]/)) {
         return $("#claim-btn").loadingError("Mixed case characters");
-      } else if (newSeed.length != 81) {
-        return $("#claim-btn").loadingError("Invalid checksum");
+      } else if (newSeed.length < 41) {
+        return $("#claim-btn").loadingError("New seed too short");
+      } else if (newSeed.length > 81) {
+        return $("#claim-btn").loadingError("New seed too long");
       } else if (newSeed != newSeedRepeat) {
         return $("#claim-btn").loadingError("Not matching");
       }
 
-      oldSeed = oldSeed.toUpperCase();
-
-      var seed = "";
-
-      for (var i = 0; i < 81; i++) {
-        var char = oldSeed.charAt(i);
-
-        if (!char || ("9ABCDEFGHIJKLMNOPQRSTUVWXYZ").indexOf(char) < 0) {
-          seed += "9";
-        } else {
-          seed += char;
-        }
-      }
-
-      oldSeed = seed;
+      oldSeed = oldSeed.toUpperCase().replace(/[^A-Z9]/ig, "9");
 
       $(".remodal-close").on("click", function(e) {
         UI.notify("error", "Cannot close whilst claiming.");
@@ -130,7 +118,7 @@ var UI = (function(UI, $, undefined) {
 
           var iotaAmount = data.match(/The seed provided by you contains ([0-9]+) iotas/i);
           if (iotaAmount) {
-            iotaAmount = iota.utils.convertUnits(iotaAmount[1], "i", "Gi");
+            iotaAmount = iota.utils.convertUnits(parseInt(iotaAmount[1], 10), "i", "Gi");
           }
 
           console.log("got match");

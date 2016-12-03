@@ -35,12 +35,12 @@ var UI = (function(UI, $, undefined) {
     var mixedCase = value.match(/[a-z]/) && value.match(/[A-Z]/);
 
     if (invalidCharacters) {
-      return "Your seed contains invalid characters. Only A-Z and the number 9 are accepted." + (value.length > 81 ? " Your seed is also too long." : (value.length < 60 ? " Your seed is also too short." : ""));
+      return "Your seed contains invalid characters. Only A-Z and the number 9 are accepted." + (value.length > 81 ? " Your seed is also too long." : (value.length < 41 ? " Your seed is also too short." : ""));
     } else if (mixedCase) {
-      return "Your seed contains mixed case characters. Lowercase is converted to uppercase." + (value.length > 81 ? " Your seed is also too long." : (value.length < 60 ? " Your seed is also too short." : ""));
+      return "Your seed contains mixed case characters. Lowercase is converted to uppercase." + (value.length > 81 ? " Your seed is also too long." : (value.length < 41 ? " Your seed is also too short." : ""));
     } else if (value.length > 81) {
       return "Your seed should not contain more than 81 characters. Extra characters are ignored.";
-    } else if (value.length < 60) {
+    } else if (value.length < 41) {
       return "Your seed does not contain enough characters. This is not secure.";
     } else {
       return "";
