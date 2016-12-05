@@ -16,11 +16,13 @@
   npm install -g bower
   ```
 
+#### Compiling
+
 If you wish to compile the app, install the following also: 
 
 1. Install [Electron Builder](https://github.com/electron-userland/electron-builder)
 
-Electron Builder is used behind the scenes. Read their [instructions](https://github.com/electron-userland/electron-builder/wiki/Multi-Platform-Build) on how to set up your system.
+ Electron Builder is used behind the scenes. Read their [instructions](https://github.com/electron-userland/electron-builder/wiki/Multi-Platform-Build) on how to set up your system.
 
 2. Install [Docker](https://www.docker.com)
 
@@ -64,7 +66,7 @@ Electron Builder is used behind the scenes. Read their [instructions](https://gi
   npm run compile
   ```
 
-If you'd like to create a package only for a specific OS, you can do so like this: 
+  If you'd like to create a package only for a specific OS, you can do so like this: 
 
   ```
   npm run compile:win
@@ -72,6 +74,8 @@ If you'd like to create a package only for a specific OS, you can do so like thi
   npm run compile:lin
   ```
 
-Compiled binaries are found in the `out` directory.
+  Compiled binaries are found in the `out` directory.
 
-Note: To build testnet binaries, rename `package.testnet.json` to `package.json` and follow instructions as above. (Temporary)
+#### Testnet
+
+To build testnet binaries, rename `package.testnet.json` to `package.json` and follow instructions as above. Make sure the jar is named `iri-testnet.jar`.
