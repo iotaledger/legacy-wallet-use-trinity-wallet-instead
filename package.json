@@ -5,8 +5,22 @@
   "version": "2.0.0",
   "main": "app/js/main.js",
   "scripts": {
-    "prepublish": "cd app && bower install && cd ../ui && bower install",
-    "start": "export NODE_ENV=development || set NODE_ENV=development && electron app/js/main.js"
+    "postinstall": "install-app-deps && cd app && bower install && cd ../ui && bower install",
+    "start": "export NODE_ENV=development || set NODE_ENV=development && electron app/js/main.js",
+    "precompile": "rimraf out/*",
+    "compile": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --win --mac --linux --x64 --ia32",
+    "compile:lin": "build --linux --x64 --ia32",
+    "compile:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --mac --x64",
+    "compile:win": "build --win --x64 --ia32",
+    "prepublish": "rimraf out/*",
+    "publish": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --win --mac --linux --x64 --ia32 --publish always",
+    "publish:lin": "build --linux --x64 --ia32 --publish always",
+    "publish:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --mac --x64 --publish always",
+    "publish:win": "build --win --x64 --ia32 --publish always"
+  },
+  "directories": {
+    "buildResources": "build",
+    "output": "out"
   },
   "author": "IOTA Foundation <info@iotatoken.com>",
   "homepage": "https://www.iotatoken.com/",
@@ -22,6 +36,52 @@
     "spawn-args": "^0.1.0"
   },
   "devDependencies": {
-    "electron": "^1.4.10"
+    "electron": "^1.4.10",
+    "electron-builder": "^10.4.1",
+    "rimraf": "^2.5.4"
+  },
+  "build": {
+    "publish": ["github"],
+    "appId": "com.iotatoken.wallet",
+    "category": "public.app-category.developer-tools",
+    "extraResources": [
+      "iri/iri.jar",
+      "ui/**/*"
+    ],
+    "protocols": [
+      {
+        "name": "IOTA URL Scheme",
+        "schemes": ["iota"]
+      }
+    ],
+    "dmg": {
+      "iconSize": 125,
+      "contents": [
+        {
+          "x": 235,
+          "y": 290,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 235,
+          "y": 20,
+          "type": "file"
+        }
+      ]
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm",
+        "tar.gz",
+        "snap"
+      ],
+      "packageUrl": "https://www.iotatoken.com/"
+    }
   }
 }
