@@ -1,6 +1,14 @@
 const electron = require("electron");
 
+String.prototype.escapeHTML = function() {
+  return String(this).replace(/[&<>"'\/]/g, function(s) {
+    return __entityMap[s];
+  });
+}
+
 var UI = (function(UI, undefined) {
+  var _updateServerConfiguration = false;
+
   UI.initialize = function() {
     document.getElementById("quit-btn").addEventListener("click", function(e) {
       document.getElementById("quit-btn").disabled = true;
@@ -8,7 +16,15 @@ var UI = (function(UI, undefined) {
     });
     document.getElementById("restart-btn").addEventListener("click", function(e) {
       document.getElementById("restart-btn").disabled = true;
-      UI.relaunchApplication(String(document.getElementById("java_parameters").value).trim());
+
+      var settings = {};
+
+      if (_updateServerConfiguration) {
+        settings.port  = parseInt(document.getElementById("port").value, 10);
+        settings.nodes = document.getElementById("neighboring-nodes").value;
+      }
+
+      UI.updateServerConfiguration(settings, String(document.getElementById("java-parameters").value).trim());
     });
     document.getElementById("download-java").addEventListener("click", function(e) {
       document.getElementById("download-java").disabled = true;
@@ -41,18 +57,40 @@ var UI = (function(UI, undefined) {
 
   UI.show = function(title, msg, params) {
     if (title) {
-      document.getElementById("title").innerHTML = title;
+      document.getElementById("title").innerHTML = String(title).escapeHTML();
       document.getElementById("title").style.display = "block";
     } else {
       document.getElementById("title").style.display = "none";
     }
     if (msg) {
-      document.getElementById("message").innerHTML = msg;
+      document.getElementById("message").innerHTML = String(msg).escapeHTML();
       document.getElementById("message").style.display = "block";
     } else {
       document.getElementById("message").style.display = "none";
     }
     if (params) {
+      if (params.updateServerConfiguration) {
+        _updateServerConfiguration = true;
+        if (msg.match(/provide port number/i)) {
+          document.getElementById("server-output-section").style.display = "none";
+          document.getElementById("restart-btn").innerHTML = "Start";
+        } else {
+          document.getElementById("server-output-section").style.display = "block";
+        }
+        document.getElementById("edit-launch-arguments-section").style.display = "block";
+
+        if (params.port) {
+          document.getElementById("port").value = params.port;
+        }
+
+        if (params.nodes) {
+          document.getElementById("neighboring-nodes").value = params.nodes.join("\r\n");
+        }
+      } else {
+        document.getElementById("server-output-section").style.display = "block";
+        document.getElementById("edit-launch-arguments-section").style.display = "none";
+      }
+
       if (params.serverOutput && params.serverOutput.length) {
         var log = params.serverOutput.join("\n");
         log = log.replace(/\n\s*\n/g, "\n");
@@ -61,12 +99,12 @@ var UI = (function(UI, undefined) {
           log = "No server output.";
         }
 
-        document.getElementById("server_output").value = log;
-        //document.getElementById("server_output").scrollTop = document.getElementById("server_output").scrollHeight;
+        document.getElementById("server-output").value = log;
+        //document.getElementById("server-output").scrollTop = document.getElementById("server-output").scrollHeight;
       }
 
       if (params.javaArgs) {
-        document.getElementById("java_parameters").value = params.javaArgs;
+        document.getElementById("java-parameters").value = params.javaArgs;
       }
 
       if (params.is64BitOS && !params.java64BitsOK) {
@@ -84,8 +122,8 @@ var UI = (function(UI, undefined) {
     }, 20);
   }
 
-  UI.relaunchApplication = function(javaArgs) {
-    electron.ipcRenderer.send("relaunchApplication", (javaArgs ? javaArgs : -1));
+  UI.updateServerConfiguration = function(settings, javaArgs) {
+    electron.ipcRenderer.send("updateServerConfiguration", settings, javaArgs);
   }
 
   UI.showNoJavaInstalledWindow = function() {

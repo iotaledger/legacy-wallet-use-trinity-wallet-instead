@@ -15,6 +15,12 @@ body {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
+#message {
+  border: 1px solid gray;
+  padding: 10px;
+  background: #efefef;
+}
+
 .content {
   padding: 20px;
 }
@@ -91,7 +97,11 @@ a:visited {
   display: none;
 }
 
-#server_output, #server_config {
+#edit-launch-arguments-section, #server-output-section {
+  display: none;
+}
+
+#server-output, #neighboring-nodes {
   width: 100%;
   background: #000;
   color: #fff;
@@ -100,8 +110,23 @@ a:visited {
   font-size: 16px;
 }
 
-#edit-configuration-content {
-  display: none;
+#neighboring-nodes {
+  background: #ccc;
+  color: #000;
+}
+
+p.label {
+  margin-bottom: 5px;
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+p.note {
+  font-size: 85%;
+  font-style: italic;
+  color: darkgray;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .fadein {
