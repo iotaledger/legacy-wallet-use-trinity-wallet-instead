@@ -430,7 +430,7 @@ var UI = (function(UI, undefined) {
 
     modal.setContent("<h1>Server Config</h1>" + 
                      "<div class='input-group'><label>Server Port:</label>" + 
-                     "<input type='number' min='1' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" + 
+                     "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" + 
                      "<div class='input-group'><label>Depth:</label>" + 
                      "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" + 
                      "<div class='input-group'><label>Min Weight Magnitude:</label>" + 
