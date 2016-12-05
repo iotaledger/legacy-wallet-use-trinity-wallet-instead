@@ -35,8 +35,9 @@ Array.prototype.unique = function(a){
 
 var App = (function(App, undefined) {
   var isStarted                 = false;
-  var jarDirectory              = "";
+  var appDataDirectory          = "";
   var serverDirectory           = "";
+  var jarDirectory              = "";
   var javaLocations             = [];
   var selectedJavaLocation;
   var currentLocationTest       = 0;
@@ -59,11 +60,14 @@ var App = (function(App, undefined) {
   var launchArguments           = [];
   var launchURL                 = null;
   var iriVersion                = "";
-  var isTestNet                 = false;
+  var lastError                 = "";
+
+  var isTestNet                 = String(appVersion).match(/\-testnet$/) != null;
 
   App.uiIsReady                 = false;
   App.uiIsInitialized           = false;
   App.doServerStarted           = false;
+
 
   App.initialize = function() {
     if (process.platform == "darwin") {
@@ -89,7 +93,7 @@ var App = (function(App, undefined) {
 
     App.createWindow();
 
-    App.findServerDirectory();
+    App.findDirectories();
 
     if (!electron.app.isDefaultProtocolClient("iota")) {
       console.log("Register iota as a default protocol");
@@ -105,7 +109,7 @@ var App = (function(App, undefined) {
 
   App.loadSettings = function() {
     try {
-      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json");
+      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : "") + path.sep + "settings.json");
 
       if (!fs.existsSync(settingsFile)) {
         throw "Settings file does not exist.";
@@ -133,13 +137,18 @@ var App = (function(App, undefined) {
         settings.isFirstRun = 1;
       }
       if (!settings.hasOwnProperty("port")) {
-        settings.port = 14265;
+        settings.port = (isTestNet ? 14999 : 14265);
       }
       if (!settings.hasOwnProperty("depth")) {
         settings.depth = 3;
       }
       if (!settings.hasOwnProperty("minWeightMagnitude")) {
         settings.minWeightMagnitude = 18;
+      }
+      if (!isTestNet && settings.minWeightMagnitude < 18) {
+        settings.minWeightMagnitude = 18;
+      } else if (isTestNet && settings.minWeightMagnitude < 13) {
+        settings.minWeightMagnitude = 13;
       }
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
         settings.nodes = [];
@@ -148,7 +157,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings.");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, javaArgs: "", checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: 14265, nodes: []};
+      settings = {bounds: {width: 520, height: 736}, javaArgs: "", checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14999 : 14265), nodes: []};
     }
 
     try {
@@ -185,7 +194,7 @@ var App = (function(App, undefined) {
 
       settings.isFirstRun = 0;
 
-      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "settings.json");
+      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : "") + path.sep + "settings.json");
 
       fs.writeFileSync(settingsFile, JSON.stringify(settings));
     } catch (err) {
@@ -384,7 +393,7 @@ var App = (function(App, undefined) {
     win.webContents.on("will-navigate", handleRedirect);
 
     win.webContents.once("did-finish-load", function() {
-      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML() + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() + (isTestNet ? " Testnet" : "") : ""));
+      win.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
 
       if (onReady) {
         onReady();
@@ -683,13 +692,20 @@ var App = (function(App, undefined) {
     electron.Menu.setApplicationMenu(menu);
   }
 
-  App.findServerDirectory = function() {
+  App.findDirectories = function() {
     try {
-      serverDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + path.sep + "iri");
-      jarDirectory    = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "iri");
+      appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
+      serverDirectory  = path.join(appDataDirectory, "iri");
+      jarDirectory     = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "iri");
 
+      console.log("App data directory is: " + appDataDirectory);
       console.log("Server directory is: " + serverDirectory);
       console.log("Jar directory is: " + jarDirectory);
+
+      if (!fs.existsSync(appDataDirectory)) {
+        console.log("Creating app data directory.");
+        fs.mkdirSync(appDataDirectory);
+      }
 
       if (!fs.existsSync(serverDirectory)) {
         console.log("Creating server directory.");
@@ -926,13 +942,9 @@ var App = (function(App, undefined) {
 
       params.push("-jar");
 
-      params.push(path.join(jarDirectory, "iri.jar"));
+      params.push(path.join(jarDirectory, "iri" + (isTestNet ? "-testnet" : "") + ".jar"));
 
-      if (settings.port) {
-        params.push(settings.port);
-      } else {
-        params.push(14265);
-      }
+      params.push(settings.port);
 
       if (settings.nodes) {
         params = params.concat(settings.nodes);
@@ -960,25 +972,12 @@ var App = (function(App, undefined) {
 
       server.stdout.on("data", function(data) {
         App.logServerOutput(data);
-        App.checkServerOutput(data);
+        App.checkServerOutput(data, "data");
       });
 
       server.stderr.on("data", function(data) {
         App.logServerOutput(data);
-        App.checkServerOutput(data);
-
-        if (!isStarted && !didKillServer && !serverInitializationError) {
-          //&& data.match(/java\.lang\.ExceptionInInitializerError|java\.net\.BindException|java\.lang\.IllegalArgumentException/i)) {
-          serverInitializationError = true;
-
-          var msg = "";
-
-          if (data.match(/java\.net\.BindException/i)) {
-            msg = "The server address is already in use. Please close any other apps/services that may be running on port " + (settings.port ? String(settings.port).escapeHTML() : "14265") + ".";
-          }
-
-          App.showInitializationAlert(null, msg);
-        }
+        App.checkServerOutput(data, "error");
       });
 
       server.on("exit", function(code) {
@@ -1057,7 +1056,7 @@ var App = (function(App, undefined) {
     try {
       if (process.platform == "win32") {
         //" + String(command).replace(/\\/g, "\\\\") + "
-        var output = childProcess.execSync("wmic process where \"commandline LIKE '%jar %iri.jar'\" get processid");
+        var output = childProcess.execSync("wmic process where \"commandline LIKE '%jar %iri" + (isTestNet ? "-testnet" : "") + ".jar'\" get processid");
 
         process.stdout.write(output);
 
@@ -1074,7 +1073,7 @@ var App = (function(App, undefined) {
       } else {
         //var escapeStringRegexp = require("escape-string-regexp");
         //+ escapeStringRegexp(command.replace(/\"/g, '')) +
-        var output = childProcess.execSync("ps gx | grep \"[j]ar .*IRI\.jar$\"");
+        var output = childProcess.execSync("ps gx | grep \"[j]ar .*iri" + (isTestNet ? "\-testnet" : "") + "\.jar$\"");
 
         output = output.toString().trim();
 
@@ -1094,7 +1093,11 @@ var App = (function(App, undefined) {
   }
 
   App.relaunchApplication = function(javaArgs) {
-    oneTimeJavaArgs = javaArgs;
+    if (javaArgs) {
+      oneTimeJavaArgs = javaArgs;
+    } else {
+      oneTimeJavaArgs = -1;
+    }
 
     App.killServer(function() {
       if (otherWin) {
@@ -1117,6 +1120,8 @@ var App = (function(App, undefined) {
 
       isStarted = false;
       didKillServer = false;
+      serverInitializationError = false;
+      lastError = false;
       isRelaunch = true;
 
       if (selectedJavaLocation) {
@@ -1222,7 +1227,7 @@ var App = (function(App, undefined) {
     isStarted = true;
 
     try {
-      win.setTitle("IOTA Wallet " + String(appVersion).escapeHTML() + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() + (isTestNet ? " Testnet" : "") : ""));
+      win.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
       win.webContents.send("serverStarted", "file://" + path.join(path.dirname(path.dirname(__dirname)), "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
     } catch (err) {
       console.log("err:");
@@ -1230,30 +1235,50 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.checkServerOutput = function(data) {
-    if (!isStarted && !didKillServer) {
-      // This can result in errors.. Need to have a real response from the console instead of just this.
-      var iri = data.match(/IRI (Testnet)?\s*([0-9\.]+)/i);
-      if (iri) {
-        if (iri[1]) {
-          isTestNet = true;
-          if (settings.minWeightMagnitude < 13) {
-            settings.minWeightMagnitude = 13;
-          }
-        } else {
-          isTestNet = false;
-          if (settings.minWeightMagnitude < 18) {
-            settings.minWeightMagnitude = 18;
-          }
-        }
-        iriVersion = iri[2];
-        App.serverStarted();
+  App.checkServerOutput = function(data, type) {
+    if (!didKillServer && !serverInitializationError) {
+      var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
+      if (error) {
+        lastError = error[1];
       }
-      /*
-      if (data.match(/Transactions to request|Following coordinator/i)) {
-        App.serverStarted();
-      }*/
+
+      if (type == "error" || data.match(/shutdown hook/i)) {
+        var msg = "";
+
+        console.log("error = " + data);
+        console.log(lastError);
+
+        if (data.match(/java\.net\.BindException/i)) {
+          msg = "The server address is already in use. Please close any other apps/services that may be running on port " + String(settings.port).escapeHTML() + ".";
+        } else if (data.match(/java\.net\.URISyntaxException/i) || data.match(/java\.lang\.IllegalArgumentException/i)) {
+          msg == "Invalid arguments list. Provide port number and at least one udp node address.";
+        } else if (lastError) {
+          msg = lastError;
+        }
+
+        App.showInitializationAlert(null, msg);
+      } else if (!isStarted) {
+        // This can result in errors.. Need to have a real response from the console instead of just this.
+        var iri = data.match(/Welcome to IRI (Testnet)?\s*([0-9\.]+)/i);
+        if (iri) {
+          //don't run mainnet IRI in testnet GUI, and other way around
+          if (isTestNet && !iri[1] || !isTestNet && iri[1]) {
+            App.quit();
+          }
+          iriVersion = iri[2];
+
+          // Wait 100 miliseconds because the node can shut down after the welcome message.. 
+          setTimeout(function() {
+            console.log("here we are in set timeout");
+            if (!serverInitializationError && !didKillServer) {
+              console.log("server started");
+              App.serverStarted();
+            }
+          }, 100);
+        }
+      }
     }
+
     if (settings.showStatusBar) {
       var milestone = {};
 
@@ -1370,6 +1395,10 @@ var App = (function(App, undefined) {
   }
 
   App.showInitializationAlert = function(title, msg) {
+    if (serverInitializationError) {
+      return;
+    }
+
     serverInitializationError = true;
 
     // Reset selected java location. (will be saved in settings)
@@ -1400,10 +1429,18 @@ var App = (function(App, undefined) {
       msg = "A server initialization error occurred.";
     }
 
+    msg = msg.replace(/Invalid arguments list.\s*/i, "");
+
     if (!selectedJavaLocation) {
       selectedJavaLocation = "java";
     }
 
+    var updateServerConfiguration = msg.match(/Exception during IOTA node initialisation|Provide port number/i) != null;
+
+    if (updateServerConfiguration && (!settings.nodes || settings.nodes.length == 0)) {
+      title = "Initialization";
+    }
+    
     //check if user is running 32-bit java on win 64..
     if (is64BitOS) {
       console.log("64-bit");
@@ -1432,15 +1469,22 @@ var App = (function(App, undefined) {
       });
 
       child.on("exit", function() {
-        App.showOtherWindow("init_error.html", title, msg, {"javaArgs"      : args,
-                                                            "serverOutput"  : serverOutput,
-                                                            "javaVersionOK" : javaVersionOK,
-                                                            "java64BitsOK"  : java64BitsOK,
-                                                            "is64BitOS"     : is64BitOS});
+        App.showOtherWindow("init_error.html", title, msg, {"javaArgs"                  : args,
+                                                            "serverOutput"              : serverOutput,
+                                                            "javaVersionOK"             : javaVersionOK,
+                                                            "java64BitsOK"              : java64BitsOK,
+                                                            "is64BitOS"                 : is64BitOS,
+                                                            "updateServerConfiguration" : updateServerConfiguration,
+                                                            "port"                      : settings.port,
+                                                            "nodes"                     : settings.nodes});
       });
     } else {
       console.log("32-bit");
-      App.showOtherWindow("init_error.html", title, msg, {"javaArgs": args, "serverOutput": serverOutput});
+      App.showOtherWindow("init_error.html", title, msg, {"javaArgs"                  : args, 
+                                                          "serverOutput"              : serverOutput, 
+                                                          "updateServerConfiguration" : updateServerConfiguration,
+                                                          "port"                      : settings.port,
+                                                          "nodes"                     : settings.nodes});
     }
 
     selectedJavaLocation = "";
@@ -1528,10 +1572,8 @@ var App = (function(App, undefined) {
 
     //ready-to-show event not working..
     otherWin.webContents.once("did-finish-load", function() {
-      otherWin.setTitle("IOTA Wallet " + String(appVersion).escapeHTML());
-
+      otherWin.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "") + (isTestNet ? " - Testnet" : "")).escapeHTML());
       //otherWin.webContents.toggleDevTools({"mode": "undocked"});
-
       otherWin.webContents.send("show", title, msg, params);
     });
 
@@ -1607,49 +1649,56 @@ var App = (function(App, undefined) {
     return valid;
   }
 
-  App.updateServerConfiguration = function(configuration) {
+  App.updateServerConfiguration = function(configuration, javaArgs) {
     console.log("Update server configuration.");
 
     try {
-      var nodes = [];
-
-      var newNodes = configuration.nodes.match(/[^\r\n]+/g);
-
-      if (newNodes) {
-        newNodes = newNodes.unique();
-      } else {
-        newNodes = [];
+      if (!configuration) {
+        configuration = {};
       }
 
-      for (var i=0; i<newNodes.length; i++) {
-        newNodes[i] = String(newNodes[i]).trim();
+      if (configuration.hasOwnProperty("nodes")) {
+        var nodes = [];
 
-        if (newNodes[i] && App.checkNodeValidity(newNodes[i])) {
-          nodes.push(newNodes[i]);
+        var newNodes = configuration.nodes.match(/[^\r\n]+/g);
+
+        if (newNodes) {
+          newNodes = newNodes.unique();
+        } else {
+          newNodes = [];
+        }
+
+        for (var i=0; i<newNodes.length; i++) {
+          newNodes[i] = String(newNodes[i]).trim();
+
+          if (newNodes[i] && App.checkNodeValidity(newNodes[i])) {
+            nodes.push(newNodes[i]);
+          }
+        }
+
+        settings.nodes = nodes;
+      }
+
+      if (configuration.hasOwnProperty("port")) {
+        settings.port = parseInt(configuration.port, 10);
+      }
+
+      if (configuration.hasOwnProperty("depth")) {
+        settings.depth = parseInt(configuration.depth, 10);
+      }
+
+      if (configuration.hasOwnProperty("minWeightMagnitude")) {
+        settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
+
+        if (!isTestNet && settings.minWeightMagnitude < 18) {
+          settings.minWeightMagnitude = 18;
+        } else if (isTestNet && settings.minWeightMagnitude < 13) {
+          settings.minWeightMagnitude = 13;
         }
       }
 
-      settings.nodes              = nodes;
-      settings.port               = parseInt(configuration.port, 10);
-      settings.depth              = parseInt(configuration.depth, 10);
-      settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
-
-      if (settings.port < 1) {
-        settings.port = 14265;
-      }
-
-      if (settings.depth < 1) {
-        settings.depth = 3;
-      }
-
-      if (!isTestNet && settings.minWeightMagnitude < 18) {
-        settings.minWeightMagnitude = 18;
-      } else if (isTestNet && settings.minWeightMagnitude < 13) {
-        settings.minWeightMagnitude = 13;
-      }
-
       App.saveSettings();
-      App.relaunchApplication();
+      App.relaunchApplication(javaArgs);
     } catch (err) {
       console.log("Error");
       console.log(err);
@@ -1820,13 +1869,13 @@ var App = (function(App, undefined) {
   App.upgradeIRI = function(sourceFile) {
     console.log("App.upgradeIRI: " + sourceFile);
 
-    if (sourceFile.match(/IRI.*\.jar$/i)) {
+    if (sourceFile.match(/iri.*\.jar$/i)) {
       try {
         App.killAlreadyRunningProcess(true);
 
         var jarDirectory = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "iri");
 
-        var targetFile = path.join(jarDirectory, "iri.jar");
+        var targetFile = path.join(jarDirectory, "iri" + (isTestNet ? "-testnet" : "") + ".jar");
 
         fs.unlinkSync(targetFile);
         fs.writeFileSync(targetFile, fs.readFileSync(sourceFile));
@@ -1835,34 +1884,6 @@ var App = (function(App, undefined) {
       }
 
       App.relaunchApplication();
-    }
-  }
-
-  App.deleteDbIfExists = function() {
-    console.log("DELETING DATABASE");
-
-    try {
-      deleteFiles(["addresses.iri", "approvers.iri", "bundles.iri", "digests.iri", "scratchpad.iri", "transactions.iri"]);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  function deleteFiles(files) {
-    for (var i=0; i<files.length; i++) {
-      deleteFile(files[i]);
-    }
-  }
-
-  function deleteFile(file) {
-    if (!serverDirectory) {
-      throw "Server directory is not set.";
-    }
-
-    var filename = path.join(serverDirectory, file);
-    if (fs.existsSync(filename)) {
-      console.log("Delete " + filename);
-      fs.unlinkSync(filename);
     }
   }
 
@@ -1886,7 +1907,7 @@ const shouldQuit = electron.app.makeSingleInstance(function(commandLine, working
     if (process.platform == "win32" && commandLine.length == 2) {
       if (String(commandLine[1]).match(/^iota:\/\//i)) {
         App.handleURL(commandLine[1]);
-      } else if (String(commandLine[1]).match(/IRI.*\.jar$/i)) {
+      } else if (String(commandLine[1]).match(/iri.*\.jar$/i)) {
         App.upgradeIRI(commandLine[1]);
       }
     }
@@ -1910,7 +1931,7 @@ electron.app.on("open-url", function(event, url) {
 });
 
 electron.app.on("open-file", function(event, file) {
-  if (file.match(/IRI.*\.jar$/i)) {
+  if (file.match(/iri.*\.jar$/i)) {
     App.upgradeIRI(commandLine[1]);
   }
 });
@@ -1927,8 +1948,8 @@ electron.app.on("browser-window-blur", function() {
   App.setFocus(false);
 });
 
-electron.ipcMain.on("relaunchApplication", function(event, javaArgs) {
-  App.relaunchApplication(javaArgs);
+electron.ipcMain.on("relaunchApplication", function(event, config, javaArgs) {
+  App.relaunchApplication(config, javaArgs);
 });
 
 electron.ipcMain.on("killAlreadyRunningProcessAndRestart", App.killAlreadyRunningProcessAndRestart);
