@@ -574,6 +574,12 @@ var App = (function(App, undefined) {
         role: "help",
         submenu: [
           {
+            label: "FAQ",
+            click() {
+              App.showFAQ();
+            }
+          },
+          {
             label: "Official Website",
             click() { shell.openExternal("https://iotatoken.com/"); }
           },
@@ -944,9 +950,11 @@ var App = (function(App, undefined) {
 
       params.push(path.join(jarDirectory, "iri" + (isTestNet ? "-testnet" : "") + ".jar"));
 
+      params.push("-p");
       params.push(settings.port);
 
       if (settings.nodes) {
+        params.push("-n");
         params = params.concat(settings.nodes);
       }
 
@@ -1209,14 +1217,8 @@ var App = (function(App, undefined) {
   }
 
   App.serverStarted = function() {
-    console.log("Server is started");
-    if (oneTimeJavaArgs) {
-      if (oneTimeJavaArgs == -1) {
-        settings.javaArgs = "";
-      } else {
-        settings.javaArgs = oneTimeJavaArgs;
-      }
-      oneTimeJavaArgs = false;
+    if (isStarted) {
+      return;
     }
 
     if (!App.uiIsInitialized) {
@@ -1225,6 +1227,17 @@ var App = (function(App, undefined) {
     }
 
     isStarted = true;
+
+    console.log("Server is started");
+
+    if (oneTimeJavaArgs) {
+      if (oneTimeJavaArgs == -1) {
+        settings.javaArgs = "";
+      } else {
+        settings.javaArgs = oneTimeJavaArgs;
+      }
+      oneTimeJavaArgs = false;
+    }
 
     try {
       win.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
@@ -1236,28 +1249,25 @@ var App = (function(App, undefined) {
   }
 
   App.checkServerOutput = function(data, type) {
-    if (!didKillServer && !serverInitializationError) {
+    if (!isStarted && !didKillServer && !serverInitializationError) {
       var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
       if (error) {
         lastError = error[1];
       }
 
-      if (type == "error" || data.match(/shutdown hook/i)) {
+      if (type == "error") {
         var msg = "";
-
-        console.log("error = " + data);
-        console.log(lastError);
 
         if (data.match(/java\.net\.BindException/i)) {
           msg = "The server address is already in use. Please close any other apps/services that may be running on port " + String(settings.port).escapeHTML() + ".";
         } else if (data.match(/java\.net\.URISyntaxException/i) || data.match(/java\.lang\.IllegalArgumentException/i)) {
-          msg == "Invalid arguments list. Provide port number and at least one udp node address.";
+          msg == "Invalid arguments list.";
         } else if (lastError) {
           msg = lastError;
         }
 
         App.showInitializationAlert(null, msg);
-      } else if (!isStarted) {
+      } else {
         // This can result in errors.. Need to have a real response from the console instead of just this.
         var iri = data.match(/Welcome to IRI (Testnet)?\s*([0-9\.]+)/i);
         if (iri) {
@@ -1425,17 +1435,20 @@ var App = (function(App, undefined) {
     if (!title) {
       title = "Initialization Alert";
     }
+
     if (!msg) {
-      msg = "A server initialization error occurred.";
+      msg = (lastError ? lastError : "A server initialization error occurred.");
     }
 
-    msg = msg.replace(/Invalid arguments list.\s*/i, "");
+    if (msg.match(/Invalid arguments list/i)) {
+      msg = "Invalid arguments list.";
+    }
 
     if (!selectedJavaLocation) {
       selectedJavaLocation = "java";
     }
 
-    var updateServerConfiguration = msg.match(/Exception during IOTA node initialisation|Provide port number/i) != null;
+    var updateServerConfiguration = msg.match(/Exception during IOTA node initialisation|Invalid arguments list/i) != null;
 
     if (updateServerConfiguration && (!settings.nodes || settings.nodes.length == 0)) {
       title = "Initialization";
@@ -1591,6 +1604,13 @@ var App = (function(App, undefined) {
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
       win.webContents.send("showPeers");
+    }
+  }
+
+  App.showFAQ = function() {
+    if (win && win.webContents) {
+      App.showWindowIfNotVisible();
+      win.webContents.send("showFAQ");
     }
   }
 
