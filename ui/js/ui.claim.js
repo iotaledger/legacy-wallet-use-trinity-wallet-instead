@@ -45,6 +45,7 @@ var UI = (function(UI, $, undefined) {
       if (oldSeed.length > 81) {
         oldSeed = oldSeed.substr(0, 81);
       }
+      newSeed = newSeed.toUpperCase();
 
       console.log("Old seed length: " + oldSeed.length);
 
