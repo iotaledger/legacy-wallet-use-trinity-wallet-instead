@@ -40,6 +40,12 @@ ipcRenderer.on("showPeers", function() {
   }
 });
 
+ipcRenderer.on("showFAQ", function() {
+  if (typeof(UI) != "undefined") {
+    UI.openHelpMenu();
+  }
+});
+
 ipcRenderer.on("showNetworkSpammer", function() {
   if (typeof(UI) != "undefined") {
     UI.showNetworkSpammer();

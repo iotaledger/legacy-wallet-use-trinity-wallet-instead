@@ -652,6 +652,8 @@ var UI = (function(UI, undefined) {
       UI.sendToWebview("showNetworkSpammer");
     } else if (url == "generateseed" || url == "seed") {
       UI.sendToWebview("generateSeed");
+    } else if (url == "faq") {
+      UI.sendToWebview("faq");
     } else {
       var match = url.match(/(?:addnode|addneighbou?r)\/(.*)/i);
       if (match && match[1] && match[1].charAt(0) != "-") {
@@ -771,6 +773,11 @@ electron.ipcRenderer.on("handleURL", function(event, url) {
 electron.ipcRenderer.on("showPeers", function() {
   UI.hideAlerts();
   UI.sendToWebview("showPeers");
+});
+
+electron.ipcRenderer.on("showFAQ", function() {
+  UI.hideAlerts();
+  UI.sendToWebview("showFAQ");
 });
 
 electron.ipcRenderer.on("showNetworkSpammer", function() {
