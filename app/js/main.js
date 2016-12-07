@@ -955,7 +955,7 @@ var App = (function(App, undefined) {
 
       if (settings.nodes) {
         params.push("-n");
-        params = params.concat(settings.nodes);
+        params.push(settings.nodes.join(" "));
       }
 
       console.log(params);
@@ -1255,12 +1255,12 @@ var App = (function(App, undefined) {
         lastError = error[1];
       }
 
-      if (type == "error") {
+      if (type == "error" || error) {
         var msg = "";
 
         if (data.match(/java\.net\.BindException/i)) {
           msg = "The server address is already in use. Please close any other apps/services that may be running on port " + String(settings.port).escapeHTML() + ".";
-        } else if (data.match(/java\.net\.URISyntaxException/i) || data.match(/java\.lang\.IllegalArgumentException/i)) {
+        } else if (data.match(/URI Syntax Exception/i) || data.match(/Illegal Argument Exception/i)) {
           msg == "Invalid arguments list.";
         } else if (lastError) {
           msg = lastError;
@@ -1278,13 +1278,14 @@ var App = (function(App, undefined) {
           iriVersion = iri[2];
 
           // Wait 100 miliseconds because the node can shut down after the welcome message.. 
+          // Better would be if IRI gave a real "welcome" message AFTER all initialization is completed..
           setTimeout(function() {
             console.log("here we are in set timeout");
             if (!serverInitializationError && !didKillServer) {
               console.log("server started");
               App.serverStarted();
             }
-          }, 100);
+          }, 500);
         }
       }
     }
