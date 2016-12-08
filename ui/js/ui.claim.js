@@ -111,7 +111,8 @@ var UI = (function(UI, $, undefined) {
         if (iotaAmount) {
           var formattedAmount = UI.formatAmount(iotaAmount[1]);
           $("#claim-output").html("Seed contains: " + formattedAmount);
-          if (String($("#claim-output span.amount").data("long")).match(/^[0-9\s]+$/)) {
+
+          if (String($("#claim-output span.amount").data("long")).match(/^[0-9\'\s]+$/)) {
             $("#claim-output span.amount").html($("#claim-output span.amount").html() + "i");
           }
         }
