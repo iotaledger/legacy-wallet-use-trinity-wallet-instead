@@ -958,6 +958,8 @@ var App = (function(App, undefined) {
         params.push(settings.nodes.join(" "));
       }
 
+      params.push("--headless");
+
       console.log(params);
 
       serverOutput = [];
@@ -1250,12 +1252,13 @@ var App = (function(App, undefined) {
 
   App.checkServerOutput = function(data, type) {
     if (!isStarted && !didKillServer && !serverInitializationError) {
-      var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
-      if (error) {
-        lastError = error[1];
-      }
+      if (type == "error") {
+        //If an error occurs before server is started, we will assume it is a fatal error.. (though this is not really correct, better would be to do this in process exit..)
+        var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
+        if (error) {
+          lastError = error[1];
+        }
 
-      if (type == "error" || error) {
         var msg = "";
 
         if (data.match(/java\.net\.BindException/i)) {
@@ -1276,16 +1279,10 @@ var App = (function(App, undefined) {
             App.quit();
           }
           iriVersion = iri[2];
+        }
 
-          // Wait 100 miliseconds because the node can shut down after the welcome message.. 
-          // Better would be if IRI gave a real "welcome" message AFTER all initialization is completed..
-          setTimeout(function() {
-            console.log("here we are in set timeout");
-            if (!serverInitializationError && !didKillServer) {
-              console.log("server started");
-              App.serverStarted();
-            }
-          }, 500);
+        if (data.match(/IOTA Node initialised correctly/i)) {
+          App.serverStarted();
         }
       }
     }
