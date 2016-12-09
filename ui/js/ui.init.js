@@ -73,7 +73,8 @@ var UI = (function(UI, $, undefined) {
 
     // Set notification options
     toastr.options.positionClass = "toast-top-center";
-    toastr.options.escapeHtml = true;
+    // Need not escape, UI.notify already does that.
+    // toastr.options.escapeHtml = true;
 
     // Hide pages
     $("#app, #login").hide();
