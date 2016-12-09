@@ -1286,7 +1286,9 @@ var App = (function(App, undefined) {
       while (error != null) {
         if (error[1] != lastError) {
           lastError = error[1];
-          App.notify("error", lastError);
+          if (!lastError.match(/doesn\'t look a valid address/i)) {
+            App.notify("error", lastError);
+          }
         }
         error = regex.exec(data);
       }
