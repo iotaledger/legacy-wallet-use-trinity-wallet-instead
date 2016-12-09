@@ -1285,6 +1285,12 @@ var App = (function(App, undefined) {
           App.serverStarted();
         }
       }
+    } else if (type == "error") {
+      var error = data.match(/ERROR\s*[a-z\.]+\s*\-\s*(.*)/i);
+      if (error) {
+        lastError = error[1];
+        App.notify("error", lastError);
+      }
     }
 
     if (settings.showStatusBar) {
