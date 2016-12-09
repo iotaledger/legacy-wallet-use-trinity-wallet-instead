@@ -98,7 +98,8 @@ var UI = (function(UI, $, undefined) {
   UI.notify = function(type, message, options) {
     console.log("UI.notify: " + message);
 
-    message = String(message).escapeHTML();
+    //Message is already escaped by toastr.
+    //message = String(message).escapeHTML();
 
     if (type == "error") {
       toastr.error(message, "", options);
