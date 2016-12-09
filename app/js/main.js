@@ -1083,7 +1083,7 @@ var App = (function(App, undefined) {
       } else {
         //var escapeStringRegexp = require("escape-string-regexp");
         //+ escapeStringRegexp(command.replace(/\"/g, '')) +
-        var output = childProcess.execSync("ps gx | grep \"[j]ar .*iri" + (isTestNet ? "\-testnet" : "") + "\.jar$\"");
+        var output = childProcess.execSync("ps gx | grep \"[j]ar .*iri" + (isTestNet ? "\-testnet" : "") + "\.jar\"");
 
         output = output.toString().trim();
 
@@ -1097,6 +1097,8 @@ var App = (function(App, undefined) {
         }
       }
     } catch (err) {
+      console.log("PID Error");
+      console.log(err);
     }
 
     return 0;
@@ -1286,10 +1288,14 @@ var App = (function(App, undefined) {
         }
       }
     } else if (type == "error") {
-      var error = data.match(/ERROR\s*[a-z\.]+\s*\-\s*(.*)/i);
-      if (error) {
-        lastError = error[1];
-        App.notify("error", lastError);
+      var regex = /ERROR\s*[a-z\.]+\s*\-\s*(.*)/ig;
+      var error = regex.exec(data);
+      while (error != null) {
+        if (error[1] != lastError) {
+          lastError = error[1];
+          App.notify("error", lastError);
+        }
+        error = regex.exec(data);
       }
     }
 
@@ -1518,7 +1524,7 @@ var App = (function(App, undefined) {
   }
 
   App.showKillAlert = function() {
-    if (!win || otherWin) { return; }
+    if (!isStarted || !win || otherWin) { return; }
     App.showWindowIfNotVisible();
 
     win.webContents.send("showKillAlert");
