@@ -2,7 +2,7 @@
   "name": "iota-testnet",
   "productName": "IOTA Wallet Testnet",
   "description": "IOTA Wallet Testnet",
-  "version": "2.0.0-testnet",
+  "version": "2.0.1-testnet",
   "main": "app/js/main.js",
   "scripts": {
     "postinstall": "install-app-deps && cd app && bower install && cd ../ui && bower install",
