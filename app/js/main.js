@@ -1133,7 +1133,7 @@ var App = (function(App, undefined) {
       isStarted = false;
       didKillServer = false;
       serverInitializationError = false;
-      lastError = false;
+      lastError = "";
       isRelaunch = true;
 
       if (selectedJavaLocation) {
@@ -1254,24 +1254,17 @@ var App = (function(App, undefined) {
 
   App.checkServerOutput = function(data, type) {
     if (!isStarted && !didKillServer && !serverInitializationError) {
-      if (type == "error") {
-        //If an error occurs before server is started, we will assume it is a fatal error.. (though this is not really correct, better would be to do this in process exit..)
-        var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
-        if (error) {
-          lastError = error[1];
-        }
-
-        var msg = "";
-
+      if (type == "error") {        
         if (data.match(/java\.net\.BindException/i)) {
-          msg = "The server address is already in use. Please close any other apps/services that may be running on port " + String(settings.port).escapeHTML() + ".";
+          lastError = "The server address is already in use. Please close any other apps/services that may be running on port " + String(settings.port).escapeHTML() + ".";
         } else if (data.match(/URI Syntax Exception/i) || data.match(/Illegal Argument Exception/i)) {
-          msg == "Invalid arguments list.";
-        } else if (lastError) {
-          msg = lastError;
+          lastError == "Invalid arguments list.";
+        } else {
+          var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
+          if (error && !lastError.match(/Invalid arguments list|server address is already in use/i)) {
+            lastError = error[1];
+          }
         }
-
-        App.showInitializationAlert(null, msg);
       } else {
         // This can result in errors.. Need to have a real response from the console instead of just this.
         var iri = data.match(/Welcome to IRI (Testnet)?\s*([0-9\.]+)/i);
@@ -1690,7 +1683,7 @@ var App = (function(App, undefined) {
       if (configuration.hasOwnProperty("nodes")) {
         var nodes = [];
 
-        var newNodes = configuration.nodes.match(/[^\r\n]+/g);
+        var newNodes = configuration.nodes.match(/[^\s]+/g);
 
         if (newNodes) {
           newNodes = newNodes.unique();
