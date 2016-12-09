@@ -1872,7 +1872,7 @@ var App = (function(App, undefined) {
   }
 
   App.notify = function(type, msg) {
-    if (win && win.webContents) {
+    if (win && win.webContents && App.uiIsReady) {
       win.webContents.send("notify", type, msg);
     }
   }
