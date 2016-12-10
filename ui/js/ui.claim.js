@@ -47,8 +47,6 @@ var UI = (function(UI, $, undefined) {
       }
       newSeed = newSeed.toUpperCase();
 
-      console.log("Old seed length: " + oldSeed.length);
-
       $(".remodal-close").on("click", function(e) {
         UI.notify("error", "Cannot close whilst claiming.");
         e.preventDefault();
@@ -79,7 +77,6 @@ var UI = (function(UI, $, undefined) {
 
   function doProcessClaim(oldSeed, newSeed, callback) {
     console.log("doProcessClaim");
-    console.log(oldSeed + " -> " + newSeed);
 
     iota.api.getNewAddress(newSeed, function(error, newAddress) {
       if (error) {
@@ -92,7 +89,7 @@ var UI = (function(UI, $, undefined) {
                      url     : "https://service.iotatoken.com/upgrade?seed=" + oldSeed + "&address=" + newAddress,
                      timeout : 10000000000};
 
-      console.log("Calling https://service.iotatoken.com/upgrade?seed=" + oldSeed + "&address=" + newAddress);
+      console.log("Calling https://service.iotatoken.com");
       
       $.ajax(options).done(function(data) {
         console.log("got data");
@@ -117,14 +114,11 @@ var UI = (function(UI, $, undefined) {
           }
         }
 
-        console.log("got match");
-        console.log(match);
-        console.log("amount = " + iotaAmount);
-
+        console.log("Amount = " + iotaAmount);
         console.log("sending transfer");
 
         iota.api.sendTransfer(newSeed, connection.depth, connection.minWeightMagnitude, [{"address": match[1], "value": 0, "message": match[2], "tag": match[3]}], function(error, transfers) {
-          console.log("transfer sent");
+          console.log("Transfer sent");
           console.log(error);
           console.log(transfers);
           if (error) {
