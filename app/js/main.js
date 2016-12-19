@@ -35,7 +35,9 @@ Array.prototype.unique = function(a){
 
 var App = (function(App, undefined) {
   var isStarted                 = false;
+  var appDirectory              = "";
   var appDataDirectory          = "";
+  var resourcesDirectory        = "";
   var serverDirectory           = "";
   var jarDirectory              = "";
   var javaLocations             = [];
@@ -70,6 +72,13 @@ var App = (function(App, undefined) {
 
 
   App.initialize = function() {
+    appDirectory = path.dirname(__dirname);
+    resourcesDirectory = path.dirname(appDirectory);
+
+    if (!isDevelopment) {
+      resourcesDirectory = path.dirname(resourcesDirectory);
+    }
+
     if (process.platform == "darwin") {
       var appPath = electron.app.getPath("exe");
       if (process.execPath.match(/\/Volumes\/IOTA Wallet/i)) {
@@ -339,7 +348,7 @@ var App = (function(App, undefined) {
 
     win = new electron.BrowserWindow(windowOptions);
 
-    win.loadURL("file://" + path.dirname(__dirname) + "/index.html?showStatus=" + settings.showStatusBar + "&isFirstRun=" + settings.isFirstRun);
+    win.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/index.html?showStatus=" + settings.showStatusBar + "&isFirstRun=" + settings.isFirstRun);
     //win.toggleDevTools({mode: "undocked"});
     win.setAspectRatio(11 / 16);
 
@@ -702,7 +711,7 @@ var App = (function(App, undefined) {
     try {
       appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
       serverDirectory  = path.join(appDataDirectory, "iri");
-      jarDirectory     = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "iri");
+      jarDirectory     = path.join(resourcesDirectory, "iri");
 
       console.log("App data directory is: " + appDataDirectory);
       console.log("Server directory is: " + serverDirectory);
@@ -1245,7 +1254,7 @@ var App = (function(App, undefined) {
 
     try {
       win.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
-      win.webContents.send("serverStarted", "file://" + path.join(path.dirname(path.dirname(__dirname)), "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
+      win.webContents.send("serverStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
     } catch (err) {
       console.log("err:");
       console.log(err);
@@ -1571,7 +1580,7 @@ var App = (function(App, undefined) {
                                            "center"         : true,
                                            "resizable"      : false});
 
-    otherWin.loadURL("file://" + path.dirname(__dirname) + "/alerts/" + filename);
+    otherWin.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/alerts/" + filename);
 
     otherWin.setFullScreenable(false);
 
@@ -1898,7 +1907,7 @@ var App = (function(App, undefined) {
       try {
         App.killAlreadyRunningProcess(true);
 
-        var jarDirectory = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "iri");
+        var jarDirectory = path.join(resourcesDirectory, "iri");
 
         var targetFile = path.join(jarDirectory, "iri" + (isTestNet ? "-testnet" : "") + ".jar");
 
