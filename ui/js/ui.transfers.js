@@ -26,7 +26,7 @@ var UI = (function(UI, $, undefined) {
           throw "Incorrect address checksum";
         }
       
-        var amount = iota.utils.convertUnits(parseInt($("#transfer-amount").val(), 10), $("#transfer-units-value").html(), "i");
+        var amount = iota.utils.convertUnits(parseFloat($("#transfer-amount").val()), $("#transfer-units-value").html(), "i");
 
         if (!amount) {
           throw "Amount cannot be zero";
