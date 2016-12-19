@@ -94,8 +94,6 @@ var App = (function(App, undefined) {
       is64BitOS = process.arch == "x64";
     }
 
-    console.log("Is 64 bit OS: " + is64BitOS);
-
     App.loadSettings();
 
     App.checkLaunchArguments();
@@ -129,7 +127,6 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object") {
         settings.bounds = {width: 520, height: 736};
       }
-
       if (settings.hasOwnProperty("javaArgs") && settings.javaArgs == "undefined") {
         settings.javaArgs = "";
       }
@@ -162,9 +159,8 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
         settings.nodes = [];
       }
-      console.log(settings);
     } catch (err) {
-      console.log("Error reading settings.");
+      console.log("Error reading settings:");
       console.log(err);
       settings = {bounds: {width: 520, height: 736}, javaArgs: "", checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14999 : 14265), nodes: []};
     }
@@ -173,18 +169,10 @@ var App = (function(App, undefined) {
       if (electron.screen) {
         var displaySize = electron.screen.getPrimaryDisplay().workAreaSize;
 
-        console.log("Display size:");
-        console.log(displaySize);
-
         if (displaySize.width < settings.bounds.width+100 || displaySize.height < settings.bounds.height+100) {
           settings.bounds.height = displaySize.height - 100;
           settings.bounds.width = Math.round(settings.bounds.height / 16 * 11);
-          console.log("Updated bounds");
-        } else {
-          console.log("Not updating bounds");
         }
-
-        console.log(settings.bounds);
       }
     } catch (err) {}
   }
@@ -207,16 +195,13 @@ var App = (function(App, undefined) {
 
       fs.writeFileSync(settingsFile, JSON.stringify(settings));
     } catch (err) {
-      console.log("Error writing settings.");
+      console.log("Error writing settings:");
       console.log(err);
     }
   }
 
   App.checkLaunchArguments = function() {
-    console.log("Checking launch arguments...");
-
     if (process.argv.length == 1 || process.argv.indexOf("--dev") != -1) {
-      console.log("No launch arguments.");
       return [];
     } else {
       launchArguments = [];
@@ -232,8 +217,10 @@ var App = (function(App, undefined) {
         }
       }
 
-      console.log("Launch arguments:");
-      console.log(launchArguments);
+      if (launchArguments && launchArguments.length) {
+        console.log("Launch arguments:");
+        console.log(launchArguments);
+      }
 
       if (launchURL) {
         console.log("Launch URL:");
@@ -343,9 +330,6 @@ var App = (function(App, undefined) {
       windowOptions.y = settings.bounds.y;
     }
 
-    console.log("Window options:");
-    console.log(windowOptions);
-
     win = new electron.BrowserWindow(windowOptions);
 
     win.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/index.html?showStatus=" + settings.showStatusBar + "&isFirstRun=" + settings.isFirstRun);
@@ -411,8 +395,6 @@ var App = (function(App, undefined) {
   }
 
   App.createMenuBar = function() {
-    console.log("Creating menu bar.");
-
     var toggleStatusBarText = (settings.showStatusBar ? "Hide Status Bar" : "Show Status Bar");
 
     const template = [
@@ -713,45 +695,34 @@ var App = (function(App, undefined) {
       serverDirectory  = path.join(appDataDirectory, "iri");
       jarDirectory     = path.join(resourcesDirectory, "iri");
 
-      console.log("App data directory is: " + appDataDirectory);
-      console.log("Server directory is: " + serverDirectory);
-      console.log("Jar directory is: " + jarDirectory);
-
       if (!fs.existsSync(appDataDirectory)) {
-        console.log("Creating app data directory.");
         fs.mkdirSync(appDataDirectory);
       }
 
       if (!fs.existsSync(serverDirectory)) {
-        console.log("Creating server directory.");
         fs.mkdirSync(serverDirectory);
       }
     } catch (err) {
-      console.log("err:");
+      console.log("Error:");
       console.log(err);
     }
   }
 
   App.startServer = function() {
     if (settings.javaLocation && (settings.javaLocation == "java" || fs.existsSync(settings.javaLocation))) {
-      console.log("Using java from settings: " + settings.javaLocation);
-
       //make sure that java has not been uninstalled, throws an error on windows otherwise (in startServerProcess spawn)
       if (settings.javaLocation == "java") {
-        console.log("Check to make sure java version still works.");
-
         var child = childProcess.execFile("java", ["-version"]);
         var notInstalled = false;
 
         child.on("error", function(err) {
-          console.log("Error");
+          console.log("Error:");
           console.log(err);
           notInstalled = true;
           App.findJavaLocations();
           App.checkJavaLocation(javaLocations[currentLocationTest]);
         });
         child.on("exit", function() {
-          console.log("Exit version check.");
           if (!notInstalled) {
             App.startServerProcess(settings.javaLocation);
           }
@@ -793,7 +764,7 @@ var App = (function(App, undefined) {
           }
         }
       } catch (err) {
-        console.log("Error during glob");
+        console.log("Error during glob:");
         console.log(err);
       }
     } else {
@@ -813,7 +784,7 @@ var App = (function(App, undefined) {
           }
         }
       } catch (err) {
-        console.log("Error during glob");
+        console.log("Error during glob:");
         console.log(err);
       }
       javaLocations.push(path.join(electron.app.getPath("appData"), "IOTA Wallet/java/bin/java" ));
@@ -873,7 +844,7 @@ var App = (function(App, undefined) {
         });
 
         child.on("error", function(err) {
-          console.log("Error");
+          console.log("Error:");
           console.log(err);
           error = true;
           App.checkNextJavaLocation();
@@ -918,14 +889,13 @@ var App = (function(App, undefined) {
       selectedJavaLocation = javaLocation;
     }
 
-    console.log(javaLocation);
+    console.log("Java: " + javaLocation);
 
     try {
       var pid = App.getAlreadyRunningProcess();
-
-      console.log("PID = " + pid);
-
+      
       if (pid) {
+        console.log("PID: " + pid);
         App.showAlreadyRunningProcessAlert();
         if (win) {
           win.hide();
@@ -948,6 +918,7 @@ var App = (function(App, undefined) {
           params = spawnargs(settings.javaArgs);
         }
       } catch (err) {
+        console.log("Error:");
         console.log(err);
       }
 
@@ -969,7 +940,7 @@ var App = (function(App, undefined) {
 
       params.push("--headless");
 
-      console.log(params);
+      console.log(params.join(" "));
 
       serverOutput = [];
 
@@ -1032,6 +1003,7 @@ var App = (function(App, undefined) {
         }
       });
     } catch (err) {
+      console.log("Error:");
       console.log(err);
       App.showInitializationAlert();
     }
@@ -1070,8 +1042,6 @@ var App = (function(App, undefined) {
   }
 
   App.getAlreadyRunningProcess = function() {
-    console.log("Get running process");
-
     try {
       if (process.platform == "win32") {
         //" + String(command).replace(/\\/g, "\\\\") + "
@@ -1099,15 +1069,12 @@ var App = (function(App, undefined) {
         var pid = output.match(/^[0-9]+\s/);
 
         if (pid) {
-          console.log("return " + pid);
           return pid;
         } else {
           console.log("PID not found");
         }
       }
     } catch (err) {
-      console.log("PID Error");
-      console.log(err);
     }
 
     return 0;
@@ -1163,11 +1130,9 @@ var App = (function(App, undefined) {
 
     pid = App.getAlreadyRunningProcess();
 
-    console.log("PID = " + pid);
-
     if (pid) {
       try {
-        console.log("Kill PID");
+        console.log("Kill PID: " + pid);
         if (process.platform == "win32") {
           var out = childProcess.exec("taskkill /T /PID " + pid);
         } else {
@@ -1178,7 +1143,6 @@ var App = (function(App, undefined) {
 
         if (wait) {
           while (App.getAlreadyRunningProcess()) {
-            console.log("Waiting...");
           }
         }
       } catch (err) {
@@ -1241,8 +1205,6 @@ var App = (function(App, undefined) {
 
     isStarted = true;
 
-    console.log("Server is started");
-
     if (oneTimeJavaArgs) {
       if (oneTimeJavaArgs == -1) {
         settings.javaArgs = "";
@@ -1256,7 +1218,7 @@ var App = (function(App, undefined) {
       win.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
       win.webContents.send("serverStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
     } catch (err) {
-      console.log("err:");
+      console.log("Error:");
       console.log(err);
     }
   }
@@ -1325,7 +1287,9 @@ var App = (function(App, undefined) {
 
   App.logServerOutput = function(data) {
     console.log(data);
-    serverOutput.push(data);
+    if (!data.match(/Requesting command getNodeInfo/i)) {
+      serverOutput.push(data);
+    }
     if (isLookingAtServerLog && win && win.webContents) {
       win.webContents.send("appendToServerLog", data);
     }
@@ -1355,8 +1319,6 @@ var App = (function(App, undefined) {
   }
 
   App.startTrackingCPU = function() {
-    console.log("Start tracking CPU");
-
     if (cpuTrackInterval) {
       clearInterval(cpuTrackInterval);
     }
@@ -1367,7 +1329,6 @@ var App = (function(App, undefined) {
   }
 
   App.stopTrackingCPU = function() {
-    console.log("Stop tracking CPU");
     if (cpuTrackInterval) {
       clearInterval(cpuTrackInterval);
     }
@@ -1380,8 +1341,6 @@ var App = (function(App, undefined) {
 
       pusage.stat(pid, function(err, stat) {
         if (err) {
-          console.log("Error tracking CPU");
-          console.log(err);
           App.updateStatusBar({"cpu": ""});
         } else {
           App.updateStatusBar({"cpu": Math.round(stat.cpu).toFixed(2)});
@@ -1428,23 +1387,16 @@ var App = (function(App, undefined) {
     // Reset selected java location. (will be saved in settings)
     var args = "";
 
-    console.log("Show initialization alert");
-
     if (oneTimeJavaArgs) {
-      console.log("One time java args.");
       if (oneTimeJavaArgs != -1) {
         args = oneTimeJavaArgs;
       }
       oneTimeJavaArgs = false;
     } else if (launchArguments.length) {
-      console.log("Launch args.");
       args = launchArguments.join(" ");
     } else if (settings.javaArgs) {
-      console.log("Settings args.");
       args = settings.javaArgs;
     }
-
-    console.log(args);
 
     if (!title) {
       title = "Initialization Alert";
@@ -1470,20 +1422,12 @@ var App = (function(App, undefined) {
     
     //check if user is running 32-bit java on win 64..
     if (is64BitOS) {
-      console.log("64-bit");
-
-      console.log("Checking if user is running 32-bit java...");
-
       var javaVersionOK = java64BitsOK = false;
-
-      console.log("Selected java location = " + selectedJavaLocation);
 
       var child = childProcess.execFile(selectedJavaLocation, ["-version"]);
 
       // Minimum version needed = 1.8.0_66
       child.stderr.on("data", function(data) {
-        console.log(data);
-
         var version = data.match(/version "([0-9\.]+)(_([0-9]+))?/i);
 
         if (version && version[1] && App.versionCompare(version[1], "1.8.0") != -1 && (!version[3] || version[3] >= 66)) {
@@ -1506,7 +1450,6 @@ var App = (function(App, undefined) {
                                                             "nodes"                     : settings.nodes});
       });
     } else {
-      console.log("32-bit");
       App.showOtherWindow("init_error.html", title, msg, {"javaArgs"                  : args, 
                                                           "serverOutput"              : serverOutput, 
                                                           "updateServerConfiguration" : updateServerConfiguration,
@@ -1535,8 +1478,6 @@ var App = (function(App, undefined) {
   }
 
   App.showNoJavaInstalledWindow = function(initError, params) {
-    console.log("Show no java installed window.");
-
     if (initError) {
       if (otherWin) {
         otherWin.removeAllListeners("closed");
@@ -1559,9 +1500,7 @@ var App = (function(App, undefined) {
   }
 
   App.showOtherWindow = function(filename, title, msg, params) {
-    console.log("Show other window: " + filename);
     if (otherWin) {
-      console.log("Already have another window.");
       return;
     }
 
@@ -1650,8 +1589,6 @@ var App = (function(App, undefined) {
   }
 
   App.editServerConfiguration = function() {
-    console.log("Edit server configuration.");
-
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
       win.webContents.send("editServerConfiguration", {"port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "nodes": settings.nodes.join("\r\n"), "testNet": isTestNet});
@@ -1684,8 +1621,6 @@ var App = (function(App, undefined) {
   }
 
   App.updateServerConfiguration = function(configuration, javaArgs) {
-    console.log("Update server configuration.");
-
     try {
       if (!configuration) {
         configuration = {};
@@ -1734,14 +1669,12 @@ var App = (function(App, undefined) {
       App.saveSettings();
       App.relaunchApplication(javaArgs);
     } catch (err) {
-      console.log("Error");
+      console.log("Error:");
       console.log(err);
     }
   }
 
   App.addNeighborNode = function(node) {
-    console.log("Add neighbor node: " + node);
-
     try {
       node = String(node).trim();
 
@@ -1754,7 +1687,7 @@ var App = (function(App, undefined) {
 
       App.saveSettings();
     } catch (err) {
-      console.log("Error");
+      console.log("Error:");
       console.log(err);
     }
   }
@@ -1793,9 +1726,6 @@ var App = (function(App, undefined) {
   }
 
   App.updatePreferences = function(updatedSettings) {
-    console.log("App.updatePreferences:");
-    console.log(updatedSettings);
-
     settings.javaArgs = updatedSettings.javaArgs;
 
     if (process.platform != "linux") {
@@ -1857,8 +1787,6 @@ var App = (function(App, undefined) {
   }
 
   App.rendererIsReady = function() {
-    console.log("Renderer is ready");
-
     App.uiIsReady = true;
 
     setTimeout(function() {
@@ -1882,7 +1810,7 @@ var App = (function(App, undefined) {
   }
 
   App.handleURL = function(url) {
-    console.log("Handle URL: " + url);
+    console.log("App.handleURL: " + url);
 
     if (win && win.webContents) {
       win.webContents.send("handleURL", url);
@@ -1914,6 +1842,7 @@ var App = (function(App, undefined) {
         fs.unlinkSync(targetFile);
         fs.writeFileSync(targetFile, fs.readFileSync(sourceFile));
       } catch (err) {
+        console.log("Error:");
         console.log(err);
       }
 
@@ -1959,8 +1888,6 @@ electron.app.on("ready", function() {
 });
 
 electron.app.on("open-url", function(event, url) {
-  console.log("open url");
-  console.log(url);
   App.handleURL(url);
 });
 
