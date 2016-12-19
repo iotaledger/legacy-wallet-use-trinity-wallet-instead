@@ -36,8 +36,8 @@
     "spawn-args": "^0.1.0"
   },
   "devDependencies": {
-    "electron": "^1.4.10",
-    "electron-builder": "^10.4.1",
+    "electron": "^1.4.12",
+    "electron-builder": "^10.8.1",
     "rimraf": "^2.5.4"
   },
   "build": {
