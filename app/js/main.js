@@ -70,7 +70,6 @@ var App = (function(App, undefined) {
   App.uiIsInitialized           = false;
   App.doServerStarted           = false;
 
-
   App.initialize = function() {
     appDirectory = path.dirname(__dirname);
     resourcesDirectory = path.dirname(appDirectory);
@@ -126,6 +125,9 @@ var App = (function(App, undefined) {
 
       if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object") {
         settings.bounds = {width: 520, height: 736};
+      }
+      if (!settings.hasOwnProperty("lightWallet")) {
+        settings.lightWallet = -1;
       }
       if (settings.hasOwnProperty("javaArgs") && settings.javaArgs == "undefined") {
         settings.javaArgs = "";
@@ -541,6 +543,15 @@ var App = (function(App, undefined) {
             click() {
               App.showPreferences();
             }
+          },
+          {
+            type: "separator",
+          },
+          {
+            label: "Switch to Light Node",
+            click() {
+              App.switchNodeType();
+            }
           }
         ]
       },
@@ -589,6 +600,21 @@ var App = (function(App, undefined) {
         ]
       },
     ];
+
+    if (settings.lightWallet == 1) {
+      template[2].submenu[13].label = "Switch to Full Node";
+      // Remove "open database folder" and "edit server config" options.
+      template[2].submenu.splice(2, 1);
+      template[2].submenu.splice(7, (process.platform == "darwin" ? 4 : 2)); //Remove "preferences" on mac too
+    } else {
+      if (settings.lightWallet == -1) {
+        //remove the switch to light / full node link
+        template[2].submenu.splice(12, 2);
+      }
+      if (process.platform == "darwin") {
+        template[2].submenu.splice(10, 2);
+      }
+    }
 
     if (process.platform === "darwin") {
       const name = electron.app.getName();
@@ -666,9 +692,6 @@ var App = (function(App, undefined) {
         // Remove check for updates
         template[0].submenu.splice(1, 1);
       }*/
-
-      // Remove preferences (other location on mac)
-      template[3].submenu.splice(10, 2);
     } else if (process.platform == "win32") {
       if (!isDevelopment) {
         /*
@@ -1078,6 +1101,10 @@ var App = (function(App, undefined) {
     }
 
     return 0;
+  }
+
+  App.switchNodeType = function() {
+    App.updateServerConfiguration({"lightWallet": settings.lightWallet == 1 ? 0 : 1});
   }
 
   App.relaunchApplication = function(javaArgs) {
@@ -1664,6 +1691,10 @@ var App = (function(App, undefined) {
         } else if (isTestNet && settings.minWeightMagnitude < 13) {
           settings.minWeightMagnitude = 13;
         }
+      }
+
+      if (configuration.hasOwnProperty("lightWallet")) {
+        settings.lightWallet = parseInt(configuration.lightWallet, 10);
       }
 
       App.saveSettings();
