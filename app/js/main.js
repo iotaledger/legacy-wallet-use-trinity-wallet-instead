@@ -715,7 +715,13 @@ var App = (function(App, undefined) {
   App.findDirectories = function() {
     try {
       appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
-      serverDirectory  = path.join(appDataDirectory, "iri");
+      
+      if (settings.hasOwnProperty("db")) {
+        serverDirectory = settings.db;
+      } else {
+        serverDirectory = path.join(appDataDirectory, "iri");
+      }
+
       jarDirectory     = path.join(resourcesDirectory, "iri");
 
       if (!fs.existsSync(appDataDirectory)) {
