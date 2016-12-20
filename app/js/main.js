@@ -1249,7 +1249,7 @@ var App = (function(App, undefined) {
 
     try {
       win.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
-      win.webContents.send("serverStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
+      win.webContents.send("serverStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "host": (settings.lightWallet == 1 ? settings.host : "http://localhost"), "port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
     } catch (err) {
       console.log("Error:");
       console.log(err);

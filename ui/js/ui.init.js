@@ -1,4 +1,4 @@
-var iota = new IOTA();
+var iota;
 
 var connection = {"accountData"         : false,
                   "previousAccountData" : false,
@@ -8,6 +8,8 @@ var connection = {"accountData"         : false,
                   "isSpamming"          : false,
                   "handleURL"           : false,
                   "testNet"             : false,
+                  "host"                : "http://localhost",
+                  "port"                : 14265,
                   "depth"               : 3,
                   "minWeightMagnitude"  : 18};
 
@@ -56,6 +58,12 @@ var UI = (function(UI, $, undefined) {
         var params = new URLSearchParams(location.search.slice(1));
         connection.inApp = params.get("inApp") == 1;
         connection.showStatus = params.get("showStatus") == 1;
+        if (params.has("host")) {
+          connection.host = params.get("host");
+        }
+        if (params.has("port")) {
+          connection.port = params.get("port");
+        }
         if (params.has("depth")) {
           connection.depth = parseInt(params.get("depth"), 10);
         }
@@ -63,6 +71,11 @@ var UI = (function(UI, $, undefined) {
           connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
         }
       }
+
+      iota = new IOTA({
+        "host": connection.host,
+        "port": connection.port
+      });
       
       setTimeout(initialize, 100);
    }
