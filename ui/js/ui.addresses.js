@@ -139,7 +139,7 @@ var UI = (function(UI, $, undefined) {
     }
 
     $("#generate-address-result").html(String(address).escapeHTML());
-    $("#generate-address-qr-code").empty().qrcode({text: address, fill: "#fff", size: qrCodeSize});
+    $("#generate-address-qr-code").empty().qrcode({text: JSON.stringify({"address": address}), fill: "#000", background: "#fff", size: qrCodeSize});
 
     if (notYetGenerated) {
       $("#generate-address-result, #generate-address-qr-code").on("click.notyetgenerated", function(e) {

@@ -610,7 +610,12 @@ hr {
 }
 
 #generate-address-qr-code {
-  height: 150px;
+  height: 160px;
+}
+
+#generate-address-qr-code canvas {
+  padding: 5px;
+  background: #fff;
 }
 
 #generate-address-result {
@@ -1323,7 +1328,7 @@ input[type="number"] {
   }
 
   #generate-address-qr-code {
-    height: 100px;
+    height: 120px;
   }
   
   .stack .submenu {
