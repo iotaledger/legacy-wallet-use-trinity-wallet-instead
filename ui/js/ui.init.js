@@ -73,16 +73,27 @@ var UI = (function(UI, $, undefined) {
         }
       }
 
-      if (connection.host != "http://localhost") {
-        connection.lightWallet = true;
-      }
-
       iota = new IOTA({
         "host": connection.host,
         "port": connection.port
       });
-      
-      setTimeout(initialize, 100);
+
+      if (connection.host != "http://localhost") {
+        connection.lightWallet = true;
+        if (!connection.inApp || !ccurl) {
+          showLightWalletErrorMessage();
+        } else {
+          // Overwrite iota lib with light wallet functionality
+          $.getScript("js/iota.lightwallet.js").done(function() {
+            setTimeout(initialize, 100);
+          }).fail(function(jqxhr, settings, exception) {
+            console.log(exception);
+            showLightWalletErrorMessage();
+          });
+        }
+      } else {
+        setTimeout(initialize, 100);
+      }
    }
   }
 
@@ -127,7 +138,11 @@ var UI = (function(UI, $, undefined) {
       UI.inAppInitialize();
     }
   }
-  
+
+  function showLightWalletErrorMessage() {
+    $("body").html("<div style='padding: 20px;background:#efefef;border:#aaa;border-radius: 5px;max-width: 60%;margin: 100px auto;'>Could not load light wallet functionality.</div>").show();;
+  }
+
   function showOutdatedBrowserMessage() {
     console.log("showOutdatedBrowserMessage");
 

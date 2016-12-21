@@ -25,10 +25,11 @@
   "author": "IOTA Foundation <info@iotatoken.com>",
   "homepage": "https://www.iotatoken.com/",
   "repository": {
-    "type": "git", 
+    "type": "git",
     "url": "https://github.com/iotaledger/wallet"
   },
   "dependencies": {
+    "ccurl.interface.js": "0.0.1",
     "follow-redirects": "^0.1.0",
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
@@ -41,7 +42,9 @@
     "rimraf": "^2.5.4"
   },
   "build": {
-    "publish": ["github"],
+    "publish": [
+      "github"
+    ],
     "appId": "com.iotatoken.wallet",
     "category": "public.app-category.developer-tools",
     "extraResources": [
@@ -51,7 +54,9 @@
     "protocols": [
       {
         "name": "IOTA URL Scheme",
-        "schemes": ["iota"]
+        "schemes": [
+          "iota"
+        ]
       }
     ],
     "dmg": {

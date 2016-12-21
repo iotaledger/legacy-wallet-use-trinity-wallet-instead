@@ -1,4 +1,5 @@
 const ipcRenderer = require("electron").ipcRenderer;
+const ccurl       = require("ccurl.interface.js");
 
 ipcRenderer.on("showNodeInfo", function() {
   if (typeof(UI) != "undefined") {
@@ -158,5 +159,6 @@ process.once("loaded", function() {
   global.rendererIsReady = _rendererIsReady;
   global.relaunchApplication = _relaunchApplication;
   global.updateAppInfo = _updateAppInfo;
+  global.ccurl = ccurl;
   //global.logUINotification = _logUINotification;
 });
