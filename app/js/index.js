@@ -18,7 +18,7 @@ String.prototype.escapeHTML = function() {
 var UI = (function(UI, undefined) {
   var showQuitAlert      = false;
   var isInitialized      = false;
-  var callServerStarted  = false;
+  var callNodeStarted    = false;
   var serverLogLines     = 0;
   var webviewIsLoaded    = false;
   var webview;
@@ -45,9 +45,9 @@ var UI = (function(UI, undefined) {
 
     electron.webFrame.setZoomLevelLimits(1, 1);
     electron.ipcRenderer.send("rendererIsInitialized");
-    if (callServerStarted) {
-      UI.serverStarted(callServerStarted);
-      callServerStarted = false;
+    if (callNodeStarted) {
+      UI.nodeStarted(callNodeStarted);
+      callNodeStarted = false;
     }
 
     document.getElementById("status-bar-milestone").addEventListener("click", function(e) {
@@ -96,11 +96,11 @@ var UI = (function(UI, undefined) {
     menu.popup(electron.remote.getCurrentWindow(), e.x, e.y);
   }
 
-  UI.serverStarted = function(url, settings) {
+  UI.nodeStarted = function(url, settings) {
     url = url + "?" + Object.keys(settings).map(function(key) { return encodeURIComponent(key) + "=" + encodeURIComponent(settings[key]); }).join("&");
 
     if (!isInitialized) {
-      callServerStarted = url;
+      callNodeStarted = url;
       return;
     }
 
@@ -405,7 +405,7 @@ var UI = (function(UI, undefined) {
     modal.open();
   }
 
-  UI.editServerConfiguration = function(configuration) {
+  UI.editNodeConfiguration = function(configuration) {
     if (showQuitAlert) {
       return;
     }
@@ -447,7 +447,7 @@ var UI = (function(UI, undefined) {
 
       modal.close();
 
-      electron.ipcRenderer.send("updateServerConfiguration", config);
+      electron.ipcRenderer.send("updateNodeConfiguration", config);
     });
 
     modal.open();
@@ -641,7 +641,7 @@ var UI = (function(UI, undefined) {
     url = decodeURI(url.replace("iota://", "").toLowerCase().replace(/\/$/, ""));
 
     if (url == "config" || url == "configuration" || url == "setup") {
-      electron.ipcRenderer.send("editServerConfiguration");
+      electron.ipcRenderer.send("editNodeConfiguration");
     } else if (url == "log") {
       electron.ipcRenderer.send("showServerLog");
     } else if (url == "nodeinfo" || url == "node") {
@@ -699,8 +699,8 @@ electron.ipcRenderer.on("showAlertAndQuit", function(event, msg, serverOutput, c
 
 electron.ipcRenderer.on("showKillAlert", UI.showKillAlert);
 
-electron.ipcRenderer.on("serverStarted", function(event, url, settings) {
-  UI.serverStarted(url, settings);
+electron.ipcRenderer.on("nodeStarted", function(event, url, settings) {
+  UI.nodeStarted(url, settings);
 });
 
 electron.ipcRenderer.on("showServerLog", function(event, serverOutput) {
@@ -795,8 +795,8 @@ electron.ipcRenderer.on("showClaimProcess", function() {
   UI.sendToWebview("showClaimProcess");
 });
 
-electron.ipcRenderer.on("editServerConfiguration", function(event, serverConfiguration) {
-  UI.editServerConfiguration(serverConfiguration);
+electron.ipcRenderer.on("editNodeConfiguration", function(event, serverConfiguration) {
+  UI.editNodeConfiguration(serverConfiguration);
 });
 
 electron.ipcRenderer.on("toggleDeveloperTools", UI.toggleDeveloperTools);

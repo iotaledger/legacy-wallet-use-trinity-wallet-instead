@@ -16,7 +16,7 @@ String.prototype.escapeHTML = function() {
 }
 
 var UI = (function(UI, undefined) {
-  var _updateServerConfiguration = false;
+  var _updateNodeConfiguration = false;
 
   UI.initialize = function() {
     document.getElementById("quit-btn").addEventListener("click", function(e) {
@@ -28,12 +28,12 @@ var UI = (function(UI, undefined) {
 
       var settings = {};
 
-      if (_updateServerConfiguration) {
+      if (_updateNodeConfiguration) {
         settings.port  = parseInt(document.getElementById("port").value, 10);
         settings.nodes = document.getElementById("neighboring-nodes").value;
       }
 
-      UI.updateServerConfiguration(settings, String(document.getElementById("java-parameters").value).trim());
+      UI.updateNodeConfiguration(settings, String(document.getElementById("java-parameters").value).trim());
     });
     document.getElementById("download-java").addEventListener("click", function(e) {
       document.getElementById("download-java").disabled = true;
@@ -78,8 +78,8 @@ var UI = (function(UI, undefined) {
       document.getElementById("message").style.display = "none";
     }
     if (params) {
-      if (params.updateServerConfiguration) {
-        _updateServerConfiguration = true;
+      if (params.updateNodeConfiguration) {
+        _updateNodeConfiguration = true;
         if (msg.match(/provide port number/i)) {
           document.getElementById("server-output-section").style.display = "none";
           document.getElementById("restart-btn").innerHTML = "Start";
@@ -131,8 +131,8 @@ var UI = (function(UI, undefined) {
     }, 20);
   }
 
-  UI.updateServerConfiguration = function(settings, javaArgs) {
-    electron.ipcRenderer.send("updateServerConfiguration", settings, javaArgs);
+  UI.updateNodeConfiguration = function(settings, javaArgs) {
+    electron.ipcRenderer.send("updateNodeConfiguration", settings, javaArgs);
   }
 
   UI.showNoJavaInstalledWindow = function() {

@@ -125,8 +125,8 @@ function _hoverAmountStop() {
   ipcRenderer.send("hoverAmountStop");
 }
 
-function _editServerConfiguration() {
-  ipcRenderer.send("editServerConfiguration");
+function _editNodeConfiguration() {
+  ipcRenderer.send("editNodeConfiguration");
 }
 
 function _rendererIsReady() {
@@ -151,7 +151,7 @@ process.once('loaded', function() {
   global.updateStatusBar = _updateStatusBar;
   global.hoverAmountStart = _hoverAmountStart;
   global.hoverAmountStop = _hoverAmountStop;
-  global.editServerConfiguration = _editServerConfiguration;
+  global.editNodeConfiguration = _editNodeConfiguration;
   global.rendererIsReady = _rendererIsReady;
   global.relaunchApplication = _relaunchApplication;
   //global.logUINotification = _logUINotification;

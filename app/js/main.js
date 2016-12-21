@@ -43,13 +43,13 @@ var App = (function(App, undefined) {
   var javaLocations             = [];
   var selectedJavaLocation;
   var currentLocationTest       = 0;
-  var serverInitializationError = false;
+  var nodeInitializationError   = false;
   var serverOutput              = [];
   var doNotQuit                 = false;
   var callback                  = null;
   var isClosing                 = false;
   var isClosed                  = false;
-  var didKillServer             = false;
+  var didKillNode               = false;
   var settings                  = {};
   var isDevelopment             = process.env.NODE_ENV === "development";
   var didCheckForUpdates        = false;
@@ -68,7 +68,7 @@ var App = (function(App, undefined) {
 
   App.uiIsReady                 = false;
   App.uiIsInitialized           = false;
-  App.doServerStarted           = false;
+  App.doNodeStarted             = false;
 
   App.initialize = function() {
     appDirectory = path.dirname(__dirname);
@@ -106,7 +106,7 @@ var App = (function(App, undefined) {
       electron.app.setAsDefaultProtocolClient("iota"); //not linux
     }
 
-    App.startServer();
+    App.start();
   }
 
   App.quit = function() {
@@ -367,7 +367,7 @@ var App = (function(App, undefined) {
 
       App.saveSettings();
 
-      App.killServer(function() {
+      App.killNode(function() {
         isClosed = true;
         electron.app.quit();
       });
@@ -453,7 +453,7 @@ var App = (function(App, undefined) {
             label: "Reload",
             accelerator: "CmdOrCtrl+R",
             click() {
-              App.serverStarted();
+              App.nodeStarted();
             }
           },*/
           {
@@ -531,7 +531,7 @@ var App = (function(App, undefined) {
             label: "Edit Server Configuration",
             //accelerator: "CmdOrCtrl+E",
             click(item) {
-              App.editServerConfiguration();
+              App.editNodeConfiguration();
             }
           },
           {
@@ -737,9 +737,22 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.startServer = function() {
+  App.start = function() {
+    if (settings.lightWallet == 1) {
+      App.startLightNode();
+    } else {
+      App.startFullNode();
+    }
+  }
+
+  App.startFullNode = function() {
+    if (selectedJavaLocation) {
+      App.startFullNodeProcess();
+      return;
+    }
+
     if (settings.javaLocation && (settings.javaLocation == "java" || fs.existsSync(settings.javaLocation))) {
-      //make sure that java has not been uninstalled, throws an error on windows otherwise (in startServerProcess spawn)
+      //make sure that java has not been uninstalled, throws an error on windows otherwise (in startFullNodeProcess spawn)
       if (settings.javaLocation == "java") {
         var child = childProcess.execFile("java", ["-version"]);
         var notInstalled = false;
@@ -753,11 +766,11 @@ var App = (function(App, undefined) {
         });
         child.on("exit", function() {
           if (!notInstalled) {
-            App.startServerProcess(settings.javaLocation);
+            App.startFullNodeProcess(settings.javaLocation);
           }
         });
       } else {
-        App.startServerProcess(settings.javaLocation);
+        App.startFullNodeProcess(settings.javaLocation);
       }
     } else {
       App.findJavaLocations();
@@ -864,7 +877,7 @@ var App = (function(App, undefined) {
             if (javaVersionOK && java64BitsOK) {
               console.log("Found 64-bits java, starting.");
               found = true;
-              App.startServerProcess(location);
+              App.startFullNodeProcess(location);
             } else if (javaVersionOK && !ia32JavaLocation) {
               console.log("Found 32-bits java.");
               ia32JavaLocation = location;
@@ -903,13 +916,17 @@ var App = (function(App, undefined) {
       App.checkJavaLocation(javaLocations[currentLocationTest]);
     } else if (ia32JavaLocation) {
       console.log("Start 32 bit java.");
-      App.startServerProcess(ia32JavaLocation);
+      App.startFullNodeProcess(ia32JavaLocation);
     } else {
       App.showNoJavaInstalledWindow();
     }
   }
 
-  App.startServerProcess = function(javaLocation) {
+  App.startLightNode = function() {
+    App.nodeStarted();
+  }
+
+  App.startFullNodeProcess = function(javaLocation) {
     console.log("Start server process.");
 
     if (!javaLocation) {
@@ -978,7 +995,7 @@ var App = (function(App, undefined) {
         "detached": true
       }, function(err) {
         if (err) {
-          if (!didKillServer && !isStarted && !serverInitializationError) {
+          if (!didKillNode && !isStarted && !nodeInitializationError)   {
             selectedJavaLocation = "";
             App.saveSettings();
             App.showInitializationAlert();
@@ -1008,8 +1025,8 @@ var App = (function(App, undefined) {
 
         /*
         // Kill not initiated by user or app.
-        if (!didKillServer) {
-          didKillServer = false;
+        if (!didKillNode) {
+          didKillNode = false;
           if (code == 143) {
             App.relaunchApplication();
             return;
@@ -1021,7 +1038,7 @@ var App = (function(App, undefined) {
           callback = null;
           return;
         // System is not closing automatically, wait for user to click the alert button.
-        } else if (!didKillServer) {
+        } else if (!didKillNode) {
           if (!isStarted) {
             App.showInitializationAlert();
           } else {
@@ -1038,7 +1055,7 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.killServer = function(fn) {
+  App.killNode = function(fn) {
     if (server && server.exitCode == null) {
       App.showKillAlert();
     }
@@ -1046,8 +1063,8 @@ var App = (function(App, undefined) {
     setTimeout(function() {
       if (server && server.exitCode == null) {
         isStarted = false;
-        serverInitializationError = false;
-        didKillServer = true;
+        nodeInitializationError = false;
+        didKillNode = true;
         isRelaunch = false;
         App.killAlreadyRunningProcess(true);
         callback = fn;
@@ -1110,7 +1127,7 @@ var App = (function(App, undefined) {
   }
 
   App.switchNodeType = function() {
-    App.updateServerConfiguration({"lightWallet": settings.lightWallet == 1 ? 0 : 1});
+    App.updateNodeConfiguration({"lightWallet": settings.lightWallet == 1 ? 0 : 1});
   }
 
   App.relaunchApplication = function(javaArgs) {
@@ -1120,7 +1137,7 @@ var App = (function(App, undefined) {
       oneTimeJavaArgs = -1;
     }
 
-    App.killServer(function() {
+    App.killNode(function() {
       if (otherWin) {
         otherWin.removeAllListeners("closed");
 
@@ -1140,16 +1157,12 @@ var App = (function(App, undefined) {
       }
 
       isStarted = false;
-      didKillServer = false;
-      serverInitializationError = false;
+      didKillNode = false;
+      nodeInitializationError   = false;
       lastError = "";
       isRelaunch = true;
 
-      if (selectedJavaLocation) {
-        App.startServerProcess();
-      } else {
-        App.startServer();
-      }
+      App.start();
     });
   }
 
@@ -1226,13 +1239,13 @@ var App = (function(App, undefined) {
     return 0;
   }
 
-  App.serverStarted = function() {
+  App.nodeStarted = function() {
     if (isStarted) {
       return;
     }
 
     if (!App.uiIsInitialized) {
-      App.doServerStarted = true;
+      App.doNodeStarted = true;
       return;
     }
 
@@ -1249,7 +1262,7 @@ var App = (function(App, undefined) {
 
     try {
       win.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
-      win.webContents.send("serverStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "host": (settings.lightWallet == 1 ? settings.host : "http://localhost"), "port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
+      win.webContents.send("nodeStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "host": (settings.lightWallet == 1 ? settings.host : "http://localhost"), "port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
     } catch (err) {
       console.log("Error:");
       console.log(err);
@@ -1257,7 +1270,7 @@ var App = (function(App, undefined) {
   }
 
   App.checkServerOutput = function(data, type) {
-    if (!isStarted && !didKillServer && !serverInitializationError) {
+    if (!isStarted && !didKillNode && !nodeInitializationError)   {
       if (type == "error") {        
         if (data.match(/java\.net\.BindException/i)) {
           lastError = "The server address is already in use. Please close any other apps/services that may be running on port " + String(settings.port).escapeHTML() + ".";
@@ -1281,7 +1294,7 @@ var App = (function(App, undefined) {
         }
 
         if (data.match(/IOTA Node initialised correctly/i)) {
-          App.serverStarted();
+          App.nodeStarted();
         }
       }
     } else if (type == "error") {
@@ -1411,11 +1424,11 @@ var App = (function(App, undefined) {
   }
 
   App.showInitializationAlert = function(title, msg) {
-    if (serverInitializationError) {
+    if (nodeInitializationError)   {
       return;
     }
 
-    serverInitializationError = true;
+    nodeInitializationError   = true;
 
     // Reset selected java location. (will be saved in settings)
     var args = "";
@@ -1447,9 +1460,9 @@ var App = (function(App, undefined) {
       selectedJavaLocation = "java";
     }
 
-    var updateServerConfiguration = msg.match(/Exception during IOTA node initialisation|Invalid arguments list/i) != null;
+    var updateNodeConfiguration = msg.match(/Exception during IOTA node initialisation|Invalid arguments list/i) != null;
 
-    if (updateServerConfiguration && (!settings.nodes || settings.nodes.length == 0)) {
+    if (updateNodeConfiguration && (!settings.nodes || settings.nodes.length == 0)) {
       title = "Initialization";
     }
     
@@ -1478,14 +1491,14 @@ var App = (function(App, undefined) {
                                                             "javaVersionOK"             : javaVersionOK,
                                                             "java64BitsOK"              : java64BitsOK,
                                                             "is64BitOS"                 : is64BitOS,
-                                                            "updateServerConfiguration" : updateServerConfiguration,
+                                                            "updateNodeConfiguration" : updateNodeConfiguration,
                                                             "port"                      : settings.port,
                                                             "nodes"                     : settings.nodes});
       });
     } else {
       App.showOtherWindow("init_error.html", title, msg, {"javaArgs"                  : args, 
                                                           "serverOutput"              : serverOutput, 
-                                                          "updateServerConfiguration" : updateServerConfiguration,
+                                                          "updateNodeConfiguration" : updateNodeConfiguration,
                                                           "port"                      : settings.port,
                                                           "nodes"                     : settings.nodes});
     }
@@ -1621,10 +1634,10 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.editServerConfiguration = function() {
+  App.editNodeConfiguration = function() {
     if (win && win.webContents) {
       App.showWindowIfNotVisible();
-      win.webContents.send("editServerConfiguration", {"port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "nodes": settings.nodes.join("\r\n"), "testNet": isTestNet});
+      win.webContents.send("editNodeConfiguration", {"port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "nodes": settings.nodes.join("\r\n"), "testNet": isTestNet});
     }
   }
 
@@ -1653,7 +1666,7 @@ var App = (function(App, undefined) {
     return valid;
   }
 
-  App.updateServerConfiguration = function(configuration, javaArgs) {
+  App.updateNodeConfiguration = function(configuration, javaArgs) {
     try {
       if (!configuration) {
         configuration = {};
@@ -1817,9 +1830,9 @@ var App = (function(App, undefined) {
 
   App.rendererIsInitialized = function() {
     App.uiIsInitialized = true;
-    if (App.doServerStarted) {
-      App.doServerStarted = false;
-      App.serverStarted();
+    if (App.doNodeStarted) {
+      App.doNodeStarted = false;
+      App.nodeStarted();
     }
   }
 
@@ -1964,8 +1977,8 @@ electron.ipcMain.on("updatePreferences", function(event, checkForUpdatesOption) 
   App.updatePreferences(checkForUpdatesOption);
 });
 
-electron.ipcMain.on("updateServerConfiguration", function(event, configuration) {
-  App.updateServerConfiguration(configuration);
+electron.ipcMain.on("updateNodeConfiguration", function(event, configuration) {
+  App.updateNodeConfiguration(configuration);
 });
 
 electron.ipcMain.on("installUpdate", function() {
@@ -1988,7 +2001,7 @@ electron.ipcMain.on("showNoJavaInstalledWindow", function(event, params) {
   App.showNoJavaInstalledWindow(true, params);
 });
 
-electron.ipcMain.on("editServerConfiguration", App.editServerConfiguration);
+electron.ipcMain.on("editNodeConfiguration", App.editNodeConfiguration);
 
 electron.ipcMain.on("addNeighborNode", function(event, node) {
   App.addNeighborNode(node);
