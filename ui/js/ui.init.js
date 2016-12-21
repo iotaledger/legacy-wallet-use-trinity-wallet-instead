@@ -11,7 +11,8 @@ var connection = {"accountData"         : false,
                   "host"                : "http://localhost",
                   "port"                : 14265,
                   "depth"               : 3,
-                  "minWeightMagnitude"  : 18};
+                  "minWeightMagnitude"  : 18,
+                  "lightWallet"         : false};
 
 var __entityMap = {
   "&": "&amp;",
@@ -70,6 +71,10 @@ var UI = (function(UI, $, undefined) {
         if (params.has("minWeightMagnitude")) {
           connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
         }
+      }
+
+      if (connection.host != "http://localhost") {
+        connection.lightWallet = true;
       }
 
       iota = new IOTA({

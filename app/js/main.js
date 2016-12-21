@@ -388,7 +388,7 @@ var App = (function(App, undefined) {
     win.webContents.on("will-navigate", handleRedirect);
 
     win.webContents.once("did-finish-load", function() {
-      win.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
+      App.updateTitle();
 
       if (onReady) {
         onReady();
@@ -1161,6 +1161,7 @@ var App = (function(App, undefined) {
       nodeInitializationError   = false;
       lastError = "";
       isRelaunch = true;
+      iriVersion = "";
 
       App.start();
     });
@@ -1261,7 +1262,7 @@ var App = (function(App, undefined) {
     }
 
     try {
-      win.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
+      App.updateTitle();
       win.webContents.send("nodeStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "host": (settings.lightWallet == 1 ? settings.host : "http://localhost"), "port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
     } catch (err) {
       console.log("Error:");
@@ -1584,7 +1585,7 @@ var App = (function(App, undefined) {
 
     //ready-to-show event not working..
     otherWin.webContents.once("did-finish-load", function() {
-      otherWin.setTitle("IOTA Wallet " + String(appVersion.replace("-testnet", "") + (isTestNet ? " - Testnet" : "")).escapeHTML());
+      App.updateTitle();
       //otherWin.webContents.toggleDevTools({"mode": "undocked"});
       otherWin.webContents.send("show", title, msg, params);
     });
@@ -1878,6 +1879,23 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.updateAppInfo = function(data) {
+    var _isTestNet = data.name.match(/testnet/i);
+    if (_isTestNet != isTestNet) {
+      //user is connecting to a testnet node with non-testnet app, do not allow... TODO
+    }
+
+    iriVersion = data.version;
+
+    App.updateTitle();
+  }
+
+  App.updateTitle = function() {
+    if (win) {
+      win.setTitle("IOTA " + (settings.lightWallet == 1 ? "Light " : "") + "Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
+    }
+  }
+
   App.upgradeIRI = function(sourceFile) {
     console.log("App.upgradeIRI: " + sourceFile);
 
@@ -2019,4 +2037,8 @@ electron.ipcMain.on("showModal", function(event, identifier, html) {
 
 electron.ipcMain.on("updateStatusBar", function(event, data) {
   App.updateStatusBar(data);
+});
+
+electron.ipcMain.on("updateAppInfo", function(event, data) {
+  App.updateAppInfo(data);
 });

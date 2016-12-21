@@ -141,18 +141,22 @@ function _updateStatusBar(data) {
   ipcRenderer.send("updateStatusBar", data);
 }
 
+function _updateAppInfo(data) {
+  ipcRenderer.send("updateAppInfo", data);
+}
 /*
 function _logUINotification(type, message) {
   ipcRenderer.send("logUINotification", type, message);
 }
 */
 
-process.once('loaded', function() {
+process.once("loaded", function() {
   global.updateStatusBar = _updateStatusBar;
   global.hoverAmountStart = _hoverAmountStart;
   global.hoverAmountStop = _hoverAmountStop;
   global.editNodeConfiguration = _editNodeConfiguration;
   global.rendererIsReady = _rendererIsReady;
   global.relaunchApplication = _relaunchApplication;
+  global.updateAppInfo = _updateAppInfo;
   //global.logUINotification = _logUINotification;
 });

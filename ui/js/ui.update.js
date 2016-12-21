@@ -88,6 +88,9 @@ var UI = (function(UI, $, undefined) {
       } else if (connection.minWeightMagnitude < 18) {
         connection.minWeightMagnitude = 18;
       }
+      if (connection.inApp && connection.lightWallet) {
+        updateAppInfo({"name": connection.nodeInfo.appName, "version": connection.nodeInfo.appVersion});
+      }
       $(document).trigger("initialConnection");
       if (!connection.seed) {
         // After initial connection, update state every 2 seconds

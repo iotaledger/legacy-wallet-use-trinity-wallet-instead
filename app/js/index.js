@@ -719,6 +719,10 @@ electron.ipcRenderer.on("updateStatusBar", function(event, data) {
   UI.updateStatusBar(data);
 });
 
+electron.ipcRenderer.on("updateAppInfo", function(event, data) {
+  electron.ipcRenderer.send("updateAppInfo", data);
+});
+
 electron.ipcRenderer.on("showUpdateAvailable", UI.showUpdateAvailable);
 
 electron.ipcRenderer.on("showUpdateDownloaded", function(event, releaseNotes, releaseName, releaseDate) {
