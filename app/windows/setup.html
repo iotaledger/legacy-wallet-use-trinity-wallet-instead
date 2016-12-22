@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>IOTA Wallet Setup</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="content">
+    <div>
+      <h1 id="title">Choose Wallet Type:</h1>
+      <p id="message">Would you like to run a light node or a full node?</p>
+      <div id="node-choice" class="two-columns" style="text-align:center">
+        <div>
+          <button class="btn btn-choice" id="light-node-btn">Light Node</button>
+          <p>A light node connects to a remote node, either owned by you or someone else.</p>
+        </div>
+        <div>
+          <button class="btn btn-choice" id="full-node-btn">Full Node</button>
+          <p>A full node will download and sync the tangle to your disk and requires java to be installed.</p>
+        </div>
+      </div>
+      <div id="light-node-section">
+        <p class="label">Host: <span id="host-error" class="error"></span></p>
+        <p><input type="text" name="host" id="host" placeholder="" value="" style="width:100%;font-size:110%" /></p>
+        <p class="note">Add in the following format: http://example.com:12345</p>
+      </div>
+      <div id="full-node-section">
+        <p class="label">Server Port: <span id="port-error" class="error"></span></p>
+        <input type="number" min="1024" name="port" id="port" placeholder="" value="" style="width:75px" />
+        <p class="label">Neighboring Nodes: <span id="nodes-error" class="error"></span></p>
+        <textarea name="nodes" id="nodes" style="width:100%;height:150px;"></textarea>
+        <p class="note">Add nodes in the following format (one per line): udp://ip:12345</p>
+      </div>
+    </div>
+  </div>
+  <div id="footer">
+    <button class="btn btn-default btn-pull-right" id="start-btn">Start</button>
+    <button class="btn btn-primary btn-pull-right" id="back-btn">Back</button>
+    <button class="btn btn-default btn-pull-right" id="quit-btn">Quit</button>
+  </div>
+  <script type="text/javascript">
+    require("./js/setup.js")
+  </script>
+</body>
+</html>
