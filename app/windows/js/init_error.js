@@ -30,7 +30,7 @@ var UI = (function(UI, undefined) {
 
       if (_updateNodeConfiguration) {
         settings.port  = parseInt(document.getElementById("port").value, 10);
-        settings.nodes = document.getElementById("neighboring-nodes").value;
+        settings.nodes = document.getElementById("nodes").value;
       }
 
       UI.updateNodeConfiguration(settings, String(document.getElementById("java-parameters").value).trim());
@@ -64,20 +64,20 @@ var UI = (function(UI, undefined) {
     menu.popup(electron.remote.getCurrentWindow(), e.x, e.y);
   }
 
-  UI.show = function(title, msg, params) {
-    if (title) {
-      document.getElementById("title").innerHTML = String(title).escapeHTML();
-      document.getElementById("title").style.display = "block";
-    } else {
-      document.getElementById("title").style.display = "none";
-    }
-    if (msg) {
-      document.getElementById("message").innerHTML = String(msg).escapeHTML();
-      document.getElementById("message").style.display = "block";
-    } else {
-      document.getElementById("message").style.display = "none";
-    }
+  UI.show = function(params) {
     if (params) {
+      if (params.title) {
+        document.getElementById("title").innerHTML = String(params.title).escapeHTML();
+        document.getElementById("title").style.display = "block";
+      } else {
+        document.getElementById("title").style.display = "none";
+      }
+      if (params.message) {
+        document.getElementById("message").innerHTML = String(params.message).escapeHTML();
+        document.getElementById("message").style.display = "block";
+      } else {
+        document.getElementById("message").style.display = "none";
+      }
       if (params.updateNodeConfiguration) {
         _updateNodeConfiguration = true;
         if (msg.match(/provide port number/i)) {
@@ -93,7 +93,7 @@ var UI = (function(UI, undefined) {
         }
 
         if (params.nodes) {
-          document.getElementById("neighboring-nodes").value = params.nodes.join("\r\n");
+          document.getElementById("nodes").value = params.nodes.join("\r\n");
         }
       } else {
         document.getElementById("server-output-section").style.display = "block";
@@ -144,6 +144,6 @@ var UI = (function(UI, undefined) {
 
 window.addEventListener("load", UI.initialize, false);
 
-electron.ipcRenderer.on("show", function(event, title, msg, params) {
-  UI.show(title, msg, params);
+electron.ipcRenderer.on("show", function(event, params) {
+  UI.show(params);
 });
