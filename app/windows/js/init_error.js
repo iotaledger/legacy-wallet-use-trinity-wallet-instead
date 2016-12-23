@@ -33,7 +33,7 @@ var UI = (function(UI, undefined) {
         settings.nodes = document.getElementById("nodes").value;
       }
 
-      UI.updateNodeConfiguration(settings, String(document.getElementById("java-parameters").value).trim());
+      UI.updateNodeConfiguration(settings);
     });
     document.getElementById("download-java").addEventListener("click", function(e) {
       document.getElementById("download-java").disabled = true;
@@ -112,10 +112,6 @@ var UI = (function(UI, undefined) {
         //document.getElementById("server-output").scrollTop = document.getElementById("server-output").scrollHeight;
       }
 
-      if (params.javaArgs) {
-        document.getElementById("java-parameters").value = params.javaArgs;
-      }
-
       if (params.is64BitOS && !params.java64BitsOK) {
         document.getElementById("download-java-explanation").style.display = "block";
         document.getElementById("download-java").style.display = "block";
@@ -131,8 +127,8 @@ var UI = (function(UI, undefined) {
     }, 20);
   }
 
-  UI.updateNodeConfiguration = function(settings, javaArgs) {
-    electron.ipcRenderer.send("updateNodeConfiguration", settings, javaArgs);
+  UI.updateNodeConfiguration = function(settings) {
+    electron.ipcRenderer.send("updateNodeConfiguration", settings);
   }
 
   UI.showNoJavaInstalledWindow = function() {

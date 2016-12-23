@@ -163,8 +163,8 @@ var UI = (function(UI, undefined) {
     electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);
   }
 
-  UI.updateNodeConfiguration = function(settings, javaArgs) {
-    electron.ipcRenderer.send("updateNodeConfiguration", settings, javaArgs);
+  UI.updateNodeConfiguration = function(settings) {
+    electron.ipcRenderer.send("updateNodeConfiguration", settings);
   }
 
   return UI;

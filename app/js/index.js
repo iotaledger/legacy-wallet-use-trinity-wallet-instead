@@ -339,13 +339,10 @@ var UI = (function(UI, undefined) {
     */
 
     modal.setContent("<h1>Preferences</h1>" + 
-                     "<div class='input-group input-group'><label>Java Arguments:</label>" + 
-                     "<input type='text' name='java_args' id='preferences_java_args' placeholder='Command Line Parameters' value='" + (settings.javaArgs ? String(settings.javaArgs).escapeHTML() : "") + "' /></div>" + 
                      (process.platform != "linux" ? "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='open_at_login' id='preferences_open_at_login' class='checkbox' value='1'" + (settings.openAtLogin ? " checked='checked'" : "") + " />Open at Login</label>" : ""));
     
     modal.addFooterBtn("Save", "tingle-btn tingle-btn--primary", function() {
       var settings = {};
-      settings.javaArgs = String(document.getElementById("preferences_java_args").value).trim();
 
       if (process.platform != "linux") {
         settings.openAtLogin = document.getElementById("preferences_open_at_login").checked;

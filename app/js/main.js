@@ -56,11 +56,9 @@ var App = (function(App, undefined) {
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
-  var oneTimeJavaArgs           = null;
   var ia32JavaLocation          = null;
   var is64BitOS                 = 64;
 
-  var launchArguments           = [];
   var launchURL                 = null;
   var iriVersion                = "";
   var lastError                 = "";
@@ -96,7 +94,7 @@ var App = (function(App, undefined) {
 
     App.loadSettings();
 
-    App.checkLaunchArguments();
+    App.checkLaunchURL();
 
     App.showDefaultWindow();
 
@@ -130,9 +128,6 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("lightWallet")) {
         settings.lightWallet = -1;
       }
-      if (settings.hasOwnProperty("javaArgs") && settings.javaArgs == "undefined") {
-        settings.javaArgs = "";
-      }
       if (!settings.hasOwnProperty("checkForUpdates")) {
         settings.checkForUpdates = 1;
       }
@@ -165,7 +160,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, javaArgs: "", checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14999 : 14265), nodes: []};
+      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14999 : 14265), nodes: []};
     }
 
     try {
@@ -203,31 +198,17 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.checkLaunchArguments = function() {
+  App.checkLaunchURL = function() {
     if (process.argv.length == 1 || process.argv.indexOf("--dev") != -1) {
-      return [];
+      return;
     } else {
-      launchArguments = [];
-
       // Ignore first argument
       for (var i=1; i<process.argv.length; i++) {
         if (/^iota:\/\//i.test(process.argv[i])) {
           launchURL = process.argv[i];
-        // Mac has this argument on first launch: -psn_0_93145295
-        // main.js is added when npm run start from App folder..
-        } else if (!/^\-psn/i.test(process.argv[i]) && process.argv[i] != "app/js/main.js") {
-          launchArguments.push(process.argv[i]);
+          console.log("Launch URL: " + launchURL);
+          break;
         }
-      }
-
-      if (launchArguments && launchArguments.length) {
-        console.log("Launch arguments:");
-        console.log(launchArguments);
-      }
-
-      if (launchURL) {
-        console.log("Launch URL:");
-        console.log(launchURL);
       }
     }
   }
@@ -972,23 +953,6 @@ var App = (function(App, undefined) {
 
       var params = [];
 
-      try {
-        if (oneTimeJavaArgs) {
-          if (oneTimeJavaArgs != -1) {
-            var spawnargs = require("spawn-args");
-            params = spawnargs(oneTimeJavaArgs);
-          }
-        } else if (launchArguments.length) {
-          params = launchArguments;
-        } else if (settings.javaArgs) {
-          var spawnargs = require("spawn-args");
-          params = spawnargs(settings.javaArgs);
-        }
-      } catch (err) {
-        console.log("Error:");
-        console.log(err);
-      }
-
       params.push("-XX:+DisableAttachMechanism");
 
       params = params.unique();
@@ -1153,13 +1117,7 @@ var App = (function(App, undefined) {
     App.updateNodeConfiguration({"lightWallet": settings.lightWallet == 1 ? 0 : 1});
   }
 
-  App.relaunchApplication = function(javaArgs) {
-    if (javaArgs) {
-      oneTimeJavaArgs = javaArgs;
-    } else {
-      oneTimeJavaArgs = -1;
-    }
-
+  App.relaunchApplication = function() {
     App.killNode(function() {
       App.showDefaultWindow();
 
@@ -1259,15 +1217,6 @@ var App = (function(App, undefined) {
     }
 
     isStarted = true;
-
-    if (oneTimeJavaArgs) {
-      if (oneTimeJavaArgs == -1) {
-        settings.javaArgs = "";
-      } else {
-        settings.javaArgs = oneTimeJavaArgs;
-      }
-      oneTimeJavaArgs = false;
-    }
 
     try {
       if (loadingWin) {
@@ -1450,20 +1399,6 @@ var App = (function(App, undefined) {
 
     nodeInitializationError   = true;
 
-    // Reset selected java location. (will be saved in settings)
-    var args = "";
-
-    if (oneTimeJavaArgs) {
-      if (oneTimeJavaArgs != -1) {
-        args = oneTimeJavaArgs;
-      }
-      oneTimeJavaArgs = false;
-    } else if (launchArguments.length) {
-      args = launchArguments.join(" ");
-    } else if (settings.javaArgs) {
-      args = settings.javaArgs;
-    }
-
     if (!title) {
       title = "Initialization Alert";
     }
@@ -1508,7 +1443,6 @@ var App = (function(App, undefined) {
       child.on("exit", function() {
         App.showWindow("init_error.html", {"title"                   : title,
                                            "message"                 : msg,
-                                           "javaArgs"                : args,
                                            "serverOutput"            : serverOutput,
                                            "javaVersionOK"           : javaVersionOK,
                                            "java64BitsOK"            : java64BitsOK,
@@ -1520,7 +1454,6 @@ var App = (function(App, undefined) {
     } else {
       App.showWindow("init_error.html", {"title"                   : title,
                                          "message"                 : msg,
-                                         "javaArgs"                : args, 
                                          "serverOutput"            : serverOutput, 
                                          "updateNodeConfiguration" : updateNodeConfiguration,
                                          "port"                    : settings.port,
@@ -1710,7 +1643,7 @@ var App = (function(App, undefined) {
     return valid;
   }
 
-  App.updateNodeConfiguration = function(configuration, javaArgs) {
+  App.updateNodeConfiguration = function(configuration) {
     try {
       if (!configuration) {
         configuration = {};
@@ -1769,7 +1702,7 @@ var App = (function(App, undefined) {
       }
 
       App.saveSettings();
-      App.relaunchApplication(javaArgs);
+      App.relaunchApplication();
     } catch (err) {
       console.log("Error:");
       console.log(err);
@@ -1823,13 +1756,11 @@ var App = (function(App, undefined) {
         var loginSettings = {"openAtLogin": false};
       }
 
-      win.webContents.send("showPreferences", {"javaArgs": settings.javaArgs, "openAtLogin": loginSettings.openAtLogin});
+      win.webContents.send("showPreferences", {"openAtLogin": loginSettings.openAtLogin});
     }
   }
 
   App.updatePreferences = function(updatedSettings) {
-    settings.javaArgs = updatedSettings.javaArgs;
-
     if (process.platform != "linux") {
       var loginSettings = electron.app.getLoginItemSettings();
 
@@ -1995,8 +1926,8 @@ electron.app.on("browser-window-blur", function() {
   App.setFocus(false);
 });
 
-electron.ipcMain.on("relaunchApplication", function(event, config, javaArgs) {
-  App.relaunchApplication(config, javaArgs);
+electron.ipcMain.on("relaunchApplication", function(event, config) {
+  App.relaunchApplication(config);
 });
 
 electron.ipcMain.on("killAlreadyRunningProcessAndRestart", App.killAlreadyRunningProcessAndRestart);
