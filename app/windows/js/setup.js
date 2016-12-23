@@ -21,7 +21,7 @@ var UI = (function(UI, undefined) {
   UI.initialize = function() {
     document.getElementById("light-node-btn").addEventListener("click", UI.showLightNodeSection);
     document.getElementById("full-node-btn").addEventListener("click", UI.showFullNodeSection);
-    document.getElementById("back-btn").addEventListener("click", UI.showDefaultSection);
+    document.getElementById("switch-btn").addEventListener("click", UI.showOtherNodeSection);
 
     document.getElementById("quit-btn").addEventListener("click", function(e) {
       document.getElementById("quit-btn").disabled = true;
@@ -73,9 +73,12 @@ var UI = (function(UI, undefined) {
     document.getElementById("title").innerHTML = "Light Node Settings:";
     document.getElementById("message").style.display = "none";
     document.getElementById("light-node-section").style.display = "block";
+    document.getElementById("full-node-section").style.display = "none";
     document.getElementById("start-btn").style.display = "block";
-    document.getElementById("back-btn").style.display = "block";
+    document.getElementById("switch-btn").style.display = "block";
+    document.getElementById("switch-btn").innerHTML = "Switch to Full Node";
     document.getElementById("quit-btn").style.display = "none";
+
     UI.updateContentSize();
   }
 
@@ -83,10 +86,13 @@ var UI = (function(UI, undefined) {
     document.getElementById("node-choice").style.display = "none";
     document.getElementById("title").innerHTML = "Full Node Settings:";
     document.getElementById("message").style.display = "none";
+    document.getElementById("light-node-section").style.display = "none";
     document.getElementById("full-node-section").style.display = "block";
     document.getElementById("start-btn").style.display = "block";
-    document.getElementById("back-btn").style.display = "block";
+    document.getElementById("switch-btn").style.display = "block";
+    document.getElementById("switch-btn").innerHTML = "Switch to Light Node";
     document.getElementById("quit-btn").style.display = "none";
+
     UI.updateContentSize();
   }
 
@@ -97,9 +103,20 @@ var UI = (function(UI, undefined) {
     document.getElementById("light-node-section").style.display = "none";
     document.getElementById("full-node-section").style.display = "none";
     document.getElementById("start-btn").style.display = "none";
-    document.getElementById("back-btn").style.display = "none";
+    document.getElementById("switch-btn").style.display = "none";
     document.getElementById("quit-btn").style.display = "block";
+
     UI.updateContentSize();
+  }
+
+  UI.showOtherNodeSection = function() {
+    if (document.getElementById("light-node-section").style.display == "block") {
+      UI.showFullNodeSection();
+      document.getElementById("switch-btn").innerHTML = "Switch to Light Node";
+    } else {
+      UI.showLightNodeSection();
+      document.getElementById("switch-btn").innerHTML = "Switch to Full Node";
+    }
   }
 
   UI.showContextMenu = function(e) {
@@ -129,7 +146,7 @@ var UI = (function(UI, undefined) {
     document.getElementById("light-node-section").style.display = "none";
     document.getElementById("full-node-section").style.display = "none";
     document.getElementById("start-btn").style.display = "none";
-    document.getElementById("back-btn").style.display = "none";
+    document.getElementById("switch-btn").style.display = "none";
 
     if (params) {
       if (params.lightWalletHost) {
