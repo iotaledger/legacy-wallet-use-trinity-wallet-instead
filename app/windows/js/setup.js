@@ -19,39 +19,9 @@ var UI = (function(UI, undefined) {
   var _updateNodeConfiguration = false;
 
   UI.initialize = function() {
-    document.getElementById("light-node-btn").addEventListener("click", function(e) {
-      document.getElementById("node-choice").style.display = "none";
-      document.getElementById("title").innerHTML = "Light Node Settings:";
-      document.getElementById("message").style.display = "none";
-      document.getElementById("light-node-section").style.display = "block";
-      document.getElementById("start-btn").style.display = "block";
-      document.getElementById("back-btn").style.display = "block";
-      document.getElementById("quit-btn").style.display = "none";
-      UI.updateContentSize();
-    });
-
-    document.getElementById("full-node-btn").addEventListener("click", function(e) {
-      document.getElementById("node-choice").style.display = "none";
-      document.getElementById("title").innerHTML = "Full Node Settings:";
-      document.getElementById("message").style.display = "none";
-      document.getElementById("full-node-section").style.display = "block";
-      document.getElementById("start-btn").style.display = "block";
-      document.getElementById("back-btn").style.display = "block";
-      document.getElementById("quit-btn").style.display = "none";
-      UI.updateContentSize();
-    });
-
-    document.getElementById("back-btn").addEventListener("click", function(e) {
-      document.getElementById("node-choice").style.display = "block";
-      document.getElementById("title").innerHTML = "Choose Wallet Type:";
-      document.getElementById("message").style.display = "block";
-      document.getElementById("light-node-section").style.display = "none";
-      document.getElementById("full-node-section").style.display = "none";
-      document.getElementById("start-btn").style.display = "none";
-      document.getElementById("back-btn").style.display = "none";
-      document.getElementById("quit-btn").style.display = "block";
-      UI.updateContentSize();
-    });
+    document.getElementById("light-node-btn").addEventListener("click", UI.showLightNodeSection);
+    document.getElementById("full-node-btn").addEventListener("click", UI.showFullNodeSection);
+    document.getElementById("back-btn").addEventListener("click", UI.showDefaultSection);
 
     document.getElementById("quit-btn").addEventListener("click", function(e) {
       document.getElementById("quit-btn").disabled = true;
@@ -98,6 +68,40 @@ var UI = (function(UI, undefined) {
     });
   }
 
+ UI.showLightNodeSection = function() {
+    document.getElementById("node-choice").style.display = "none";
+    document.getElementById("title").innerHTML = "Light Node Settings:";
+    document.getElementById("message").style.display = "none";
+    document.getElementById("light-node-section").style.display = "block";
+    document.getElementById("start-btn").style.display = "block";
+    document.getElementById("back-btn").style.display = "block";
+    document.getElementById("quit-btn").style.display = "none";
+    UI.updateContentSize();
+  }
+
+  UI.showFullNodeSection = function() {
+    document.getElementById("node-choice").style.display = "none";
+    document.getElementById("title").innerHTML = "Full Node Settings:";
+    document.getElementById("message").style.display = "none";
+    document.getElementById("full-node-section").style.display = "block";
+    document.getElementById("start-btn").style.display = "block";
+    document.getElementById("back-btn").style.display = "block";
+    document.getElementById("quit-btn").style.display = "none";
+    UI.updateContentSize();
+  }
+
+  UI.showDefaultSection = function() {
+    document.getElementById("node-choice").style.display = "block";
+    document.getElementById("title").innerHTML = "Choose Wallet Type:";
+    document.getElementById("message").style.display = "block";
+    document.getElementById("light-node-section").style.display = "none";
+    document.getElementById("full-node-section").style.display = "none";
+    document.getElementById("start-btn").style.display = "none";
+    document.getElementById("back-btn").style.display = "none";
+    document.getElementById("quit-btn").style.display = "block";
+    UI.updateContentSize();
+  }
+
   UI.showContextMenu = function(e) {
     var template = [
       {
@@ -136,6 +140,13 @@ var UI = (function(UI, undefined) {
       }
       if (params.nodes) {
         document.getElementById("nodes").value = params.nodes.join("\r\n");
+      }
+      if (params.section) {
+        if (params.section == "light-node") {
+          UI.showLightNodeSection();
+        } else if (params.section == "full-node") {
+          UI.showFullNodeSection();
+        }
       }
     } 
 
