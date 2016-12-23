@@ -336,6 +336,7 @@ var App = (function(App, undefined) {
     if (loadingWin) {
       loadingWin.hide();
       loadingWin.destroy();
+      loadingWin = null;
     }
 
     if (otherWin) {
@@ -1020,7 +1021,7 @@ var App = (function(App, undefined) {
           if (!didKillNode && !isStarted && !nodeInitializationError)   {
             selectedJavaLocation = "";
             App.saveSettings();
-            App.showInitializationAlert();
+            App.showInitializationAlertWindow();
           }
         }
       });
@@ -1062,7 +1063,7 @@ var App = (function(App, undefined) {
         // System is not closing automatically, wait for user to click the alert button.
         } else if (!didKillNode) {
           if (!isStarted) {
-            App.showInitializationAlert();
+            App.showInitializationAlertWindow();
           } else {
             App.showAlertAndQuit("Server exited", "The Iota server process has exited.");
           }
@@ -1073,7 +1074,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error:");
       console.log(err);
-      App.showInitializationAlert();
+      App.showInitializationAlertWindow();
     }
   }
 
@@ -1433,15 +1434,16 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.showSetupWindow = function() {
+  App.showSetupWindow = function(params) {
     App.showWindow("setup.html", {"lightWallet"     : settings.lightWallet, 
                                   "lightWalletHost" : settings.lightWalletHost,
                                   "lightWalletPort" : settings.lightWalletPort, 
                                   "port"            : settings.port,
-                                  "nodes"           : settings.nodes});
+                                  "nodes"           : settings.nodes,
+                                  "section"         : params && params.section ? params.section : null});
   }
 
-  App.showInitializationAlert = function(title, msg) {
+  App.showInitializationAlertWindow = function(title, msg) {
     if (nodeInitializationError)   {
       return;
     }
@@ -1544,7 +1546,7 @@ var App = (function(App, undefined) {
     win.webContents.send("showKillAlert");
   }
 
-  App.showNoJavaInstalledWindow = function(initError, params) {
+  App.showNoJavaInstalledWindow = function(params) {
     App.showWindow("no_java.html", params);
   }
 
@@ -1583,6 +1585,7 @@ var App = (function(App, undefined) {
     if (loadingWin) {
       loadingWin.hide();
       loadingWin.destroy();
+      loadingWin = null;
     }
 
     if (win) {
@@ -1592,29 +1595,30 @@ var App = (function(App, undefined) {
     App.uiIsInitialized = false;
     App.uiIsReady = false;
 
-    otherWin = new electron.BrowserWindow({"width"          : 600,
-                                           "height"         : height,
-                                           "show"           : false,
-                                           "useContentSize" : true,
-                                           "center"         : true,
-                                           "resizable"      : false});
+    if (!otherWin) {
+      otherWin = new electron.BrowserWindow({"width"          : 600,
+                                             "height"         : height,
+                                             "show"           : false,
+                                             "useContentSize" : true,
+                                             "center"         : true,
+                                             "resizable"      : false});
+      otherWin.toggleDevTools({mode: "undocked"});
+      otherWin.setFullScreenable(false);
+
+      var isClosing;
+
+      otherWin.on("close", function(e) {
+        //For some reason this results in a never-ending loop if we don't add this variable..
+        if (isClosing) {
+          return;
+        }
+
+        isClosing = true;
+        App.quit();
+      });
+    }
 
     otherWin.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/windows/" + filename);
-
-    otherWin.toggleDevTools({mode: "undocked"});
-    otherWin.setFullScreenable(false);
-
-    var isClosing;
-
-    otherWin.on("close", function(e) {
-      //For some reason this results in a never-ending loop if we don't add this variable..
-      if (isClosing) {
-        return;
-      }
-
-      isClosing = true;
-      App.quit();
-    });
 
     //todo: fix normal windows also should open in new window, even if not specified
     otherWin.webContents.on("new-window", function(event, url) {
@@ -2060,7 +2064,11 @@ electron.ipcMain.on("hoverAmountStop", App.hoverAmountStop);
 electron.ipcMain.on("stopLookingAtServerLog", App.stopLookingAtServerLog);
 
 electron.ipcMain.on("showNoJavaInstalledWindow", function(event, params) {
-  App.showNoJavaInstalledWindow(true, params);
+  App.showNoJavaInstalledWindow(params);
+});
+
+electron.ipcMain.on("showSetupWindow", function(event, params) {
+  App.showSetupWindow(params);
 });
 
 electron.ipcMain.on("editNodeConfiguration", App.editNodeConfiguration);
