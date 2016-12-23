@@ -30,7 +30,8 @@ var UI = (function(UI, undefined) {
     
     document.getElementById("start-btn").addEventListener("click", function(e) {
       document.getElementById("start-btn").disabled = true;
-
+      document.getElementById("switch-btn").disabled = true;
+      
       var settings = {};
 
       if (document.getElementById("full-node-section").style.display == "block") {

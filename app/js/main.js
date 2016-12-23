@@ -1117,7 +1117,14 @@ var App = (function(App, undefined) {
     if (win) {
       win.hide();
     }
-    App.updateNodeConfiguration({"lightWallet": settings.lightWallet == 1 ? 0 : 1});
+    var lightWallet = settings.lightWallet == 1 ? 0 : 1;
+
+    if ((lightWallet && (!settings.lightWalletHost || !settings.lightWalletPort)) || (!lightWallet && settings.nodes.length == 0)) {
+      console.log("show edit node config thing");
+      App.editNodeConfiguration(lightWallet);
+    } else {
+      App.updateNodeConfiguration({"lightWallet": lightWallet});
+    }
   }
 
   App.relaunchApplication = function() {
@@ -1374,13 +1381,13 @@ var App = (function(App, undefined) {
   }
 
   App.hoverAmountStart = function(amount) {
-    if (settings.showStatusBar && win && win.webContents) {
+    if (settings.showStatusBar && App.uiIsReady) {
       win.webContents.send("hoverAmountStart", amount);
     }
   }
 
   App.hoverAmountStop = function() {
-    if (settings.showStatusBar && win && win.webContents) {
+    if (settings.showStatusBar && App.uiIsReady) {
       win.webContents.send("hoverAmountStop");
     }
   }
@@ -1607,10 +1614,18 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.editNodeConfiguration = function() {
+  App.editNodeConfiguration = function(walletType) {
     if (App.uiIsReady) {
       App.showWindowIfNotVisible();
-      win.webContents.send("editNodeConfiguration", {"port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "nodes": settings.nodes.join("\r\n"), "testNet": isTestNet});
+      if (walletType === undefined) {
+        walletType = settings.lightWallet;
+      }
+      if (walletType == 1) {
+        var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet};
+      } else {
+        var config = {"lightWallet": 0, "port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "nodes": settings.nodes.join("\r\n"), "testNet": isTestNet};
+      }
+      win.webContents.send("editNodeConfiguration", config);
     }
   }
 
@@ -1645,64 +1660,117 @@ var App = (function(App, undefined) {
         configuration = {};
       }
 
-      if (configuration.hasOwnProperty("nodes")) {
-        var nodes = [];
+      var relaunch = false;
+      var lightWalletHostChange = false;
+      var addedNodes = [];
+      var removedNodes = [];
 
-        var newNodes = configuration.nodes.match(/[^\s]+/g);
+      if (configuration.hasOwnProperty("lightWallet")) {
+        var lightWallet = parseInt(configuration.lightWallet, 10);
+        if (lightWallet != settings.lightWallet) {
+          settings.lightWallet = lightWallet;
+          relaunch = true;
+        }
+      }
 
-        if (newNodes) {
-          newNodes = newNodes.unique();
-        } else {
-          newNodes = [];
+      if (settings.lightWallet == 1) {
+        if (configuration.hasOwnProperty("minWeightMagnitude")) {
+          settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
         }
 
-        for (var i=0; i<newNodes.length; i++) {
-          newNodes[i] = String(newNodes[i]).trim();
-
-          if (newNodes[i] && App.checkNodeValidity(newNodes[i])) {
-            nodes.push(newNodes[i]);
+        if (configuration.hasOwnProperty("lightWalletHost")) {
+          var lightWalletHost = configuration.lightWalletHost;
+          if (lightWalletHost != settings.lightWalletHost) {
+            settings.lightWalletHost = lightWalletHost;
+            lightWalletHostChange = true;
           }
         }
 
-        settings.nodes = nodes;
-      }
+        if (configuration.hasOwnProperty("lightWalletPort")) {
+          var lightWalletPort = parseInt(configuration.lightWalletPort, 10);
+          if (lightWalletPort != settings.lightWalletPort) {
+            settings.lightWalletPort = lightWalletPort;
+            lightWalletHostChange = true;
+          }
+        }
+      } else {
+        if (configuration.hasOwnProperty("nodes")) {
+          var nodes = [];
 
-      if (configuration.hasOwnProperty("port")) {
-        settings.port = parseInt(configuration.port, 10);
-      }
+          var newNodes = configuration.nodes.match(/[^\s]+/g);
 
-      if (configuration.hasOwnProperty("depth")) {
-        settings.depth = parseInt(configuration.depth, 10);
-      }
+          if (newNodes) {
+            newNodes = newNodes.unique();
+          } else {
+            newNodes = [];
+          }
 
-      if (configuration.hasOwnProperty("minWeightMagnitude")) {
-        settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
+          for (var i=0; i<newNodes.length; i++) {
+            newNodes[i] = String(newNodes[i]).trim();
 
-        if (!isTestNet && settings.minWeightMagnitude < 18) {
-          settings.minWeightMagnitude = 18;
-        } else if (isTestNet && settings.minWeightMagnitude < 13) {
-          settings.minWeightMagnitude = 13;
+            if (newNodes[i] && App.checkNodeValidity(newNodes[i])) {
+              nodes.push(newNodes[i]);
+            }
+          }
+
+          addedNodes = nodes.filter(function(n) {
+            return settings.nodes.indexOf(n) == -1;
+          });
+
+          removedNodes = settings.nodes.filter(function(n) {
+            return nodes.indexOf(n) == -1;
+          });
+
+          settings.nodes = nodes;
+        }
+
+        if (configuration.hasOwnProperty("port")) {
+          var port = parseInt(configuration.port, 10);
+          if (port != settings.port) {
+            relaunch = true;
+          }
+        }
+
+        if (configuration.hasOwnProperty("depth")) {
+          settings.depth = parseInt(configuration.depth, 10);
+        }
+
+        if (configuration.hasOwnProperty("minWeightMagnitude")) {
+          settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
+
+          if (!isTestNet && settings.minWeightMagnitude < 18) {
+            settings.minWeightMagnitude = 18;
+          } else if (isTestNet && settings.minWeightMagnitude < 13) {
+            settings.minWeightMagnitude = 13;
+          }
         }
       }
 
-      if (configuration.hasOwnProperty("lightWallet")) {
-        settings.lightWallet = parseInt(configuration.lightWallet, 10);
-      }
-
-      if (configuration.hasOwnProperty("lightWalletHost")) {
-        settings.lightWalletHost = configuration.lightWalletHost;
-      }
-
-      if (configuration.hasOwnProperty("lightWalletPort")) {
-        settings.lightWalletPort = parseInt(configuration.lightWalletPort, 10);
-      }
-
       App.saveSettings();
-      App.relaunchApplication();
+
+      if (relaunch || !App.uiIsReady) {
+        App.relaunchApplication();
+      } else if (lightWalletHostChange) {
+        App.changeLightWalletHost(settings.lightWalletHost, settings.lightWalletPort);
+      } else if (addedNodes || removedNodes) {
+        App.addAndRemoveNeighbors(addedNodes, removedNodes);
+      }
     } catch (err) {
       console.log("Error:");
       console.log(err);
     }
+  }
+
+  App.changeLightWalletHost = function(lightWalletHost, lightWalletPort) {
+    if (!App.uiIsReady) { return; }
+
+    win.webContents.send("changeLightWalletHost", lightWalletHost, lightWalletPort);
+  }
+
+  App.addAndRemoveNeighbors = function(addedNodes, removedNodes) {
+    if (!App.uiIsReady) { return; }
+
+    win.webContents.send("addAndRemoveNeighbors", addedNodes, removedNodes);
   }
 
   App.addNeighborNode = function(node) {
@@ -1717,6 +1785,8 @@ var App = (function(App, undefined) {
       settings.nodes = settings.nodes.unique();
 
       App.saveSettings();
+
+      //should send to UI to add also? TODO
     } catch (err) {
       console.log("Error:");
       console.log(err);

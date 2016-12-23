@@ -538,3 +538,7 @@ body.new-user-active #new-user {
   background: #fff;
   cursor: pointer;
 }
+
+.error {
+  color: red;
+}
