@@ -651,9 +651,9 @@ var UI = (function(UI, undefined) {
     }
   }
 
-  UI.notify = function(type, message) {
+  UI.notify = function(type, message, options) {
     if (webviewIsLoaded && webview) {
-      webview.send("notify", type, message);
+      webview.send("notify", type, message, options);
     }
   }
 
@@ -841,8 +841,8 @@ electron.ipcRenderer.on("hoverAmountStop", function() {
   UI.updateStatusBar({"hoverAmount": -1});
 });
 
-electron.ipcRenderer.on("notify", function(event, type, msg) {
-  UI.notify(type, msg);
+electron.ipcRenderer.on("notify", function(event, type, message, options) {
+  UI.notify(type, message, options);
 });
 
 electron.ipcRenderer.on("relaunch", UI.relaunch);

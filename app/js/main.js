@@ -1902,9 +1902,9 @@ var App = (function(App, undefined) {
     //App.autoUpdate();
   }
 
-  App.notify = function(type, msg) {
+  App.notify = function(type, message, options) {
     if (App.uiIsReady) {
-      win.webContents.send("notify", type, msg);
+      win.webContents.send("notify", type, message, options);
     }
   }
 
@@ -1928,9 +1928,8 @@ var App = (function(App, undefined) {
   }
 
   App.updateAppInfo = function(data) {
-    var _isTestNet = data.name.match(/testnet/i);
-    if (_isTestNet != isTestNet) {
-      //user is connecting to a testnet node with non-testnet app, do not allow... TODO
+    if (data.testnet != isTestNet) {
+      App.notify("error", "You are connecting to a testnet node from the mainnet wallet. This is not recommended...", {"timeOut": 15000, "extendedTimeOut": 15000});
     }
 
     iriVersion = data.version;

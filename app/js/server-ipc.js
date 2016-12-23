@@ -94,9 +94,9 @@ ipcRenderer.on("hideStatusBar", function() {
   }
 });
 
-ipcRenderer.on("notify", function(event, type, message) {
+ipcRenderer.on("notify", function(event, type, message, options) {
   if (typeof(UI) != "undefined") {
-    UI.notify(type, message);
+    UI.notify(type, message, options);
   }
 });
 
