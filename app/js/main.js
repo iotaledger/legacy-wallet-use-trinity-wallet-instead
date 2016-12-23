@@ -301,19 +301,6 @@ var App = (function(App, undefined) {
   }
 
   App.showDefaultWindow = function() {
-    var windowOptions = {"width"           : settings.bounds.width,
-                         "height"          : settings.bounds.height,
-                         "minWidth"        : 305,
-                         "minHeight"       : 424,
-                         "backgroundColor" : "#4DC1B5",
-                         "center"          : true,
-                         "show"            : false};
-
-    if (settings.bounds.hasOwnProperty("x") && settings.bounds.hasOwnProperty("y")) {
-      windowOptions.x = settings.bounds.x;
-      windowOptions.y = settings.bounds.y;
-    }
-
     if (loadingWin) {
       loadingWin.hide();
       loadingWin.destroy();
@@ -329,64 +316,75 @@ var App = (function(App, undefined) {
     App.uiIsInitialized = false;
     App.uiIsReady = false;
 
-    win = new electron.BrowserWindow(windowOptions);
+    if (!win) {
+      var windowOptions = {"width"           : settings.bounds.width,
+                           "height"          : settings.bounds.height,
+                           "minWidth"        : 305,
+                           "minHeight"       : 424,
+                           "backgroundColor" : "#4DC1B5",
+                           "center"          : true,
+                           "show"            : false};
 
-    win.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/index.html?showStatus=" + settings.showStatusBar + "&isFirstRun=" + settings.isFirstRun);
-    //win.toggleDevTools({mode: "undocked"});
-    win.setAspectRatio(11 / 16);
+      if (settings.bounds.hasOwnProperty("x") && settings.bounds.hasOwnProperty("y")) {
+        windowOptions.x = settings.bounds.x;
+        windowOptions.y = settings.bounds.y;
+      }
 
-    // Run the following from the Console tab of your app's DevTools
-    // require('devtron').install()
-    // http://electron.atom.io/devtron/
+      win = new electron.BrowserWindow(windowOptions);
+      //win.toggleDevTools({mode: "undocked"});
+      win.setAspectRatio(11 / 16);
 
-    App.createMenuBar();
+      win.on("close", function(e) {
+        if (win.webContents) {
+          win.webContents.send("shutdown");
 
-    win.on("close", function(e) {
-      if (win.webContents) {
-        win.webContents.send("shutdown");
+          if (win.webContents.isDevToolsOpened()) {
+            win.webContents.closeDevTools();
+          }
+        }
 
-        if (win.webContents.isDevToolsOpened()) {
-          win.webContents.closeDevTools();
+        if (isClosed) {
+          return;
+        } else if (isClosing) {
+          e.preventDefault();
+          return;
+        } else {
+          e.preventDefault();
+        }
+
+        isClosing   = true;
+        doNotQuit   = true;
+
+        App.saveSettings();
+
+        App.killNode(function() {
+          isClosed = true;
+          electron.app.quit();
+        });
+      });
+
+      win.on("closed", function () {
+        win = null;
+      });
+
+      var handleRedirect = function(e, url) {
+        if (url != win.webContents.getURL()) {
+          e.preventDefault();
+          shell.openExternal(url);
         }
       }
 
-      if (isClosed) {
-        return;
-      } else if (isClosing) {
-        e.preventDefault();
-        return;
-      } else {
-        e.preventDefault();
-      }
-
-      isClosing   = true;
-      doNotQuit   = true;
-
-      App.saveSettings();
-
-      App.killNode(function() {
-        isClosed = true;
-        electron.app.quit();
-      });
-    });
-
-    win.on("closed", function () {
-      win = null;
-    });
-
-    var handleRedirect = function(e, url) {
-      if (url != win.webContents.getURL()) {
-        e.preventDefault();
-        shell.openExternal(url);
-      }
+      win.webContents.on("new-window", handleRedirect);
+      win.webContents.on("will-navigate", handleRedirect);
     }
 
-    win.webContents.on("new-window", handleRedirect);
-    win.webContents.on("will-navigate", handleRedirect);
+    win.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/index.html?showStatus=" + settings.showStatusBar + "&isFirstRun=" + settings.isFirstRun);
 
     win.webContents.once("did-finish-load", function() {
       App.updateTitle(true);
     });
+
+    App.createMenuBar();
   }
 
   App.createMenuBar = function(simple) {
@@ -517,7 +515,7 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: "Edit Server Configuration",
+            label: "Node Configuration",
             //accelerator: "CmdOrCtrl+E",
             click(item) {
               App.editNodeConfiguration();
@@ -547,9 +545,11 @@ var App = (function(App, undefined) {
 
       if (settings.lightWallet == 1) {
         template[2].submenu[13].label = "Switch to Full Node";
-        // Remove "open database folder" and "edit server config" options.
+        // Remove "open database folder" option.
         template[2].submenu.splice(2, 1);
-        template[2].submenu.splice(7, (process.platform == "darwin" ? 4 : 2)); //Remove "preferences" on mac too
+        if (process.platform == "darwin") {
+          template[2].submenu.splice(9, 2);
+        }
       } else {
         if (settings.lightWallet == -1) {
           //remove the switch to light / full node link
@@ -1114,22 +1114,31 @@ var App = (function(App, undefined) {
   }
 
   App.switchNodeType = function() {
+    if (win) {
+      win.hide();
+    }
     App.updateNodeConfiguration({"lightWallet": settings.lightWallet == 1 ? 0 : 1});
   }
 
   App.relaunchApplication = function() {
     App.killNode(function() {
-      App.showDefaultWindow();
+      if (win) {
+        win.hide();
+      }
 
-      isStarted = false;
-      didKillNode = false;
-      nodeInitializationError   = false;
-      lastError = "";
-      isRelaunch = true;
-      iriVersion = "";
-      serverOutput = [];
+      setTimeout(function() {
+        App.showDefaultWindow();
 
-      App.start();
+        isStarted = false;
+        didKillNode = false;
+        nodeInitializationError   = false;
+        lastError = "";
+        isRelaunch = true;
+        iriVersion = "";
+        serverOutput = [];
+
+        App.start();
+      }, 300);
     });
   }
 
@@ -1222,6 +1231,7 @@ var App = (function(App, undefined) {
       if (loadingWin) {
         loadingWin.hide();
         loadingWin.destroy();
+        loadingWin = null;
       }
       App.updateTitle(true);
       win.webContents.send("nodeStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "host": (settings.lightWallet == 1 ? settings.lightWalletHost : "http://localhost"), "port": (settings.lightWallet == 1 ? settings.lightWalletPort : settings.port), "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
