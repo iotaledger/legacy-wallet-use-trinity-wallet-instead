@@ -1947,28 +1947,6 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.upgradeIRI = function(sourceFile) {
-    console.log("App.upgradeIRI: " + sourceFile);
-
-    if (sourceFile.match(/iri.*\.jar$/i)) {
-      try {
-        App.killAlreadyRunningProcess(true);
-
-        var jarDirectory = path.join(resourcesDirectory, "iri");
-
-        var targetFile = path.join(jarDirectory, "iri" + (isTestNet ? "-testnet" : "") + ".jar");
-
-        fs.unlinkSync(targetFile);
-        fs.writeFileSync(targetFile, fs.readFileSync(sourceFile));
-      } catch (err) {
-        console.log("Error:");
-        console.log(err);
-      }
-
-      App.relaunchApplication();
-    }
-  }
-
   return App;
 }(App || {}));
 
@@ -1986,8 +1964,6 @@ const shouldQuit = electron.app.makeSingleInstance(function(commandLine, working
     if (process.platform == "win32" && commandLine.length == 2) {
       if (String(commandLine[1]).match(/^iota:\/\//i)) {
         App.handleURL(commandLine[1]);
-      } else if (String(commandLine[1]).match(/iri.*\.jar$/i)) {
-        App.upgradeIRI(commandLine[1]);
       }
     }
   }
@@ -2005,12 +1981,6 @@ electron.app.on("ready", function() {
 
 electron.app.on("open-url", function(event, url) {
   App.handleURL(url);
-});
-
-electron.app.on("open-file", function(event, file) {
-  if (file.match(/iri.*\.jar$/i)) {
-    App.upgradeIRI(commandLine[1]);
-  }
 });
 
 electron.app.on("window-all-closed", function () {
@@ -2075,10 +2045,6 @@ electron.ipcMain.on("editNodeConfiguration", App.editNodeConfiguration);
 
 electron.ipcMain.on("addNeighborNode", function(event, node) {
   App.addNeighborNode(node);
-});
-
-electron.ipcMain.on("upgradeIRI", function(event, sourceFile) {
-  App.upgradeIRI(sourceFile);
 });
 
 electron.ipcMain.on("showServerLog", App.showServerLog);

@@ -115,16 +115,6 @@ var UI = (function(UI, undefined) {
       return false;
     },false);
 
-    webview.addEventListener("drop",function(e, b) {
-      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0] && e.dataTransfer.files[0].path) {
-        if (String(e.dataTransfer.files[0].path).match(/IRI.*\.jar$/i)) {
-          electron.ipcRenderer.send("upgradeIRI", e.dataTransfer.files[0].path);
-        }
-      }
-      e.preventDefault();
-      return false;
-    },false);
-
     //also "dom-ready"
     webview.addEventListener("did-finish-load", UI.webviewDidFinishLoad());
 
