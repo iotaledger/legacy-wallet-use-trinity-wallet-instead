@@ -321,9 +321,9 @@ var App = (function(App, undefined) {
     }
 
     if (otherWin) {
-      console.log("destory it");
       otherWin.hide();
       otherWin.destroy();
+      otherWin = null;
     }
 
     App.uiIsInitialized = false;
@@ -1233,14 +1233,12 @@ var App = (function(App, undefined) {
 
   App.checkServerOutput = function(data, type) {
     if (!isStarted && !didKillNode && !nodeInitializationError)   {
-      if (type == "error") {        
+      if (type == "error") {       
         if (data.match(/java\.net\.BindException/i)) {
           lastError = "The server address is already in use. Please close any other apps/services that may be running on port " + String(settings.port).escapeHTML() + ".";
-        } else if (data.match(/URI Syntax Exception/i) || data.match(/Illegal Argument Exception/i)) {
-          lastError == "Invalid arguments list.";
         } else {
           var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
-          if (error && !lastError.match(/Invalid arguments list|server address is already in use/i)) {
+          if (error && !lastError.match(/URI Syntax Exception|Illegal Argument Exception/i)) {
             lastError = error[1];
           }
         }
@@ -1407,18 +1405,8 @@ var App = (function(App, undefined) {
       msg = (lastError ? lastError : "A server initialization error occurred.");
     }
 
-    if (msg.match(/Invalid arguments list/i)) {
-      msg = "Invalid arguments list.";
-    }
-
     if (!selectedJavaLocation) {
       selectedJavaLocation = "java";
-    }
-
-    var updateNodeConfiguration = msg.match(/Exception during IOTA node initialisation|Invalid arguments list/i) != null;
-
-    if (updateNodeConfiguration && (!settings.nodes || settings.nodes.length == 0)) {
-      title = "Initialization";
     }
     
     //check if user is running 32-bit java on win 64..
@@ -1447,7 +1435,6 @@ var App = (function(App, undefined) {
                                            "javaVersionOK"           : javaVersionOK,
                                            "java64BitsOK"            : java64BitsOK,
                                            "is64BitOS"               : is64BitOS,
-                                           "updateNodeConfiguration" : updateNodeConfiguration,
                                            "port"                    : settings.port,
                                            "nodes"                   : settings.nodes});
       });
@@ -1455,7 +1442,6 @@ var App = (function(App, undefined) {
       App.showWindow("init_error.html", {"title"                   : title,
                                          "message"                 : msg,
                                          "serverOutput"            : serverOutput, 
-                                         "updateNodeConfiguration" : updateNodeConfiguration,
                                          "port"                    : settings.port,
                                          "nodes"                   : settings.nodes});
     }
@@ -1535,7 +1521,7 @@ var App = (function(App, undefined) {
                                              "useContentSize" : true,
                                              "center"         : true,
                                              "resizable"      : false});
-      otherWin.toggleDevTools({mode: "undocked"});
+      //otherWin.toggleDevTools({mode: "undocked"});
       otherWin.setFullScreenable(false);
 
       var isClosing;
@@ -1873,8 +1859,17 @@ var App = (function(App, undefined) {
   }
 
   App.updateTitle = function(includeNodeType) {
-    if (win) {
-      win.setTitle("IOTA " + (includeNodeType && settings.lightWallet == 1 ? "Light " : "") + "Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : ""));
+    var title = "IOTA " + (includeNodeType && settings.lightWallet == 1 ? "Light " : "") + "Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : "");
+
+    try {
+      if (win) {
+        win.setTitle(title);
+      }
+      if (otherWin) {
+        otherWin.setTitle(title);
+      }
+    } catch (err) {
+      console.log(err);
     }
   }
 

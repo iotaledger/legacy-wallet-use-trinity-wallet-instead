@@ -16,28 +16,40 @@ String.prototype.escapeHTML = function() {
 }
 
 var UI = (function(UI, undefined) {
-  var _updateNodeConfiguration = false;
+  var isLightWallet = false;
 
   UI.initialize = function() {
     document.getElementById("quit-btn").addEventListener("click", function(e) {
       document.getElementById("quit-btn").disabled = true;
+      document.getElementById("restart-btn").disabled = true;
+      document.getElementById("settings-btn").disabled = true;
+      document.getElementById("download-java-btn").disabled = true;
+
       electron.ipcRenderer.send("quit");
     });
     document.getElementById("restart-btn").addEventListener("click", function(e) {
+      document.getElementById("quit-btn").disabled = true;
       document.getElementById("restart-btn").disabled = true;
+      document.getElementById("settings-btn").disabled = true;
+      document.getElementById("download-java-btn").disabled = true;
 
-      var settings = {};
-
-      if (_updateNodeConfiguration) {
-        settings.port  = parseInt(document.getElementById("port").value, 10);
-        settings.nodes = document.getElementById("nodes").value;
-      }
-
-      UI.updateNodeConfiguration(settings);
+      UI.relaunchApplication();
     });
-    document.getElementById("download-java").addEventListener("click", function(e) {
-      document.getElementById("download-java").disabled = true;
+    document.getElementById("download-java-btn").addEventListener("click", function(e) {
+      document.getElementById("quit-btn").disabled = true;
+      document.getElementById("restart-btn").disabled = true;
+      document.getElementById("settings-btn").disabled = true;
+      document.getElementById("download-java-btn").disabled = true;
+
       UI.showNoJavaInstalledWindow();
+    });
+    document.getElementById("settings-btn").addEventListener("click", function(e) {
+      document.getElementById("quit-btn").disabled = true;
+      document.getElementById("restart-btn").disabled = true;
+      document.getElementById("settings-btn").disabled = true;
+      document.getElementById("download-java-btn").disabled = true;
+
+      UI.showSetupWindow(isLightWallet ? "light-node" : "full-node");
     });
   }
 
@@ -66,6 +78,7 @@ var UI = (function(UI, undefined) {
 
   UI.show = function(params) {
     if (params) {
+      isLightWallet = params.lightWallet == 1;
       if (params.title) {
         document.getElementById("title").innerHTML = String(params.title).escapeHTML();
         document.getElementById("title").style.display = "block";
@@ -78,27 +91,6 @@ var UI = (function(UI, undefined) {
       } else {
         document.getElementById("message").style.display = "none";
       }
-      if (params.updateNodeConfiguration) {
-        _updateNodeConfiguration = true;
-        if (msg.match(/provide port number/i)) {
-          document.getElementById("server-output-section").style.display = "none";
-          document.getElementById("restart-btn").innerHTML = "Start";
-        } else {
-          document.getElementById("server-output-section").style.display = "block";
-        }
-        document.getElementById("edit-launch-arguments-section").style.display = "block";
-
-        if (params.port) {
-          document.getElementById("port").value = params.port;
-        }
-
-        if (params.nodes) {
-          document.getElementById("nodes").value = params.nodes.join("\r\n");
-        }
-      } else {
-        document.getElementById("server-output-section").style.display = "block";
-        document.getElementById("edit-launch-arguments-section").style.display = "none";
-      }
 
       if (params.serverOutput && params.serverOutput.length) {
         var log = params.serverOutput.join("\n");
@@ -109,7 +101,10 @@ var UI = (function(UI, undefined) {
         }
 
         document.getElementById("server-output").value = log;
+        document.getElementById("server-output-section").style.display = "block";
         //document.getElementById("server-output").scrollTop = document.getElementById("server-output").scrollHeight;
+      } else {
+        document.getElementById("server-output-section").style.display = "none";
       }
 
       if (params.is64BitOS && !params.java64BitsOK) {
@@ -127,12 +122,12 @@ var UI = (function(UI, undefined) {
     }, 20);
   }
 
-  UI.updateNodeConfiguration = function(settings) {
-    electron.ipcRenderer.send("updateNodeConfiguration", settings);
-  }
-
   UI.showNoJavaInstalledWindow = function() {
     electron.ipcRenderer.send("showNoJavaInstalledWindow", {"downloadImmediatelyIfWindows": true});
+  }
+
+  UI.showSetupWindow = function(section) {
+    electron.ipcRenderer.send("showSetupWindow", {"section": section});
   }
 
   return UI;
