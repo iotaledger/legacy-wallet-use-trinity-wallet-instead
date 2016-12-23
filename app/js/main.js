@@ -1934,11 +1934,15 @@ var App = (function(App, undefined) {
 
     iriVersion = data.version;
 
-    App.updateTitle(true);
+    App.updateTitle(true, data.testnet);
   }
 
-  App.updateTitle = function(includeNodeType) {
-    var title = "IOTA " + (includeNodeType && settings.lightWallet == 1 ? "Light " : "") + "Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : "");
+  App.updateTitle = function(includeNodeType, _isTestNet) {
+    if (_isTestNet === undefined) {
+      _isTestNet = isTestNet;
+    }
+
+    var title = "IOTA " + (includeNodeType && settings.lightWallet == 1 ? "Light " : "") + "Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (_isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : "");
 
     try {
       if (win) {
