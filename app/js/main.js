@@ -378,7 +378,7 @@ var App = (function(App, undefined) {
       win.webContents.on("will-navigate", handleRedirect);
     }
 
-    win.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/index.html?showStatus=" + settings.showStatusBar + "&isFirstRun=" + settings.isFirstRun);
+    win.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/index.html?showStatus=" + settings.showStatusBar + "&isFirstRun=" + settings.isFirstRun + "&lightWallet=" + settings.lightWallet);
 
     win.webContents.once("did-finish-load", function() {
       App.updateTitle(true);
@@ -1794,7 +1794,7 @@ var App = (function(App, undefined) {
   }
 
   App.showServerLog = function() {
-    if (App.uiIsReady) {
+    if (App.uiIsReady && settings.lightWallet != 1) {
       App.showWindowIfNotVisible();
       isLookingAtServerLog = true;
       win.webContents.send("showServerLog", serverOutput);

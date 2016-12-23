@@ -304,7 +304,7 @@ body.new-user-active #new-user {
   font-weight: bold;
 }
 
-#status-bar-milestone, #status-bar-solid-milestone {
+body.full-node #status-bar-milestone, body.full-node #status-bar-solid-milestone {
   cursor: pointer;
 }
 

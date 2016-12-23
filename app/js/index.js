@@ -28,11 +28,13 @@ var UI = (function(UI, undefined) {
 
     var showStatusBar = false;
     var isFirstRun    = false;
+    var lightWallet   = -1;
 
     if (typeof(URLSearchParams) != "undefined") {
       var params = new URLSearchParams(location.search.slice(1));
       showStatusBar = params.get("showStatus") == 1;
       isFirstRun = params.get("isFirstRun") == 1;
+      lightWallet = parseInt(params.get("lightWallet"), 10);
     }
 
     if (isFirstRun) {
@@ -50,13 +52,17 @@ var UI = (function(UI, undefined) {
       callNodeStarted = false;
     }
 
-    document.getElementById("status-bar-milestone").addEventListener("click", function(e) {
-      electron.ipcRenderer.send("showServerLog");
-    });
+    if (lightWallet != 1) {
+      document.body.className += " full-node";
+      document.getElementById("status-bar-milestone").addEventListener("click", function(e) {
+        electron.ipcRenderer.send("showServerLog");
+      });
 
-    document.getElementById("status-bar-solid-milestone").addEventListener("click", function(e) {
-      electron.ipcRenderer.send("showServerLog");
-    });
+      document.getElementById("status-bar-solid-milestone").addEventListener("click", function(e) {
+        electron.ipcRenderer.send("showServerLog");
+      });
+    } 
+
 
     document.getElementById("new-user").addEventListener("click", function(e) {
       UI.sendToWebview("openHelpMenu");
@@ -668,6 +674,8 @@ var UI = (function(UI, undefined) {
       UI.sendToWebview("showNetworkSpammer");
     } else if (url == "generateseed" || url == "seed") {
       UI.sendToWebview("generateSeed");
+    } else if (url == "claim") {
+      UI.sendToWebview("showClaimProcess");
     } else if (url == "faq") {
       UI.sendToWebview("faq");
     } else {
