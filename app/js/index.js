@@ -823,6 +823,10 @@ electron.ipcRenderer.on("showClaimProcess", function() {
   UI.sendToWebview("showClaimProcess");
 });
 
+electron.ipcRenderer.on("addAndRemoveNeighbors", function(event, addedNodes, removedNodes) {
+  UI.sendToWebview("addAndRemoveNeighbors", {"add": addedNodes, "remove": removedNodes});
+});
+
 electron.ipcRenderer.on("editNodeConfiguration", function(event, serverConfiguration) {
   UI.editNodeConfiguration(serverConfiguration);
 });

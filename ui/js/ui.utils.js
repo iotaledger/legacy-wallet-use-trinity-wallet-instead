@@ -174,5 +174,27 @@ var UI = (function(UI, $, undefined) {
     $btn.loadingUpdate(message, options);
   }
 
+  UI.addAndRemoveNeighbors = function(addNodes, removeNodes) {
+    if (addNodes && addNodes.length) {
+      iota.api.addNeighbors(addNodes, function(error, success) {
+        if (error) {
+          UI.notify("error", "Error whilst adding neighbors.");
+        } else {
+          UI.notify("success", "Added " + addNodes.length + " neighbor" + (addNodes.length != 1 ? "s" : "") + ".");
+        }
+      });
+    }
+
+    if (removeNodes && removeNodes.length) {
+      iota.api.addNeighbors(removeNodes, function(error, success) {
+        if (error) {
+          UI.notify("error", "Error whilst removing neighbors.");
+        } else {
+          UI.notify("success", "Removed " + removeNodes.length + " neighbor" + (removeNodes.length != 1 ? "s" : "") + ".");
+        }
+      });
+    }
+  }
+
   return UI;
 }(UI || {}, jQuery));

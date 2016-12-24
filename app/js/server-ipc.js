@@ -118,6 +118,10 @@ ipcRenderer.on("shutdown", function() {
   }
 });
 
+ipcRenderer.on("addAndRemoveNeighbors", function(event, nodes) {
+  UI.addAndRemoveNeighbors(nodes.add, nodes.remove);
+});
+
 function _hoverAmountStart(amount) {
   ipcRenderer.send("hoverAmountStart", amount);
 }
