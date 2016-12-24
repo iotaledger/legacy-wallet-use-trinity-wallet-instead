@@ -515,7 +515,7 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: "Node Configuration",
+            label: "Edit Node Configuration",
             //accelerator: "CmdOrCtrl+E",
             click(item) {
               App.editNodeConfiguration();
@@ -1727,6 +1727,7 @@ var App = (function(App, undefined) {
         if (configuration.hasOwnProperty("port")) {
           var port = parseInt(configuration.port, 10);
           if (port != settings.port) {
+            settings.port = port;
             relaunch = true;
           }
         }
