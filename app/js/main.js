@@ -961,8 +961,10 @@ var App = (function(App, undefined) {
 
       params.push(path.join(jarDirectory, "iri" + (isTestNet ? "-testnet" : "") + ".jar"));
 
-      params.push("-e");
-
+      if (settings.experimental) {
+        params.push("-e");
+      }
+      
       params.push("-p");
       params.push(settings.port);
 
