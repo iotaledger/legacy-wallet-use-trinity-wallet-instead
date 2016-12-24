@@ -89,7 +89,7 @@ var UI = (function(UI, $, undefined) {
         connection.minWeightMagnitude = 18;
       }
       if (connection.inApp && connection.lightWallet) {
-        updateAppInfo({"name": connection.nodeInfo.appName, "version": connection.nodeInfo.appVersion});
+        updateAppInfo({"name": connection.nodeInfo.appName, "version": connection.nodeInfo.appVersion, "testnet": connection.testNet});
       }
       $(document).trigger("initialConnection");
       if (!connection.seed) {
