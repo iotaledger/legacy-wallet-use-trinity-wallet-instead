@@ -21,6 +21,7 @@ var UI = (function(UI, undefined) {
   var callNodeStarted    = false;
   var serverLogLines     = 0;
   var webviewIsLoaded    = false;
+  var lightWallet        = false;
   var webview;
 
   UI.initialize = function() {
@@ -28,13 +29,12 @@ var UI = (function(UI, undefined) {
 
     var showStatusBar = false;
     var isFirstRun    = false;
-    var lightWallet   = -1;
 
     if (typeof(URLSearchParams) != "undefined") {
       var params = new URLSearchParams(location.search.slice(1));
       showStatusBar = params.get("showStatus") == 1;
       isFirstRun = params.get("isFirstRun") == 1;
-      lightWallet = parseInt(params.get("lightWallet"), 10);
+      lightWallet = parseInt(params.get("lightWallet"), 10) == 1;
     }
 
     if (isFirstRun) {
@@ -52,7 +52,7 @@ var UI = (function(UI, undefined) {
       callNodeStarted = false;
     }
 
-    if (lightWallet != 1) {
+    if (!lightWallet) {
       document.body.className += " full-node";
       document.getElementById("status-bar-milestone").addEventListener("click", function(e) {
         electron.ipcRenderer.send("showServerLog");
@@ -665,7 +665,9 @@ var UI = (function(UI, undefined) {
     if (url == "config" || url == "configuration" || url == "setup") {
       electron.ipcRenderer.send("editNodeConfiguration");
     } else if (url == "log") {
-      electron.ipcRenderer.send("showServerLog");
+      if (!lightWallet) {
+        electron.ipcRenderer.send("showServerLog");
+      }
     } else if (url == "nodeinfo" || url == "node") {
       UI.sendToWebview("showNodeInfo");
     } else if (url == "peers") {
@@ -681,7 +683,9 @@ var UI = (function(UI, undefined) {
     } else {
       var match = url.match(/(?:addnode|addneighbou?r)\/(.*)/i);
       if (match && match[1] && match[1].charAt(0) != "-") {
-        UI.addNeighborNode(match[1]);
+        if (!lightWallet) {
+          UI.addNeighborNode(match[1]);
+        }
       } else {
         UI.sendToWebview("handleURL", url);
       }

@@ -1061,7 +1061,7 @@ var App = (function(App, undefined) {
         // callback = null;
         fn();
       }
-    }, 500);
+    }, (settings.lightWallet == 1 ? 0 : 500));
   }
 
   App.openDatabaseFolder = function(file) {
@@ -1312,11 +1312,11 @@ var App = (function(App, undefined) {
     console.log(data);
     if (!data.match(/Requesting command getNodeInfo/i)) {
       serverOutput.push(data);
+      if (isLookingAtServerLog && win && win.webContents) {
+        win.webContents.send("appendToServerLog", data);
+      }
     }
-    if (isLookingAtServerLog && win && win.webContents) {
-      win.webContents.send("appendToServerLog", data);
-    }
-    if (serverOutput.length > 1000) {
+    if (serverOutput.length > 500) {
       serverOutput.shift();
     }
   }
@@ -1752,9 +1752,10 @@ var App = (function(App, undefined) {
       if (relaunch || !App.uiIsReady) {
         App.relaunchApplication();
       } else if (lightWalletHostChange) {
-        App.changeLightWalletHost(settings.lightWalletHost, settings.lightWalletPort);
+        // For now we'll just relaunch, easiest... TODO
+        App.relaunchApplication();
       } else if (addedNodes || removedNodes) {
-        App.addAndRemoveNeighbors(addedNodes, removedNodes);
+        win.webContents.send("addAndRemoveNeighbors", addedNodes, removedNodes);
       }
     } catch (err) {
       console.log("Error:");
@@ -1762,19 +1763,10 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.changeLightWalletHost = function(lightWalletHost, lightWalletPort) {
-    if (!App.uiIsReady) { return; }
-
-    win.webContents.send("changeLightWalletHost", lightWalletHost, lightWalletPort);
-  }
-
-  App.addAndRemoveNeighbors = function(addedNodes, removedNodes) {
-    if (!App.uiIsReady) { return; }
-
-    win.webContents.send("addAndRemoveNeighbors", addedNodes, removedNodes);
-  }
-
   App.addNeighborNode = function(node) {
+    if (settings.lightWallet == 1) {
+      return;
+    }
     try {
       node = String(node).trim();
 
@@ -1782,14 +1774,15 @@ var App = (function(App, undefined) {
         return;
       }
 
-      settings.nodes.push(node);
-      settings.nodes = settings.nodes.unique();
+      if (settings.nodes.indexOf(node) == -1) {
+        settings.nodes.push(node);
+        App.saveSettings();
 
-      App.saveSettings();
-
-      //should send to UI to add also? TODO
+        if (App.uiIsReady) {
+          win.webContents.send("addAndRemoveNeighbors", [node]);
+        }
+      }
     } catch (err) {
-      console.log("Error:");
       console.log(err);
     }
   }
@@ -1930,7 +1923,7 @@ var App = (function(App, undefined) {
 
   App.updateAppInfo = function(data) {
     if (data.testnet != isTestNet) {
-      App.notify("error", "You are connecting to a testnet node from the mainnet wallet. This is not recommended...", {"timeOut": 15000, "extendedTimeOut": 15000});
+      App.notify("error", "You are connecting to a " + (data.testnet ? "testnet" : "mainnet") + " node from the " + (isTestNet ? "testnet" : "mainnet") + " wallet. This is not recommended...", {"timeOut": 15000, "extendedTimeOut": 15000});
     }
 
     iriVersion = data.version;
