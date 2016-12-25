@@ -12,6 +12,7 @@ var connection = {"accountData"         : false,
                   "port"                : 14265,
                   "depth"               : 3,
                   "minWeightMagnitude"  : 18,
+                  "ccurlPath"           : null,
                   "lightWallet"         : false};
 
 var __entityMap = {
@@ -70,6 +71,9 @@ var UI = (function(UI, $, undefined) {
         }
         if (params.has("minWeightMagnitude")) {
           connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
+        }
+        if (params.has("ccurlPath")) {
+          connection.ccurlPath = params.get("ccurlPath");
         }
       }
 

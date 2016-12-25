@@ -1243,7 +1243,24 @@ var App = (function(App, undefined) {
         loadingWin = null;
       }
       App.updateTitle(true);
-      win.webContents.send("nodeStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "host": (settings.lightWallet == 1 ? settings.lightWalletHost : "http://localhost"), "port": (settings.lightWallet == 1 ? settings.lightWalletPort : settings.port), "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude});
+
+      if (process.platform == "win32") {
+        var is64BitOS = process.arch == "x64" || process.env.PROCESSOR_ARCHITECTURE == "AMD64" || process.env.hasOwnProperty("PROCESSOR_ARCHITEW6432");
+      } else {
+        var is64BitOS = process.arch == "x64";
+      }
+
+      var ccurlPath;
+
+      if (process.platform == "win32") {
+        ccurlPath = path.join(resourcesDirectory, "ccurl", "win" + (is64BitOS ? "64" : "32"));
+      } else if (process.platform == "darwin") {
+        ccurlPath = path.join(resourcesDirectory, "ccurl", "mac");
+      } else {
+        ccurlPath = path.join(resourcesDirectory, "ccurl", "lin" + (is64BitOS ? "64" : "32"));
+      }
+
+      win.webContents.send("nodeStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "host": (settings.lightWallet == 1 ? settings.lightWalletHost : "http://localhost"), "port": (settings.lightWallet == 1 ? settings.lightWalletPort : settings.port), "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "ccurlPath": ccurlPath});
     } catch (err) {
       console.log("Error:");
       console.log(err);

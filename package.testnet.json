@@ -47,6 +47,7 @@
     "category": "public.app-category.developer-tools",
     "extraResources": [
       "iri/iri-testnet.jar",
+      "ccurl/**/*",
       "ui/**/*"
     ],
     "protocols": [

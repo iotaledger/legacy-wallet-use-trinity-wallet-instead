@@ -19,7 +19,7 @@ iota.api.attachToTangle = function(trunkTransaction, branchTransaction, minWeigh
         return callback("Invalid trytes");
     }
     
-    ccurl(trunkTransaction, branchTransaction, minWeightMagnitude, trytes, function(error, success) {
+    ccurl(trunkTransaction, branchTransaction, minWeightMagnitude, trytes, connection.ccurlPath, function(error, success) {
         if (callback) {
             return callback(error, {"trytes": success})
         } else {

@@ -49,6 +49,7 @@
     "category": "public.app-category.developer-tools",
     "extraResources": [
       "iri/iri.jar",
+      "ccurl/**/*",
       "ui/**/*"
     ],
     "protocols": [
