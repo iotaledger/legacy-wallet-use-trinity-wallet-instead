@@ -135,7 +135,7 @@ function _editNodeConfiguration() {
 }
 
 function _rendererIsReady() {
-  ipcRenderer.send("rendererIsReady");
+  ipcRenderer.send("rendererIsReady", process.pid);
 }
 
 function _relaunchApplication() {

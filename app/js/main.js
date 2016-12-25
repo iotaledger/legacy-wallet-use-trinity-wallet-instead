@@ -58,6 +58,7 @@ var App = (function(App, undefined) {
   var isLookingAtServerLog      = false;
   var ia32JavaLocation          = null;
   var is64BitOS                 = 64;
+  var rendererPid               = null;
 
   var launchURL                 = null;
   var iriVersion                = "";
@@ -1243,14 +1244,8 @@ var App = (function(App, undefined) {
       }
       App.updateTitle(true);
 
-      if (process.platform == "win32") {
-        var is64BitOS = process.arch == "x64" || process.env.PROCESSOR_ARCHITECTURE == "AMD64" || process.env.hasOwnProperty("PROCESSOR_ARCHITEW6432");
-      } else {
-        var is64BitOS = process.arch == "x64";
-      }
-
       var ccurlPath;
-
+      
       if (process.platform == "win32") {
         ccurlPath = path.join(resourcesDirectory, "ccurl", "win" + (is64BitOS ? "64" : "32"));
       } else if (process.platform == "darwin") {
@@ -1364,7 +1359,7 @@ var App = (function(App, undefined) {
       clearInterval(cpuTrackInterval);
     }
 
-    cpuTrackInterval = setInterval(App.trackCPU, 15000);
+    cpuTrackInterval = setInterval(App.trackCPU, 5000);
 
     App.trackCPU();
   }
@@ -1377,9 +1372,15 @@ var App = (function(App, undefined) {
   }
 
   App.trackCPU = function() {
-    if (server && server.pid) {
-      var pid = server.pid;
+    var pid;
 
+    if (settings.lightWallet == 1) {
+      pid = rendererPid;
+    } else if (server && server.pid) {
+      pid = server.pid;
+    }
+
+    if (pid) {
       pusage.stat(pid, function(err, stat) {
         if (err) {
           App.updateStatusBar({"cpu": ""});
@@ -1896,7 +1897,8 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.rendererIsReady = function() {
+  App.rendererIsReady = function(pid) {
+    rendererPid = pid;
     App.uiIsReady = true;
 
     setTimeout(function() {
@@ -2029,8 +2031,8 @@ electron.ipcMain.on("rendererIsInitialized", function() {
   App.rendererIsInitialized();
 });
 
-electron.ipcMain.on("rendererIsReady", function() {
-  App.rendererIsReady();
+electron.ipcMain.on("rendererIsReady", function(event, pid) {
+  App.rendererIsReady(pid);
 });
 
 electron.ipcMain.on("updatePreferences", function(event, checkForUpdatesOption) {
