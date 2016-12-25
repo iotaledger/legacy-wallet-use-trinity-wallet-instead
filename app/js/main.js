@@ -177,7 +177,7 @@ var App = (function(App, undefined) {
 
   App.saveSettings = function() {
     try {
-      if (App.uiIsReady && !win.isFullScreen()) {
+      if (App.windowIsReady() && !win.isFullScreen()) {
         settings.bounds = win.getBounds();
       }
 
@@ -1341,7 +1341,7 @@ var App = (function(App, undefined) {
   }
 
   App.toggleStatusBar = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       if (settings.showStatusBar) {
         settings.showStatusBar = 0;
       } else {
@@ -1400,19 +1400,19 @@ var App = (function(App, undefined) {
   }
 
   App.hoverAmountStart = function(amount) {
-    if (settings.showStatusBar && App.uiIsReady) {
+    if (settings.showStatusBar && App.windowIsReady()) {
       win.webContents.send("hoverAmountStart", amount);
     }
   }
 
   App.hoverAmountStop = function() {
-    if (settings.showStatusBar && App.uiIsReady) {
+    if (settings.showStatusBar && App.windowIsReady()) {
       win.webContents.send("hoverAmountStop");
     }
   }
 
   App.showWindowIfNotVisible = function() {
-    if (App.uiIsReady && win && !win.isVisible()) {
+    if (App.windowIsReady() && !win.isVisible()) {
       win.show();
     }
   }
@@ -1486,7 +1486,7 @@ var App = (function(App, undefined) {
   }
 
   App.showAlertAndQuit = function(title, msg) {
-    if (!App.uiIsReady) {
+    if (!App.windowIsReady()) {
       App.showWindow("quit.html", {"title": title, "message": msg});
     } else {
       App.showWindowIfNotVisible();
@@ -1495,7 +1495,7 @@ var App = (function(App, undefined) {
   }
 
   App.showKillAlert = function() {
-    if (!App.uiIsReady) { return; }
+    if (!App.windowIsReady()) { return; }
     App.showWindowIfNotVisible();
 
     win.webContents.send("showKillAlert");
@@ -1592,49 +1592,49 @@ var App = (function(App, undefined) {
   }
 
   App.showNodeInfo = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showNodeInfo");
     }
   }
 
   App.showPeers = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showPeers");
     }
   }
 
   App.showFAQ = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showFAQ");
     }
   }
 
   App.generateSeed = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("generateSeed");
     }
   }
 
   App.claimProcess = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showClaimProcess");
     }
   }
   
   App.showNetworkSpammer = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showNetworkSpammer");
     }
   }
 
   App.editNodeConfiguration = function(walletType) {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       if (walletType === undefined) {
         walletType = settings.lightWallet;
@@ -1768,7 +1768,7 @@ var App = (function(App, undefined) {
 
       App.saveSettings();
 
-      if (relaunch || !App.uiIsReady) {
+      if (relaunch || !App.windowIsReady()) {
         App.relaunchApplication();
       } else if (lightWalletHostChange) {
         // For now we'll just relaunch, easiest... TODO
@@ -1797,7 +1797,7 @@ var App = (function(App, undefined) {
         settings.nodes.push(node);
         App.saveSettings();
 
-        if (App.uiIsReady) {
+        if (App.windowIsReady()) {
           win.webContents.send("addAndRemoveNeighbors", [node]);
         }
       }
@@ -1807,7 +1807,7 @@ var App = (function(App, undefined) {
   }
 
   App.showServerLog = function() {
-    if (App.uiIsReady && settings.lightWallet != 1) {
+    if (App.windowIsReady() && settings.lightWallet != 1) {
       App.showWindowIfNotVisible();
       isLookingAtServerLog = true;
       win.webContents.send("showServerLog", serverOutput);
@@ -1819,14 +1819,14 @@ var App = (function(App, undefined) {
   }
 
   App.showModal = function(identifier, html) {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showModal", identifier, html);
     }
   }
 
   App.showPreferences = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
 
       if (process.platform != "linux") {
@@ -1850,35 +1850,35 @@ var App = (function(App, undefined) {
   }
 
   App.showUpdateAvailable = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showUpdateAvailable");
     }
   }
 
   App.showUpdateDownloaded = function(releaseNotes, releaseName, releaseDate) {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showUpdateDownloaded", releaseNotes, releaseName, releaseDate);
     }
   }
 
   App.showUpdateError = function(error) {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showUpdateError", error);
     }
   }
 
   App.showCheckingForUpdate = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showCheckingForUpdate");
     }
   }
 
   App.showUpdateNotAvailable = function() {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showUpdateNotAvailable");
     }
@@ -1916,7 +1916,7 @@ var App = (function(App, undefined) {
   }
 
   App.notify = function(type, message, options) {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       win.webContents.send("notify", type, message, options);
     }
   }
@@ -1924,7 +1924,7 @@ var App = (function(App, undefined) {
   App.handleURL = function(url) {
     console.log("App.handleURL: " + url);
 
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       win.webContents.send("handleURL", url);
       if (url == launchURL) {
         launchURL = null;
@@ -1935,7 +1935,7 @@ var App = (function(App, undefined) {
   }
 
   App.updateStatusBar = function(data) {
-    if (App.uiIsReady) {
+    if (App.windowIsReady()) {
       win.webContents.send("updateStatusBar", data);
     }
   }
@@ -1967,6 +1967,10 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  App.windowIsReady = function() {
+    return (App.uiIsReady && win && win.webContents);
   }
 
   return App;
