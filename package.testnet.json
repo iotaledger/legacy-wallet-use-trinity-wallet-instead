@@ -29,7 +29,7 @@
     "url": "https://github.com/iotaledger/wallet"
   },
   "dependencies": {
-    "ccurl.interface.js": "0.0.3",
+    "ccurl.interface.js": "0.0.4",
     "follow-redirects": "^0.1.0",
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
