@@ -1122,7 +1122,6 @@ var App = (function(App, undefined) {
     var lightWallet = settings.lightWallet == 1 ? 0 : 1;
 
     if ((lightWallet && (!settings.lightWalletHost || !settings.lightWalletPort)) || (!lightWallet && settings.nodes.length == 0)) {
-      console.log("show edit node config thing");
       App.editNodeConfiguration(lightWallet);
     } else {
       App.updateNodeConfiguration({"lightWallet": lightWallet});
@@ -1674,6 +1673,7 @@ var App = (function(App, undefined) {
   }
 
   App.updateNodeConfiguration = function(configuration) {
+    console.log("update node config");
     try {
       if (!configuration) {
         configuration = {};
@@ -1685,18 +1685,16 @@ var App = (function(App, undefined) {
       var removedNodes = [];
 
       if (configuration.hasOwnProperty("lightWallet")) {
+        console.log(" switch light wallet?");
         var lightWallet = parseInt(configuration.lightWallet, 10);
         if (lightWallet != settings.lightWallet) {
+          console.log("sWitch it");
           settings.lightWallet = lightWallet;
           relaunch = true;
         }
       }
 
       if (settings.lightWallet == 1) {
-        if (configuration.hasOwnProperty("minWeightMagnitude")) {
-          settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
-        }
-
         if (configuration.hasOwnProperty("lightWalletHost")) {
           var lightWalletHost = configuration.lightWalletHost;
           if (lightWalletHost != settings.lightWalletHost) {
@@ -1754,15 +1752,15 @@ var App = (function(App, undefined) {
         if (configuration.hasOwnProperty("depth")) {
           settings.depth = parseInt(configuration.depth, 10);
         }
+      }
 
-        if (configuration.hasOwnProperty("minWeightMagnitude")) {
-          settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
+      if (configuration.hasOwnProperty("minWeightMagnitude")) {
+        settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
 
-          if (!isTestNet && settings.minWeightMagnitude < 18) {
-            settings.minWeightMagnitude = 18;
-          } else if (isTestNet && settings.minWeightMagnitude < 13) {
-            settings.minWeightMagnitude = 13;
-          }
+        if (!isTestNet && settings.minWeightMagnitude < 18) {
+          settings.minWeightMagnitude = 18;
+        } else if (isTestNet && settings.minWeightMagnitude < 13) {
+          settings.minWeightMagnitude = 13;
         }
       }
 
