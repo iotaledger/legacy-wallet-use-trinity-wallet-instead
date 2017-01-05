@@ -12,6 +12,6 @@
     "remodal": "^1.0.7",
     "toastr": "^2.1.2",
     "async": "^2.1.4",
-    "iota.lib.js": "^0.0.13"
+    "iota.lib.js": "^0.0.16"
   }
 }
