@@ -1686,10 +1686,8 @@ var App = (function(App, undefined) {
       var removedNodes = [];
 
       if (configuration.hasOwnProperty("lightWallet")) {
-        console.log(" switch light wallet?");
         var lightWallet = parseInt(configuration.lightWallet, 10);
         if (lightWallet != settings.lightWallet) {
-          console.log("sWitch it");
           settings.lightWallet = lightWallet;
           relaunch = true;
         }
