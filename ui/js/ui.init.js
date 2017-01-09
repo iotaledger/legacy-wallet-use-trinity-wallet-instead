@@ -29,9 +29,9 @@ String.prototype.escapeHTML = function() {
   });
 };
 
-if (typeof document.hasFocus === "undefined") { 
-  document.hasFocus = function () { 
-    return document.visibilityState == "visible"; 
+if (typeof document.hasFocus === "undefined") {
+  document.hasFocus = function () {
+    return document.visibilityState == "visible";
   }
 }
 
@@ -82,9 +82,11 @@ var UI = (function(UI, $, undefined) {
         "port": connection.port
       });
 
+      connection.ccurlProvider = ccurl.ccurlProvider(connection.ccurlPath);
+
       if (connection.host != "http://localhost") {
         connection.lightWallet = true;
-        if (!connection.inApp || !ccurl) {
+        if (!connection.inApp || !connection.ccurlProvider) {
           showLightWalletErrorMessage();
         } else {
           // Overwrite iota lib with light wallet functionality
@@ -115,7 +117,7 @@ var UI = (function(UI, $, undefined) {
     // Initialize button handlers
     $(".btn:not(.btn-no-loading)").loadingInitialize();
 
-    // Enable copy to clipboard  
+    // Enable copy to clipboard
     var clipboard = new Clipboard(".clipboard");
     clipboard.on("success", function(e) {
       UI.notify("success", "Copied to clipboard.");
@@ -133,7 +135,7 @@ var UI = (function(UI, $, undefined) {
     });
 
     UI.showLoginScreen();
-    
+
     // Until we have a server connection we will check every 500ms..
     UI.createStateInterval(500, true);
 

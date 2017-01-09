@@ -1,5 +1,5 @@
 const ipcRenderer = require("electron").ipcRenderer;
-const ccurl       = require("ccurl.interface.js");
+const ccurl = require("./ccurl-interface");
 
 ipcRenderer.on("showNodeInfo", function() {
   if (typeof(UI) != "undefined") {

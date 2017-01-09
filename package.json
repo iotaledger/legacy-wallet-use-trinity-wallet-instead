@@ -2,7 +2,8 @@
   "name": "iota",
   "productName": "IOTA Wallet",
   "description": "IOTA Wallet",
-  "version": "2.0.2-1",
+  "version": "2.0.3",
+  "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
     "postinstall": "install-app-deps && cd app && bower install && cd ../ui && bower install",
@@ -29,7 +30,7 @@
     "url": "https://github.com/iotaledger/wallet"
   },
   "dependencies": {
-    "ccurl.interface.js": "0.0.4",
+    "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
     "glob": "^7.1.1",
     "pidusage": "^1.1.0"
@@ -40,7 +41,9 @@
     "rimraf": "^2.5.4"
   },
   "build": {
-    "publish": ["github"],
+    "publish": [
+      "github"
+    ],
     "appId": "com.iotatoken.wallet",
     "category": "public.app-category.developer-tools",
     "extraResources": [
@@ -51,7 +54,9 @@
     "protocols": [
       {
         "name": "IOTA URL Scheme",
-        "schemes": ["iota"]
+        "schemes": [
+          "iota"
+        ]
       }
     ],
     "dmg": {
@@ -78,8 +83,7 @@
         "AppImage",
         "deb",
         "rpm",
-        "tar.gz",
-        "snap"
+        "tar.gz"
       ],
       "packageUrl": "https://www.iotatoken.com/"
     }

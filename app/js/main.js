@@ -7,6 +7,7 @@ const powerSaveBlocker = electron.powerSaveBlocker;
 const shell            = electron.shell;
 const clipboard        = electron.clipboard;
 const pusage           = require("pidusage");
+const ffi              = require('ffi');
 
 let win;
 let otherWin;
@@ -718,7 +719,7 @@ var App = (function(App, undefined) {
   App.findDirectories = function() {
     try {
       appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
-      
+
       if (settings.hasOwnProperty("db")) {
         serverDirectory = settings.db;
       } else {
@@ -945,7 +946,7 @@ var App = (function(App, undefined) {
 
     try {
       var pid = App.getAlreadyRunningProcess();
-      
+
       if (pid) {
         console.log("PID: " + pid);
         App.showAlreadyRunningProcessAlert();
@@ -965,7 +966,7 @@ var App = (function(App, undefined) {
       if (settings.experimental) {
         params.push("-e");
       }
-      
+
       params.push("-p");
       params.push(settings.port);
 
@@ -1245,7 +1246,7 @@ var App = (function(App, undefined) {
       App.updateTitle(true);
 
       var ccurlPath;
-      
+
       if (process.platform == "win32") {
         ccurlPath = path.join(resourcesDirectory, "ccurl", "win" + (is64BitOS ? "64" : "32"));
       } else if (process.platform == "darwin") {
@@ -1254,7 +1255,15 @@ var App = (function(App, undefined) {
         ccurlPath = path.join(resourcesDirectory, "ccurl", "lin" + (is64BitOS ? "64" : "32"));
       }
 
-      win.webContents.send("nodeStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {"inApp": 1, "showStatus": settings.showStatusBar, "host": (settings.lightWallet == 1 ? settings.lightWalletHost : "http://localhost"), "port": (settings.lightWallet == 1 ? settings.lightWalletPort : settings.port), "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "ccurlPath": ccurlPath});
+      win.webContents.send("nodeStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {
+          "inApp": 1,
+          "showStatus": settings.showStatusBar,
+          "host": (settings.lightWallet == 1 ? settings.lightWalletHost : "http://localhost"),
+          "port": (settings.lightWallet == 1 ? settings.lightWalletPort : settings.port),
+          "depth": settings.depth,
+          "minWeightMagnitude": settings.minWeightMagnitude,
+          "ccurlPath": ccurlPath
+      });
     } catch (err) {
       console.log("Error:");
       console.log(err);
@@ -1263,7 +1272,7 @@ var App = (function(App, undefined) {
 
   App.checkServerOutput = function(data, type) {
     if (!isStarted && !didKillNode && !nodeInitializationError)   {
-      if (type == "error") {       
+      if (type == "error") {
         if (data.match(/java\.net\.BindException/i)) {
           lastError = "The server address is already in use. Please close any other apps/services that may be running on port " + String(settings.port).escapeHTML() + ".";
         } else {
@@ -1418,9 +1427,9 @@ var App = (function(App, undefined) {
   }
 
   App.showSetupWindow = function(params) {
-    App.showWindow("setup.html", {"lightWallet"     : settings.lightWallet, 
+    App.showWindow("setup.html", {"lightWallet"     : settings.lightWallet,
                                   "lightWalletHost" : settings.lightWalletHost,
-                                  "lightWalletPort" : settings.lightWalletPort, 
+                                  "lightWalletPort" : settings.lightWalletPort,
                                   "port"            : settings.port,
                                   "nodes"           : settings.nodes,
                                   "section"         : params && params.section ? params.section : null});
@@ -1444,7 +1453,7 @@ var App = (function(App, undefined) {
     if (!selectedJavaLocation) {
       selectedJavaLocation = "java";
     }
-    
+
     //check if user is running 32-bit java on win 64..
     if (is64BitOS) {
       var javaVersionOK = java64BitsOK = false;
@@ -1477,7 +1486,7 @@ var App = (function(App, undefined) {
     } else {
       App.showWindow("init_error.html", {"title"                   : title,
                                          "message"                 : msg,
-                                         "serverOutput"            : serverOutput, 
+                                         "serverOutput"            : serverOutput,
                                          "port"                    : settings.port,
                                          "nodes"                   : settings.nodes});
     }
@@ -1625,7 +1634,7 @@ var App = (function(App, undefined) {
       win.webContents.send("showClaimProcess");
     }
   }
-  
+
   App.showNetworkSpammer = function() {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
