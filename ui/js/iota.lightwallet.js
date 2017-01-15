@@ -4,7 +4,7 @@ iota.api.attachToTangle = function(trunkTransaction, branchTransaction, minWeigh
 
     ccurl.ccurlHashing(connection.ccurlProvider, trunkTransaction, branchTransaction, minWeightMagnitude, trytes, function(error, success) {
       console.log("Light Wallet: ccurl finished...");
-      console.log(trytes);
+      console.log(success);
 
         if (callback) {
             return callback(error, {"trytes": success})
