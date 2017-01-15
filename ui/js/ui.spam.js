@@ -39,7 +39,7 @@ var UI = (function(UI, $, undefined) {
       async.doWhilst(function(callback) {
         console.log("send async transfer");
 
-        iota.api.sendTransfer("999999999999999999999999999999999999999999999999999999999999999999999999999999999", 3, 18, [{"address": "999999999999999999999999999999999999999999999999999999999999999999999999999999999", "value": 0, "message": "GUISPAMMER", "tag": "SPAM"}], function(error) {
+        iota.api.sendTransfer("999999999999999999999999999999999999999999999999999999999999999999999999999999999", connection.depth, connection.minWeightMagnitude, [{"address": "999999999999999999999999999999999999999999999999999999999999999999999999999999999", "value": 0, "message": "GUISPAMMER", "tag": "SPAM"}], function(error) {
           if (!error) {
             console.log("no error");
             spamCount++;
