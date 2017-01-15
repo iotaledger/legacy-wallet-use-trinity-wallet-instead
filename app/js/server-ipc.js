@@ -1,5 +1,5 @@
 const ipcRenderer = require("electron").ipcRenderer;
-const ccurl       = require("ccurl.interface.js");
+const ccurl = require("./ccurl-interface");
 
 ipcRenderer.on("showNodeInfo", function() {
   if (typeof(UI) != "undefined") {
@@ -94,9 +94,9 @@ ipcRenderer.on("hideStatusBar", function() {
   }
 });
 
-ipcRenderer.on("notify", function(event, type, message) {
+ipcRenderer.on("notify", function(event, type, message, options) {
   if (typeof(UI) != "undefined") {
-    UI.notify(type, message);
+    UI.notify(type, message, options);
   }
 });
 
@@ -118,6 +118,10 @@ ipcRenderer.on("shutdown", function() {
   }
 });
 
+ipcRenderer.on("addAndRemoveNeighbors", function(event, nodes) {
+  UI.addAndRemoveNeighbors(nodes.add, nodes.remove);
+});
+
 function _hoverAmountStart(amount) {
   ipcRenderer.send("hoverAmountStart", amount);
 }
@@ -131,7 +135,7 @@ function _editNodeConfiguration() {
 }
 
 function _rendererIsReady() {
-  ipcRenderer.send("rendererIsReady");
+  ipcRenderer.send("rendererIsReady", process.pid);
 }
 
 function _relaunchApplication() {

@@ -16,6 +16,14 @@
   npm install -g bower
   ```
 
+#### Windows Users Only
+
+  Run the following command as Administrator:
+
+  ```
+  npm install -g --production windows-build-tools
+  ```
+
 #### Compiling
 
 If you wish to compile the app, install the following also: 
