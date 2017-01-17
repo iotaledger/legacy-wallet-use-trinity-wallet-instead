@@ -29,16 +29,14 @@
     "url": "https://github.com/iotaledger/wallet"
   },
   "dependencies": {
-    "ccurl.interface.js": "0.0.1",
-    "follow-redirects": "^0.1.0",
-    "fs-extra": "^0.30.0",
-    "glob": "^7.0.3",
-    "pidusage": "^1.0.4",
-    "spawn-args": "^0.1.0"
+    "ccurl.interface.js": "0.0.4",
+    "fs-extra": "^1.0.0",
+    "glob": "^7.1.1",
+    "pidusage": "^1.1.0"
   },
   "devDependencies": {
-    "electron": "^1.4.10",
-    "electron-builder": "^10.4.1",
+    "electron": "^1.4.13",
+    "electron-builder": "^10.11.0",
     "rimraf": "^2.5.4"
   },
   "build": {
@@ -47,6 +45,7 @@
     "category": "public.app-category.developer-tools",
     "extraResources": [
       "iri/iri-testnet.jar",
+      "ccurl/**/*",
       "ui/**/*"
     ],
     "protocols": [

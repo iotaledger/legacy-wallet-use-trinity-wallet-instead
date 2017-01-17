@@ -21,6 +21,7 @@ var UI = (function(UI, undefined) {
   var callNodeStarted    = false;
   var serverLogLines     = 0;
   var webviewIsLoaded    = false;
+  var lightWallet        = false;
   var webview;
 
   UI.initialize = function() {
@@ -33,6 +34,7 @@ var UI = (function(UI, undefined) {
       var params = new URLSearchParams(location.search.slice(1));
       showStatusBar = params.get("showStatus") == 1;
       isFirstRun = params.get("isFirstRun") == 1;
+      lightWallet = parseInt(params.get("lightWallet"), 10) == 1;
     }
 
     if (isFirstRun) {
@@ -50,13 +52,17 @@ var UI = (function(UI, undefined) {
       callNodeStarted = false;
     }
 
-    document.getElementById("status-bar-milestone").addEventListener("click", function(e) {
-      electron.ipcRenderer.send("showServerLog");
-    });
+    if (!lightWallet) {
+      document.body.className += " full-node";
+      document.getElementById("status-bar-milestone").addEventListener("click", function(e) {
+        electron.ipcRenderer.send("showServerLog");
+      });
 
-    document.getElementById("status-bar-solid-milestone").addEventListener("click", function(e) {
-      electron.ipcRenderer.send("showServerLog");
-    });
+      document.getElementById("status-bar-solid-milestone").addEventListener("click", function(e) {
+        electron.ipcRenderer.send("showServerLog");
+      });
+    } 
+
 
     document.getElementById("new-user").addEventListener("click", function(e) {
       UI.sendToWebview("openHelpMenu");
@@ -111,16 +117,6 @@ var UI = (function(UI, undefined) {
 
     // Prevent window from redirecting to dragged link location (mac)
     webview.addEventListener("dragover",function(e) {
-      e.preventDefault();
-      return false;
-    },false);
-
-    webview.addEventListener("drop",function(e, b) {
-      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0] && e.dataTransfer.files[0].path) {
-        if (String(e.dataTransfer.files[0].path).match(/IRI.*\.jar$/i)) {
-          electron.ipcRenderer.send("upgradeIRI", e.dataTransfer.files[0].path);
-        }
-      }
       e.preventDefault();
       return false;
     },false);
@@ -349,13 +345,10 @@ var UI = (function(UI, undefined) {
     */
 
     modal.setContent("<h1>Preferences</h1>" + 
-                     "<div class='input-group input-group'><label>Java Arguments:</label>" + 
-                     "<input type='text' name='java_args' id='preferences_java_args' placeholder='Command Line Parameters' value='" + (settings.javaArgs ? String(settings.javaArgs).escapeHTML() : "") + "' /></div>" + 
                      (process.platform != "linux" ? "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='open_at_login' id='preferences_open_at_login' class='checkbox' value='1'" + (settings.openAtLogin ? " checked='checked'" : "") + " />Open at Login</label>" : ""));
     
     modal.addFooterBtn("Save", "tingle-btn tingle-btn--primary", function() {
       var settings = {};
-      settings.javaArgs = String(document.getElementById("preferences_java_args").value).trim();
 
       if (process.platform != "linux") {
         settings.openAtLogin = document.getElementById("preferences_open_at_login").checked;
@@ -419,7 +412,7 @@ var UI = (function(UI, undefined) {
         var modalContent = document.querySelector(".tingle-modal-box__content");
         modalContent.appendChild(close);
 
-        var el = document.getElementById("server_config_port");
+        var el = document.getElementById(configuration.lightWallet ? "server_config_host" : "server_config_port");
 
         var temp = el.value;
         el.value = "";
@@ -428,22 +421,51 @@ var UI = (function(UI, undefined) {
       }
     });
 
-    modal.setContent("<h1>Server Config</h1>" + 
-                     "<div class='input-group'><label>Server Port:</label>" + 
-                     "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" + 
-                     "<div class='input-group'><label>Depth:</label>" + 
-                     "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" + 
-                     "<div class='input-group'><label>Min Weight Magnitude:</label>" + 
-                     "<input type='number' min='" + (configuration.testNet ? "13" : "18") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "13": "18")) + "' /></div>" + 
-                     "<div class='input-group input-group'><label>Neighboring Nodes:</label>" + 
-                     "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;' placeholder='Add nodes in the following format (one per line):\r\n\r\nudp://ip:12345'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>");
+    var content = "";
+
+    if (configuration.lightWallet) {
+      content = "<h1>Node Config</h1>" + 
+      "<div class='input-group'><label>Host: <span class='error' id='host-error'></span></label>" + 
+      "<input type='text' id='server_config_host' placeholder='' value='" + (configuration.lightWalletHost ? String(configuration.lightWalletHost).escapeHTML() + (configuration.lightWalletPort ? ":" + String(configuration.lightWalletPort).escapeHTML() : "") : "") + "' /></div>" + 
+      "<div class='input-group'><label>Min Weight Magnitude:</label>" + 
+      "<input type='number' min='" + (configuration.testNet ? "13" : "18") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "13": "18")) + "' /></div>";
+    } else {
+      content = "<h1>Node Config</h1>" + 
+      "<div class='input-group'><label>Node Port:</label>" + 
+      "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" +  
+      "<div class='input-group'><label>Depth:</label>" + 
+      "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" +
+      "<div class='input-group'><label>Min Weight Magnitude:</label>" + 
+      "<input type='number' min='" + (configuration.testNet ? "13" : "18") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "13": "18")) + "' /></div>" + 
+      "<div class='input-group input-group'><label>Neighboring Nodes:</label>" + 
+      "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;' placeholder='Add nodes in the following format (one per line):\r\n\r\nudp://ip:12345'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>";
+    }
+
+    modal.setContent(content);
 
     modal.addFooterBtn("Save", "tingle-btn tingle-btn--primary", function() {
-      var config                = {};
-      config.port               = parseInt(document.getElementById("server_config_port").value, 10);
-      config.depth              = parseInt(document.getElementById("server_config_depth").value, 10);
-      config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
-      config.nodes              = document.getElementById("server_config_neighboring_nodes").value;
+      var config = {};
+
+      config.lightWallet = configuration.lightWallet;
+      
+      if (configuration.lightWallet) {
+        var res = String(document.getElementById("server_config_host").value).match(/^(https?:\/\/.*):([0-9]+)$/i);
+
+        if (!res) {
+          document.getElementById("host-error").style.display = "inline";
+          document.getElementById("host-error").innerHTML = "Invalid!";
+          return;
+        } 
+
+        config.lightWalletHost = res[1];
+        config.lightWalletPort = res[2];
+        config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
+      } else {
+        config.port = parseInt(document.getElementById("server_config_port").value, 10);
+        config.depth = parseInt(document.getElementById("server_config_depth").value, 10);
+        config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
+        config.nodes = document.getElementById("server_config_neighboring_nodes").value;
+      }
 
       modal.close();
 
@@ -629,9 +651,9 @@ var UI = (function(UI, undefined) {
     }
   }
 
-  UI.notify = function(type, message) {
+  UI.notify = function(type, message, options) {
     if (webviewIsLoaded && webview) {
-      webview.send("notify", type, message);
+      webview.send("notify", type, message, options);
     }
   }
 
@@ -643,7 +665,9 @@ var UI = (function(UI, undefined) {
     if (url == "config" || url == "configuration" || url == "setup") {
       electron.ipcRenderer.send("editNodeConfiguration");
     } else if (url == "log") {
-      electron.ipcRenderer.send("showServerLog");
+      if (!lightWallet) {
+        electron.ipcRenderer.send("showServerLog");
+      }
     } else if (url == "nodeinfo" || url == "node") {
       UI.sendToWebview("showNodeInfo");
     } else if (url == "peers") {
@@ -652,12 +676,16 @@ var UI = (function(UI, undefined) {
       UI.sendToWebview("showNetworkSpammer");
     } else if (url == "generateseed" || url == "seed") {
       UI.sendToWebview("generateSeed");
+    } else if (url == "claim") {
+      UI.sendToWebview("showClaimProcess");
     } else if (url == "faq") {
       UI.sendToWebview("faq");
     } else {
       var match = url.match(/(?:addnode|addneighbou?r)\/(.*)/i);
       if (match && match[1] && match[1].charAt(0) != "-") {
-        UI.addNeighborNode(match[1]);
+        if (!lightWallet) {
+          UI.addNeighborNode(match[1]);
+        }
       } else {
         UI.sendToWebview("handleURL", url);
       }
@@ -799,6 +827,10 @@ electron.ipcRenderer.on("showClaimProcess", function() {
   UI.sendToWebview("showClaimProcess");
 });
 
+electron.ipcRenderer.on("addAndRemoveNeighbors", function(event, addedNodes, removedNodes) {
+  UI.sendToWebview("addAndRemoveNeighbors", {"add": addedNodes, "remove": removedNodes});
+});
+
 electron.ipcRenderer.on("editNodeConfiguration", function(event, serverConfiguration) {
   UI.editNodeConfiguration(serverConfiguration);
 });
@@ -817,8 +849,8 @@ electron.ipcRenderer.on("hoverAmountStop", function() {
   UI.updateStatusBar({"hoverAmount": -1});
 });
 
-electron.ipcRenderer.on("notify", function(event, type, msg) {
-  UI.notify(type, msg);
+electron.ipcRenderer.on("notify", function(event, type, message, options) {
+  UI.notify(type, message, options);
 });
 
 electron.ipcRenderer.on("relaunch", UI.relaunch);

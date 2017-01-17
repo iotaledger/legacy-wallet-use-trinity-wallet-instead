@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>IOTA Wallet</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="content">
+    <div>
+      <h1 id="title"></h1>
+      <p id="message"></p>
+      <div id="server-output-section">
+        <p class="label">Server Ouput:</p>
+        <textarea rows="6" class="form-control" id="server-output" readonly></textarea>
+      </div>
+      <div id="download-java-explanation" style="display:none">
+        <p>Easy solution: Download 64-bit java.</p>
+      </div>
+    </div>
+  </div>
+  <div id="footer">
+    <button class="btn btn-danger btn-pull-right" id="download-java-btn" style="display:none">Download 64-bit Java</button>
+    <button class="btn btn-primary btn-pull-right" id="settings-btn">Edit Settings</button>
+    <button class="btn btn-primary btn-pull-right" id="restart-btn">Restart</button>
+    <button class="btn btn-default btn-pull-right" id="quit-btn">Quit</button>
+  </div>
+  <script type="text/javascript">
+    require("./js/init_error.js")
+  </script>
+</body>
+</html>

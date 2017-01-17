@@ -16,28 +16,40 @@ String.prototype.escapeHTML = function() {
 }
 
 var UI = (function(UI, undefined) {
-  var _updateNodeConfiguration = false;
+  var isLightWallet = false;
 
   UI.initialize = function() {
     document.getElementById("quit-btn").addEventListener("click", function(e) {
       document.getElementById("quit-btn").disabled = true;
+      document.getElementById("restart-btn").disabled = true;
+      document.getElementById("settings-btn").disabled = true;
+      document.getElementById("download-java-btn").disabled = true;
+
       electron.ipcRenderer.send("quit");
     });
     document.getElementById("restart-btn").addEventListener("click", function(e) {
+      document.getElementById("quit-btn").disabled = true;
       document.getElementById("restart-btn").disabled = true;
+      document.getElementById("settings-btn").disabled = true;
+      document.getElementById("download-java-btn").disabled = true;
 
-      var settings = {};
-
-      if (_updateNodeConfiguration) {
-        settings.port  = parseInt(document.getElementById("port").value, 10);
-        settings.nodes = document.getElementById("neighboring-nodes").value;
-      }
-
-      UI.updateNodeConfiguration(settings, String(document.getElementById("java-parameters").value).trim());
+      UI.relaunchApplication();
     });
-    document.getElementById("download-java").addEventListener("click", function(e) {
-      document.getElementById("download-java").disabled = true;
+    document.getElementById("download-java-btn").addEventListener("click", function(e) {
+      document.getElementById("quit-btn").disabled = true;
+      document.getElementById("restart-btn").disabled = true;
+      document.getElementById("settings-btn").disabled = true;
+      document.getElementById("download-java-btn").disabled = true;
+
       UI.showNoJavaInstalledWindow();
+    });
+    document.getElementById("settings-btn").addEventListener("click", function(e) {
+      document.getElementById("quit-btn").disabled = true;
+      document.getElementById("restart-btn").disabled = true;
+      document.getElementById("settings-btn").disabled = true;
+      document.getElementById("download-java-btn").disabled = true;
+
+      UI.showSetupWindow(isLightWallet ? "light-node" : "full-node");
     });
   }
 
@@ -64,40 +76,20 @@ var UI = (function(UI, undefined) {
     menu.popup(electron.remote.getCurrentWindow(), e.x, e.y);
   }
 
-  UI.show = function(title, msg, params) {
-    if (title) {
-      document.getElementById("title").innerHTML = String(title).escapeHTML();
-      document.getElementById("title").style.display = "block";
-    } else {
-      document.getElementById("title").style.display = "none";
-    }
-    if (msg) {
-      document.getElementById("message").innerHTML = String(msg).escapeHTML();
-      document.getElementById("message").style.display = "block";
-    } else {
-      document.getElementById("message").style.display = "none";
-    }
+  UI.show = function(params) {
     if (params) {
-      if (params.updateNodeConfiguration) {
-        _updateNodeConfiguration = true;
-        if (msg.match(/provide port number/i)) {
-          document.getElementById("server-output-section").style.display = "none";
-          document.getElementById("restart-btn").innerHTML = "Start";
-        } else {
-          document.getElementById("server-output-section").style.display = "block";
-        }
-        document.getElementById("edit-launch-arguments-section").style.display = "block";
-
-        if (params.port) {
-          document.getElementById("port").value = params.port;
-        }
-
-        if (params.nodes) {
-          document.getElementById("neighboring-nodes").value = params.nodes.join("\r\n");
-        }
+      isLightWallet = params.lightWallet == 1;
+      if (params.title) {
+        document.getElementById("title").innerHTML = String(params.title).escapeHTML();
+        document.getElementById("title").style.display = "block";
       } else {
-        document.getElementById("server-output-section").style.display = "block";
-        document.getElementById("edit-launch-arguments-section").style.display = "none";
+        document.getElementById("title").style.display = "none";
+      }
+      if (params.message) {
+        document.getElementById("message").innerHTML = String(params.message).escapeHTML();
+        document.getElementById("message").style.display = "block";
+      } else {
+        document.getElementById("message").style.display = "none";
       }
 
       if (params.serverOutput && params.serverOutput.length) {
@@ -109,11 +101,10 @@ var UI = (function(UI, undefined) {
         }
 
         document.getElementById("server-output").value = log;
+        document.getElementById("server-output-section").style.display = "block";
         //document.getElementById("server-output").scrollTop = document.getElementById("server-output").scrollHeight;
-      }
-
-      if (params.javaArgs) {
-        document.getElementById("java-parameters").value = params.javaArgs;
+      } else {
+        document.getElementById("server-output-section").style.display = "none";
       }
 
       if (params.is64BitOS && !params.java64BitsOK) {
@@ -131,12 +122,12 @@ var UI = (function(UI, undefined) {
     }, 20);
   }
 
-  UI.updateNodeConfiguration = function(settings, javaArgs) {
-    electron.ipcRenderer.send("updateNodeConfiguration", settings, javaArgs);
-  }
-
   UI.showNoJavaInstalledWindow = function() {
     electron.ipcRenderer.send("showNoJavaInstalledWindow", {"downloadImmediatelyIfWindows": true});
+  }
+
+  UI.showSetupWindow = function(section) {
+    electron.ipcRenderer.send("showSetupWindow", {"section": section});
   }
 
   return UI;
@@ -144,6 +135,6 @@ var UI = (function(UI, undefined) {
 
 window.addEventListener("load", UI.initialize, false);
 
-electron.ipcRenderer.on("show", function(event, title, msg, params) {
-  UI.show(title, msg, params);
+electron.ipcRenderer.on("show", function(event, params) {
+  UI.show(params);
 });

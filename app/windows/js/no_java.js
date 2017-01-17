@@ -79,6 +79,10 @@ var UI = (function(UI, undefined) {
       electron.remote.getCurrentWindow().close();
     });
 
+    document.getElementById("light-node-btn").addEventListener("click", function(e) {
+      electron.ipcRenderer.send("showSetupWindow", {"section": "light-node"});
+    });
+
     /*
     document.getElementById("download-manually-btn").addEventListener("click", function(e) {
       if (UI.directDownloadLink) {

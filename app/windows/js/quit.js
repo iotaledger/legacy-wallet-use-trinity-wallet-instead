@@ -1,5 +1,20 @@
 const electron = require("electron");
 
+var __entityMap = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': '&quot;',
+  "'": '&#39;',
+  "/": '&#x2F;'
+};
+
+String.prototype.escapeHTML = function() {
+  return String(this).replace(/[&<>"'\/]/g, function(s) {
+    return __entityMap[s];
+  });
+}
+
 var UI = (function(UI, undefined) {
   UI.initialize = function() {
     document.getElementById("quit-btn").addEventListener("click", function(e) {
@@ -30,18 +45,20 @@ var UI = (function(UI, undefined) {
     menu.popup(electron.remote.getCurrentWindow(), e.x, e.y);
   }
 
-  UI.show = function(title, msg) {
-    if (title) {
-      document.getElementById("title").innerHTML = title;
-      document.getElementById("title").style.display = "block";
-    } else {
-      document.getElementById("title").style.display = "none";
-    }
-    if (msg) {
-      document.getElementById("message").innerHTML = msg;
-      document.getElementById("message").style.display = "block";
-    } else {
-      document.getElementById("message").style.display = "none";
+  UI.show = function(params) {
+    if (params) {
+      if (params.title) {
+        document.getElementById("title").innerHTML = String(params.title).escapeHTML();
+        document.getElementById("title").style.display = "block";
+      } else {
+        document.getElementById("title").style.display = "none";
+      }
+      if (params.message) {
+        document.getElementById("message").innerHTML = String(params.message).esapeHTML();
+        document.getElementById("message").style.display = "block";
+      } else {
+        document.getElementById("message").style.display = "none";
+      }
     }
 
     electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);
@@ -58,6 +75,6 @@ var UI = (function(UI, undefined) {
 
 window.addEventListener("load", UI.initialize, false);
 
-electron.ipcRenderer.on("show", function(event, title, msg) {
-  UI.show(title, msg);
+electron.ipcRenderer.on("show", function(event, params) {
+  UI.show(params);
 });
