@@ -1049,7 +1049,9 @@ var App = (function(App, undefined) {
   }
 
   App.killNode = function(fn) {
-    if (server && server.exitCode == null) {
+    var hasServer = server && server.exitCode == null;
+
+    if (hasServer) {
       App.showKillAlert();
     }
 
@@ -1067,7 +1069,7 @@ var App = (function(App, undefined) {
         // callback = null;
         fn();
       }
-    }, (settings.lightWallet == 1 ? 0 : 500));
+    }, (!hasServer ? 0 : 500));
   }
 
   App.openDatabaseFolder = function(file) {
