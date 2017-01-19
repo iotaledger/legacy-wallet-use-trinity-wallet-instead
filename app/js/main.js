@@ -53,7 +53,7 @@ var App = (function(App, undefined) {
   var isClosed                  = false;
   var didKillNode               = false;
   var settings                  = {};
-  var isDevelopment             = process.env.NODE_ENV.trim() === "development";
+  var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
