@@ -72,6 +72,9 @@ var UI = (function(UI, $, undefined) {
         stateExecution(function(error) {
           if (!error) {
             UI.update();
+          } else if (!connection.seed && connection.lightWallet) {
+            //Show error specifically for light nodes...
+            UI.notify("error", "Could not connect to remote node.");
           }
           isUpdatingState = false;
         });
