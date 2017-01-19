@@ -44,6 +44,11 @@ var UI = (function(UI, $, undefined) {
 
     UI.updateIntervalTime = ms;
 
+    // If connecting to a light wallet, minimum state interval is set to 1 minute.
+    if (connection.lightWallet && ms < 60000) {
+      ms = 60000;
+    }
+
     if (updateInterval) {
       clearInterval(updateInterval);
     }
