@@ -93,7 +93,7 @@ var App = (function(App, undefined) {
     } else {
       is64BitOS = process.arch == "x64";
     }
-
+ 
     App.loadSettings();
 
     App.checkLaunchURL();
@@ -105,6 +105,11 @@ var App = (function(App, undefined) {
     if (!electron.app.isDefaultProtocolClient("iota")) {
       console.log("Register iota as a default protocol");
       electron.app.setAsDefaultProtocolClient("iota"); //not linux
+    }
+
+    if (process.platform == "win32" && !is64BitOS) {
+      App.showAlertAndQuit("Not Supported", "Windows 32-bit is not supported at the moment.");
+      return;
     }
 
     App.start();
@@ -1036,6 +1041,7 @@ var App = (function(App, undefined) {
             App.showInitializationAlertWindow();
           } else {
             App.showAlertAndQuit("Server exited", "The Iota server process has exited.");
+            return;
           }
         } else if (!doNotQuit) {
           remote.getCurrentWindow().close();
@@ -1572,7 +1578,6 @@ var App = (function(App, undefined) {
                                              "resizable"      : false});
       //otherWin.toggleDevTools({mode: "undocked"});
       otherWin.setFullScreenable(false);
-
       var isClosing;
 
       otherWin.on("close", function(e) {
