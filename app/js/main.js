@@ -547,10 +547,12 @@ var App = (function(App, undefined) {
 
       if (settings.lightWallet == 1) {
         template[2].submenu[13].label = "Switch to Full Node";
+        // Remove "view neighbors and view server log" options.
+        template[2].submenu.splice(1, 2);
         // Remove "open database folder" option.
-        template[2].submenu.splice(2, 1);
+        template[2].submenu.splice(6, 1);
         if (process.platform == "darwin") {
-          template[2].submenu.splice(9, 2);
+          template[2].submenu.splice(7 , 2);
         }
       } else {
         if (settings.lightWallet == -1) {
