@@ -2,7 +2,7 @@
   "name": "iota",
   "productName": "IOTA Wallet",
   "description": "IOTA Wallet",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
@@ -36,8 +36,8 @@
     "pidusage": "^1.1.0"
   },
   "devDependencies": {
-    "electron": "^1.4.13",
-    "electron-builder": "^10.11.0",
+    "electron": "^1.4.14",
+    "electron-builder": "^11.5.0",
     "rimraf": "^2.5.4"
   },
   "build": {
