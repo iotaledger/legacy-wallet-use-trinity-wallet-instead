@@ -6,10 +6,14 @@ var ccurlProvider = function(ccurlPath) {
 
     var fullPath = ccurlPath + '/libccurl';
 
-    // Define libccurl to be used for finding the nonce
-    return ffi.Library(fullPath, {
-        ccurl_pow : [ 'string', [ 'string', 'int'] ]
-    });
+    try {
+        // Define libccurl to be used for finding the nonce
+        return ffi.Library(fullPath, {
+            ccurl_pow : [ 'string', [ 'string', 'int'] ]
+        });
+    } catch (err) {
+        return false;
+    }
 }
 
 var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWeightMagnitude, trytes, callback) {

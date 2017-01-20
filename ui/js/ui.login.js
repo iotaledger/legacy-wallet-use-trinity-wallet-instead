@@ -121,8 +121,8 @@ var UI = (function(UI, $, undefined) {
 
     clearInterval(loginGradientInterval);
 
-    // After logging in, update state every 5 minutes
-    UI.createStateInterval(60000*5, false);
+    // After logging in, update state every minute
+    UI.createStateInterval(60000, false);
 
     UI.update();
 

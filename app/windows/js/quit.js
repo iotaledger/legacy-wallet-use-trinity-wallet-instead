@@ -54,7 +54,7 @@ var UI = (function(UI, undefined) {
         document.getElementById("title").style.display = "none";
       }
       if (params.message) {
-        document.getElementById("message").innerHTML = String(params.message).esapeHTML();
+        document.getElementById("message").innerHTML = String(params.message).escapeHTML();
         document.getElementById("message").style.display = "block";
       } else {
         document.getElementById("message").style.display = "none";

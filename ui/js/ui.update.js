@@ -44,6 +44,11 @@ var UI = (function(UI, $, undefined) {
 
     UI.updateIntervalTime = ms;
 
+    // If connecting to a light wallet, minimum state interval is set to 1 minute.
+    if (connection.lightWallet && ms < 60000) {
+      ms = 60000;
+    }
+
     if (updateInterval) {
       clearInterval(updateInterval);
     }
@@ -67,6 +72,9 @@ var UI = (function(UI, $, undefined) {
         stateExecution(function(error) {
           if (!error) {
             UI.update();
+          } else if (!connection.seed && connection.lightWallet) {
+            //Show error specifically for light nodes...
+            UI.notify("error", "Could not connect to remote node.");
           }
           isUpdatingState = false;
         });

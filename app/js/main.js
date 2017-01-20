@@ -53,7 +53,7 @@ var App = (function(App, undefined) {
   var isClosed                  = false;
   var didKillNode               = false;
   var settings                  = {};
-  var isDevelopment             = process.env.NODE_ENV.trim() === "development";
+  var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
@@ -93,7 +93,7 @@ var App = (function(App, undefined) {
     } else {
       is64BitOS = process.arch == "x64";
     }
-
+ 
     App.loadSettings();
 
     App.checkLaunchURL();
@@ -105,6 +105,11 @@ var App = (function(App, undefined) {
     if (!electron.app.isDefaultProtocolClient("iota")) {
       console.log("Register iota as a default protocol");
       electron.app.setAsDefaultProtocolClient("iota"); //not linux
+    }
+
+    if (process.platform == "win32" && !is64BitOS) {
+      App.showAlertAndQuit("Not Supported", "Windows 32-bit is not supported at the moment.");
+      return;
     }
 
     App.start();
@@ -547,10 +552,12 @@ var App = (function(App, undefined) {
 
       if (settings.lightWallet == 1) {
         template[2].submenu[13].label = "Switch to Full Node";
+        // Remove "view neighbors and view server log" options.
+        template[2].submenu.splice(1, 2);
         // Remove "open database folder" option.
-        template[2].submenu.splice(2, 1);
+        template[2].submenu.splice(6, 1);
         if (process.platform == "darwin") {
-          template[2].submenu.splice(9, 2);
+          template[2].submenu.splice(7 , 2);
         }
       } else {
         if (settings.lightWallet == -1) {
@@ -1034,6 +1041,7 @@ var App = (function(App, undefined) {
             App.showInitializationAlertWindow();
           } else {
             App.showAlertAndQuit("Server exited", "The Iota server process has exited.");
+            return;
           }
         } else if (!doNotQuit) {
           remote.getCurrentWindow().close();
@@ -1047,7 +1055,9 @@ var App = (function(App, undefined) {
   }
 
   App.killNode = function(fn) {
-    if (server && server.exitCode == null) {
+    var hasServer = server && server.exitCode == null;
+
+    if (hasServer) {
       App.showKillAlert();
     }
 
@@ -1065,7 +1075,7 @@ var App = (function(App, undefined) {
         // callback = null;
         fn();
       }
-    }, (settings.lightWallet == 1 ? 0 : 500));
+    }, (!hasServer ? 0 : 500));
   }
 
   App.openDatabaseFolder = function(file) {
@@ -1568,7 +1578,6 @@ var App = (function(App, undefined) {
                                              "resizable"      : false});
       //otherWin.toggleDevTools({mode: "undocked"});
       otherWin.setFullScreenable(false);
-
       var isClosing;
 
       otherWin.on("close", function(e) {
