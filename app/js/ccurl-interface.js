@@ -11,13 +11,28 @@ var ccurlProvider = function(ccurlPath) {
     try {
         // Define libccurl to be used for finding the nonce
         return ffi.Library(fullPath, {
-            ccurl_pow : [ 'string', [ 'string', 'int'] ]
+            ccurl_pow : [ 'string', [ 'string', 'int'] ],
+            ccurl_pow_finalize : [ 'void', [] ],
+            ccurl_pow_interrupt: [ 'void', [] ]
         });
     } catch (err) {
         console.log("ccurl-interface error:");
         console.log(err);
         return false;
     }
+}
+
+var ccurlFinalize = function(libccurl) {
+    libccurl.ccurl_pow_finalize();
+}
+
+var ccurlInterrupt = function(libccurl) {
+    libccurl.ccurl_pow_interrupt();
+}
+
+var ccurlInterruptAndFinalize = function(libccurl) {
+    ccurlInterrupt(libccurl);
+    ccurlFinalize(libccurl);
 }
 
 var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWeightMagnitude, trytes, callback) {
@@ -155,5 +170,8 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
 
 module.exports = {
     'ccurlProvider': ccurlProvider,
-    'ccurlHashing': ccurlHashing
+    'ccurlHashing': ccurlHashing,
+    'ccurlInterrupt': ccurlInterrupt,
+    'ccurlFinalize': ccurlFinalize,
+    'ccurlInterruptAndFinalize': ccurlInterruptAndFinalize
 }
