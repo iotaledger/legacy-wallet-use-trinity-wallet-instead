@@ -77,26 +77,36 @@ var UI = (function(UI, $, undefined) {
         }
       }
 
+      if (connection.inApp && (typeof(backendLoaded) == "undefined" || !backendLoaded)) {
+        showBackendConnectionError();
+        return;
+      }
+
       iota = new IOTA({
         "host": connection.host,
         "port": connection.port
       });
 
-      connection.ccurlProvider = ccurl.ccurlProvider(connection.ccurlPath);
-
       if (connection.host != "http://localhost") {
         connection.lightWallet = true;
-        if (!connection.inApp || !connection.ccurlProvider) {
+        if (!connection.inApp || typeof(ccurl) == "undefined" || !ccurl) {
           showLightWalletErrorMessage();
+          return;
         } else {
-          // Overwrite iota lib with light wallet functionality
-          $.getScript("js/iota.lightwallet.js").done(function() {
-            setTimeout(initialize, 100);
-          }).fail(function(jqxhr, settings, exception) {
-            console.log(exception);
+          connection.ccurlProvider = ccurl.ccurlProvider(connection.ccurlPath);
+          if (!connection.ccurlProvider) {
             showLightWalletErrorMessage();
-          });
+            return;
+          }
         }
+
+        // Overwrite iota lib with light wallet functionality
+        $.getScript("js/iota.lightwallet.js").done(function() {
+          setTimeout(initialize, 100);
+        }).fail(function(jqxhr, settings, exception) {
+          console.log(exception);
+          showLightWalletErrorMessage();
+        });
       } else {
         setTimeout(initialize, 100);
       }
@@ -145,8 +155,16 @@ var UI = (function(UI, $, undefined) {
     }
   }
 
+  function showErrorMessage(error) {
+    $("body").html("<div style='padding: 20px;background:#efefef;border:#aaa;border-radius: 5px;max-width: 60%;margin: 100px auto;'>" + String(error).escapeHTML() + "</div>").show();;
+  }
+
   function showLightWalletErrorMessage() {
-    $("body").html("<div style='padding: 20px;background:#efefef;border:#aaa;border-radius: 5px;max-width: 60%;margin: 100px auto;'>Could not load light wallet functionality.</div>").show();;
+    showErrorMessage("Could not load light wallet functionality.");
+  }
+
+  function showBackendConnectionError() {
+    showErrorMessage("Could not load required backend files.");
   }
 
   function showOutdatedBrowserMessage() {

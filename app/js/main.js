@@ -752,8 +752,10 @@ var App = (function(App, undefined) {
     if (settings.lightWallet == -1 || (settings.lightWallet == 1 && (!settings.lightWalletHost || !settings.lightWalletPort)) || (settings.lightWallet == 0 && settings.nodes.length == 0)) {
       App.showSetupWindow();
     } else if (settings.lightWallet == 1) {
+      global.lightWallet = true;
       App.startLightNode();
     } else {
+      global.lightWallet = false;
       App.showLoadingWindow();
       App.startFullNode();
     }

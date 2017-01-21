@@ -1,8 +1,10 @@
 var ffi = require('ffi');
 
 var ccurlProvider = function(ccurlPath) {
-
-    if (!ccurlPath) ccurlPath = __dirname;
+    if (!ccurlPath) {
+        console.log("ccurl-interface: no path supplied, returning");
+        return false;
+    }
 
     var fullPath = ccurlPath + '/libccurl';
 
@@ -12,6 +14,8 @@ var ccurlProvider = function(ccurlPath) {
             ccurl_pow : [ 'string', [ 'string', 'int'] ]
         });
     } catch (err) {
+        console.log("ccurl-interface error:");
+        console.log(err);
         return false;
     }
 }

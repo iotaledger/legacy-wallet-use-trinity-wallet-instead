@@ -1,5 +1,10 @@
 const ipcRenderer = require("electron").ipcRenderer;
-const ccurl = require("./ccurl-interface");
+var ccurl;
+
+//only load for light wallets
+if (require("electron").remote.getGlobal("lightWallet")) {
+  ccurl = require("./ccurl-interface");
+}
 
 ipcRenderer.on("showNodeInfo", function() {
   if (typeof(UI) != "undefined") {
@@ -156,6 +161,7 @@ function _logUINotification(type, message) {
 */
 
 process.once("loaded", function() {
+  global.backendLoaded = true;
   global.updateStatusBar = _updateStatusBar;
   global.hoverAmountStart = _hoverAmountStart;
   global.hoverAmountStop = _hoverAmountStop;
@@ -163,6 +169,8 @@ process.once("loaded", function() {
   global.rendererIsReady = _rendererIsReady;
   global.relaunchApplication = _relaunchApplication;
   global.updateAppInfo = _updateAppInfo;
-  global.ccurl = ccurl;
+  if (typeof(ccurl) != "undefined") {
+    global.ccurl = ccurl;
+  }
   //global.logUINotification = _logUINotification;
 });
