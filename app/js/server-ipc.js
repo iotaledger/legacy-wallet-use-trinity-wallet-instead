@@ -127,6 +127,13 @@ ipcRenderer.on("addAndRemoveNeighbors", function(event, nodes) {
   UI.addAndRemoveNeighbors(nodes.add, nodes.remove);
 });
 
+ipcRenderer.on("stopCcurl", function(event, callback) {
+  if (ccurl && connection.ccurlProvider) {
+    ccurl.ccurlInterruptAndFinalize(connection.ccurlProvider);
+  }
+  ipcRenderer.send("relaunchApplication", true);
+});
+
 function _hoverAmountStart(amount) {
   ipcRenderer.send("hoverAmountStart", amount);
 }

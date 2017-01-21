@@ -1142,7 +1142,13 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.relaunchApplication = function() {
+  App.relaunchApplication = function(didFinalize) {
+    // For light wallet, we want to make sure that everything is cleaned properly before restarting.. 
+    if (global.lightWallet && App.windowIsReady && !didFinalize) {
+      win.webContents.send("stopCcurl", {"relaunch": true});
+      return;
+    }
+
     App.killNode(function() {
       if (win) {
         win.hide();
@@ -2039,8 +2045,8 @@ electron.app.on("browser-window-blur", function() {
   App.setFocus(false);
 });
 
-electron.ipcMain.on("relaunchApplication", function(event, config) {
-  App.relaunchApplication(config);
+electron.ipcMain.on("relaunchApplication", function(event, didFinalize) {
+  App.relaunchApplication(didFinalize);
 });
 
 electron.ipcMain.on("killAlreadyRunningProcessAndRestart", App.killAlreadyRunningProcessAndRestart);
