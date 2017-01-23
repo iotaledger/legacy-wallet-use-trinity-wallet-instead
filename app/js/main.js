@@ -1143,11 +1143,15 @@ var App = (function(App, undefined) {
   }
 
   App.relaunchApplication = function(didFinalize) {
+    console.log("App.relaunchApplication: " + didFinalize);
     // For light wallet, we want to make sure that everything is cleaned properly before restarting.. 
     if (global.lightWallet && App.windowIsReady && !didFinalize) {
+      console.log("Sending stopCcurl message to renderer");
       win.webContents.send("stopCcurl", {"relaunch": true});
       return;
     }
+
+    console.log("Doing relaunch");
 
     App.killNode(function() {
       if (win) {

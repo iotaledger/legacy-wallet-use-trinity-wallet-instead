@@ -31,8 +31,10 @@ var ccurlInterrupt = function(libccurl) {
 }
 
 var ccurlInterruptAndFinalize = function(libccurl) {
+    console.log("In ccurlInterruptAndFinalize");
     ccurlInterrupt(libccurl);
     ccurlFinalize(libccurl);
+    console.log("Finished");
 }
 
 var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWeightMagnitude, trytes, callback) {

@@ -128,9 +128,13 @@ ipcRenderer.on("addAndRemoveNeighbors", function(event, nodes) {
 });
 
 ipcRenderer.on("stopCcurl", function(event, callback) {
+  console.log("in stopCcurl renderer");
   if (ccurl && connection.ccurlProvider) {
+    console.log("calling ccurlInterruptAndFinalize with " + connection.ccurlProvider);
     ccurl.ccurlInterruptAndFinalize(connection.ccurlProvider);
   }
+
+  console.log("Calling relaunchApplication");
   ipcRenderer.send("relaunchApplication", true);
 });
 

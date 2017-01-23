@@ -90,11 +90,19 @@ var UI = (function(UI, $, undefined) {
       if (connection.host != "http://localhost") {
         connection.lightWallet = true;
         if (!connection.inApp || typeof(ccurl) == "undefined" || !ccurl) {
+          if (typeof(ccurl) == "undefined") {
+            console.log("ccurl is undefined");
+          } else if (!ccurl) {
+            console.log("ccurl is false");
+          } else {
+            console.log("...");
+          }
           showLightWalletErrorMessage();
           return;
         } else {
           connection.ccurlProvider = ccurl.ccurlProvider(connection.ccurlPath);
           if (!connection.ccurlProvider) {
+            console.log("Did not get ccurlProvider from " + connection.ccurlPath);
             showLightWalletErrorMessage();
             return;
           }
@@ -104,6 +112,7 @@ var UI = (function(UI, $, undefined) {
         $.getScript("js/iota.lightwallet.js").done(function() {
           setTimeout(initialize, 100);
         }).fail(function(jqxhr, settings, exception) {
+          console.log("Could not load iota.lightwallet.js");
           console.log(exception);
           showLightWalletErrorMessage();
         });
