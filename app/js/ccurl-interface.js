@@ -10,13 +10,19 @@ var ccurlProvider = function(ccurlPath) {
 
     try {
         // Define libccurl to be used for finding the nonce
-        return ffi.Library(fullPath, {
+        var libccurl = ffi.Library(fullPath, {
             ccurl_pow : [ 'string', [ 'string', 'int'] ],
             ccurl_pow_finalize : [ 'void', [] ],
             ccurl_pow_interrupt: [ 'void', [] ]
         });
+
+        // Check to make sure the functions are available
+        if (!libccurl.hasOwnProperty("ccurl_pow") || !libccurl.hasOwnProperty("ccurl_pow_finalize") || !libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
+            throw new Error("Could not load hashing library.");
+        }
+
+        return libccurl;
     } catch (err) {
-        console.log("ccurl-interface error:");
         console.log(err);
         return false;
     }
@@ -25,13 +31,9 @@ var ccurlProvider = function(ccurlPath) {
 var ccurlFinalize = function(libccurl) {
     try {
         if (libccurl && libccurl.hasOwnProperty("ccurl_pow_finalize")) {
-            console.log("we can finalize");
             libccurl.ccurl_pow_finalize();
-        } else {
-            console.log("no finalize method");
         }
     } catch (err) {
-        console.log("ccurlFinalize error:");
         console.log(err);
     }
 }
@@ -39,29 +41,20 @@ var ccurlFinalize = function(libccurl) {
 var ccurlInterrupt = function(libccurl) {
     try {
         if (libccurl && libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
-            console.log("we can interrupt");
             libccurl.ccurl_pow_interrupt();
-        } else {
-            console.log("no interrupt method");
         }
     } catch (err) {
-        console.log("ccurlInterrupt error:");
         console.log(err);
     }
 }
 
 var ccurlInterruptAndFinalize = function(libccurl) {
-    console.log("In ccurlInterruptAndFinalize");
-    console.log(libccurl);
     ccurlInterrupt(libccurl);
-    console.log("still here");
     ccurlFinalize(libccurl);
-    console.log("Finished");
 }
 
 var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWeightMagnitude, trytes, callback) {
     if (!libccurl.hasOwnProperty("ccurl_pow")) {
-        console.log("hasing not available");
         return callback(new Error("Hashing not available"));
     }
 
