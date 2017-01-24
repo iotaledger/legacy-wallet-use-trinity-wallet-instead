@@ -7,7 +7,6 @@ const powerSaveBlocker = electron.powerSaveBlocker;
 const shell            = electron.shell;
 const clipboard        = electron.clipboard;
 const pusage           = require("pidusage");
-const ffi              = require('ffi');
 
 let win;
 let otherWin;
