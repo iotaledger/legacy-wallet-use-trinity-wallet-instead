@@ -24,8 +24,11 @@ var ccurlProvider = function(ccurlPath) {
 
 var ccurlFinalize = function(libccurl) {
     try {
-        if (libccurl) {
+        if (libccurl && libccurl.hasOwnProperty("ccurl_pow_finalize")) {
+            console.log("we can finalize");
             libccurl.ccurl_pow_finalize();
+        } else {
+            console.log("no finalize method");
         }
     } catch (err) {
         console.log("ccurlFinalize error:");
@@ -35,8 +38,11 @@ var ccurlFinalize = function(libccurl) {
 
 var ccurlInterrupt = function(libccurl) {
     try {
-        if (libccurl) {
+        if (libccurl && libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
+            console.log("we can interrupt");
             libccurl.ccurl_pow_interrupt();
+        } else {
+            console.log("no interrupt method");
         }
     } catch (err) {
         console.log("ccurlInterrupt error:");
@@ -54,6 +60,10 @@ var ccurlInterruptAndFinalize = function(libccurl) {
 }
 
 var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWeightMagnitude, trytes, callback) {
+    if (!libccurl.hasOwnProperty("ccurl_pow")) {
+        console.log("hasing not available");
+        return callback(new Error("Hashing not available"));
+    }
 
     // inputValidator: Check if correct hash
     if (!iota.validate.isHash(trunkTransaction)) {
