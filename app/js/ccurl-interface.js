@@ -23,16 +23,32 @@ var ccurlProvider = function(ccurlPath) {
 }
 
 var ccurlFinalize = function(libccurl) {
-    libccurl.ccurl_pow_finalize();
+    try {
+        if (libccurl) {
+            libccurl.ccurl_pow_finalize();
+        }
+    } catch (err) {
+        console.log("ccurlFinalize error:");
+        console.log(err);
+    }
 }
 
 var ccurlInterrupt = function(libccurl) {
-    libccurl.ccurl_pow_interrupt();
+    try {
+        if (libccurl) {
+            libccurl.ccurl_pow_interrupt();
+        }
+    } catch (err) {
+        console.log("ccurlInterrupt error:");
+        console.log(err);
+    }
 }
 
 var ccurlInterruptAndFinalize = function(libccurl) {
     console.log("In ccurlInterruptAndFinalize");
+    console.log(libccurl);
     ccurlInterrupt(libccurl);
+    console.log("still here");
     ccurlFinalize(libccurl);
     console.log("Finished");
 }
