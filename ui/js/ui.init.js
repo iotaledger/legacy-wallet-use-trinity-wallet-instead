@@ -165,7 +165,8 @@ var UI = (function(UI, $, undefined) {
   }
 
   function showErrorMessage(error) {
-    $("body").html("<div style='padding: 20px;background:#efefef;border:#aaa;border-radius: 5px;max-width: 60%;margin: 100px auto;'>" + String(error).escapeHTML() + "</div>").show();;
+    document.body.innerHTML = "<div style='padding: 20px;background:#efefef;border:#aaa;border-radius: 5px;max-width: 60%;margin: 100px auto;'>" + String(error).escapeHTML() + "</div>";
+    document.body.style.display = "block";
   }
 
   function showLightWalletErrorMessage() {
