@@ -92,7 +92,7 @@ var UI = (function(UI, undefined) {
     });*/
   }
 
-  UI.show = function(title, contents, params) {
+  UI.show = function(params) {
     // Only download immediately on windows.
     if (params && params.downloadImmediatelyIfWindows && process.platform == "win32") {
       document.getElementById("title").innerHTML = "Downloading Java...";
@@ -485,6 +485,6 @@ var UI = (function(UI, undefined) {
 
 window.addEventListener("load", UI.initialize, false);
 
-electron.ipcRenderer.on("show", function(event, title, msg, params) {
-  UI.show(title, msg, params);
+electron.ipcRenderer.on("show", function(event, params) {
+  UI.show(params);
 });
