@@ -109,7 +109,7 @@ var UI = (function(UI, undefined) {
 
       if (params.is64BitOS && !params.java64BitsOK) {
         document.getElementById("download-java-explanation").style.display = "block";
-        document.getElementById("download-java").style.display = "block";
+        document.getElementById("download-java-btn").style.display = "block";
       }
     } 
 
