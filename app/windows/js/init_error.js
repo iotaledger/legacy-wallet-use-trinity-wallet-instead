@@ -106,11 +106,6 @@ var UI = (function(UI, undefined) {
       } else {
         document.getElementById("server-output-section").style.display = "none";
       }
-
-      if (params.is64BitOS && !params.java64BitsOK) {
-        document.getElementById("download-java-explanation").style.display = "block";
-        document.getElementById("download-java-btn").style.display = "block";
-      }
     } 
 
     electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);

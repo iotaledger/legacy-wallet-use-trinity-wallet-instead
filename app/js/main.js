@@ -56,7 +56,6 @@ var App = (function(App, undefined) {
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
-  var ia32JavaLocation          = null;
   var is64BitOS                 = 64;
   var rendererPid               = null;
 
@@ -893,9 +892,6 @@ var App = (function(App, undefined) {
               console.log("Found 64-bits java, starting.");
               found = true;
               App.startFullNodeProcess(location);
-            } else if (javaVersionOK && !ia32JavaLocation) {
-              console.log("Found 32-bits java.");
-              ia32JavaLocation = location;
             }
           }
         });
@@ -929,11 +925,8 @@ var App = (function(App, undefined) {
     currentLocationTest++;
     if (javaLocations[currentLocationTest]) {
       App.checkJavaLocation(javaLocations[currentLocationTest]);
-    } else if (ia32JavaLocation) {
-      console.log("Start 32 bit java.");
-      App.startFullNodeProcess(ia32JavaLocation);
     } else {
-      App.showNoJavaInstalledWindow();
+      App.showNoJavaInstalledWindow({"java64BitsOK": java64BitsOK});
     }
   }
 
