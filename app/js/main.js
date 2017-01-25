@@ -1122,9 +1122,10 @@ var App = (function(App, undefined) {
   }
 
   App.switchNodeType = function() {
+    /*
     if (win) {
       win.hide();
-    }
+    }*/
     var lightWallet = settings.lightWallet == 1 ? 0 : 1;
 
     if ((lightWallet && (!settings.lightWalletHost || !settings.lightWalletPort)) || (!lightWallet && settings.nodes.length == 0)) {

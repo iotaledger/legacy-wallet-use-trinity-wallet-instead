@@ -1,9 +1,14 @@
 const ipcRenderer = require("electron").ipcRenderer;
-var ccurl;
+var ccurl = false;
 
 //only load for light wallets
 if (require("electron").remote.getGlobal("lightWallet")) {
-  ccurl = require("./ccurl-interface");
+  try {
+    ccurl = require("./ccurl-interface");
+  } catch (err) {
+    ccurl = false;
+    console.log(err);
+  }
 }
 
 ipcRenderer.on("showNodeInfo", function() {
@@ -128,7 +133,7 @@ ipcRenderer.on("addAndRemoveNeighbors", function(event, nodes) {
 });
 
 ipcRenderer.on("stopCcurl", function(event, callback) {
-  console.log("in stopCcurl renderer");
+  console.log("in stopCcurl renderer"); 
   if (ccurl && connection.ccurlProvider) {
     console.log("calling ccurlInterruptAndFinalize with " + connection.ccurlProvider);
     ccurl.ccurlInterruptAndFinalize(connection.ccurlProvider);
