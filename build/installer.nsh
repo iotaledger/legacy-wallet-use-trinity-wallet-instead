@@ -5,6 +5,10 @@
 
 	ReadRegStr $R0 HKLM "SOFTWARE\Classes\Installer\Dependencies\{e46eca4f-393b-40df-9f49-076faf788d83}" "Version"
 
+	IfErrors 0 +15
+
+	ReadRegStr $R0 HKLM "SOFTWARE\Classes\Installer\Dependencies\{f144e08f-9cbe-4f09-9a8c-f2b858b7ee7f}" "Version"
+
 	IfErrors 0 +13
 
 	!include x64.nsh
