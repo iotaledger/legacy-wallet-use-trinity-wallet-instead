@@ -31,6 +31,12 @@ var UI = (function(UI, $, undefined) {
         if (!amount) {
           throw "Amount cannot be zero";
         }
+
+        var tag = $.trim($("#transfer-tag").val().toUpperCase());
+
+        if (tag && /[^A-Z9]/.test(tag)) {
+          throw "Tag is invalid";
+        }
       } catch (error) {
         $stack.removeClass("loading");
         UI.formError("transfer", error);
@@ -39,7 +45,7 @@ var UI = (function(UI, $, undefined) {
 
       console.log("Server.transfer: " + address + " -> " + amount);
 
-      iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": ""}], function(error, transfers) {
+      iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], function(error, transfers) {
         if (error) {
           console.log("UI.handleTransfers: Error");
           console.log(error);
