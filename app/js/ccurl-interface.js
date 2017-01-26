@@ -141,6 +141,8 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
 
                 if (error) {
                     return callback(error);
+                } else if (returnedTrytes == null) {
+                    return callback("Interrupted");
                 }
 
                 var newTxObject= iota.utils.transactionObject(returnedTrytes);
@@ -169,8 +171,9 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
             libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
 
                 if (error) {
-
                     return callback(error);
+                } else if (returnedTrytes == null) {
+                    return callback("Interrupted");
                 }
 
                 var newTxObject= iota.utils.transactionObject(returnedTrytes);
