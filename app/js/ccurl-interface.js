@@ -1,4 +1,5 @@
 var ffi = require('ffi');
+var isInitialized = false;
 
 var ccurlProvider = function(ccurlPath) {
     if (!ccurlPath) {
@@ -29,22 +30,26 @@ var ccurlProvider = function(ccurlPath) {
 }
 
 var ccurlFinalize = function(libccurl) {
-    try {
-        if (libccurl && libccurl.hasOwnProperty("ccurl_pow_finalize")) {
-            libccurl.ccurl_pow_finalize();
+    if (isInitialized) {
+        try {
+            if (libccurl && libccurl.hasOwnProperty("ccurl_pow_finalize")) {
+                libccurl.ccurl_pow_finalize();
+            }
+        } catch (err) {
+            console.log(err);
         }
-    } catch (err) {
-        console.log(err);
     }
 }
 
 var ccurlInterrupt = function(libccurl) {
-    try {
-        if (libccurl && libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
-            libccurl.ccurl_pow_interrupt();
+    if (isInitialized) {
+        try {
+            if (libccurl && libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
+                libccurl.ccurl_pow_interrupt();
+            }
+        } catch (err) {
+            console.log(err);
         }
-    } catch (err) {
-        console.log(err);
     }
 }
 
@@ -81,6 +86,8 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
     //
     //     return callback(new Error("Invalid trytes supplied"));
     // }
+
+    isInitialized = true;
 
     var finalBundleTrytes = [];
     var previousTxHash;
