@@ -621,8 +621,8 @@ var UI = (function(UI, undefined) {
     modal.open();
   }
 
-  UI.relaunchApplication = function() {
-    electron.ipcRenderer.send("relaunchApplication");
+  UI.relaunchApplication = function(didFinalize) {
+    electron.ipcRenderer.send("relaunchApplication", didFinalize);
   }
 
   UI.toggleDeveloperTools = function() {
@@ -642,6 +642,8 @@ var UI = (function(UI, undefined) {
 
     if (webviewIsLoaded && webview) {
       webview.send(command, args);
+    } else if (args && args.constructor == Object && args.hasOwnProperty("relaunch") && args.relaunch) {
+      UI.relaunchApplication(true);
     }
   }
 
@@ -829,6 +831,10 @@ electron.ipcRenderer.on("showClaimProcess", function() {
 
 electron.ipcRenderer.on("addAndRemoveNeighbors", function(event, addedNodes, removedNodes) {
   UI.sendToWebview("addAndRemoveNeighbors", {"add": addedNodes, "remove": removedNodes});
+});
+
+electron.ipcRenderer.on("stopCcurl", function(event, data) {
+  UI.sendToWebview("stopCcurl", data);
 });
 
 electron.ipcRenderer.on("editNodeConfiguration", function(event, serverConfiguration) {

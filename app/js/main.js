@@ -7,7 +7,6 @@ const powerSaveBlocker = electron.powerSaveBlocker;
 const shell            = electron.shell;
 const clipboard        = electron.clipboard;
 const pusage           = require("pidusage");
-const ffi              = require('ffi');
 
 let win;
 let otherWin;
@@ -57,7 +56,6 @@ var App = (function(App, undefined) {
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
-  var ia32JavaLocation          = null;
   var is64BitOS                 = 64;
   var rendererPid               = null;
 
@@ -752,8 +750,10 @@ var App = (function(App, undefined) {
     if (settings.lightWallet == -1 || (settings.lightWallet == 1 && (!settings.lightWalletHost || !settings.lightWalletPort)) || (settings.lightWallet == 0 && settings.nodes.length == 0)) {
       App.showSetupWindow();
     } else if (settings.lightWallet == 1) {
+      global.lightWallet = true;
       App.startLightNode();
     } else {
+      global.lightWallet = false;
       App.showLoadingWindow();
       App.startFullNode();
     }
@@ -892,9 +892,6 @@ var App = (function(App, undefined) {
               console.log("Found 64-bits java, starting.");
               found = true;
               App.startFullNodeProcess(location);
-            } else if (javaVersionOK && !ia32JavaLocation) {
-              console.log("Found 32-bits java.");
-              ia32JavaLocation = location;
             }
           }
         });
@@ -928,11 +925,8 @@ var App = (function(App, undefined) {
     currentLocationTest++;
     if (javaLocations[currentLocationTest]) {
       App.checkJavaLocation(javaLocations[currentLocationTest]);
-    } else if (ia32JavaLocation) {
-      console.log("Start 32 bit java.");
-      App.startFullNodeProcess(ia32JavaLocation);
     } else {
-      App.showNoJavaInstalledWindow();
+      App.showNoJavaInstalledWindow({"java64BitsOK": java64BitsOK});
     }
   }
 
@@ -1128,9 +1122,10 @@ var App = (function(App, undefined) {
   }
 
   App.switchNodeType = function() {
+    /*
     if (win) {
       win.hide();
-    }
+    }*/
     var lightWallet = settings.lightWallet == 1 ? 0 : 1;
 
     if ((lightWallet && (!settings.lightWalletHost || !settings.lightWalletPort)) || (!lightWallet && settings.nodes.length == 0)) {
@@ -1140,7 +1135,17 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.relaunchApplication = function() {
+  App.relaunchApplication = function(didFinalize) {
+    console.log("App.relaunchApplication: " + didFinalize);
+    // For light wallet, we want to make sure that everything is cleaned properly before restarting.. 
+    if (global.lightWallet && App.windowIsReady && !didFinalize) {
+      console.log("Sending stopCcurl message to renderer");
+      win.webContents.send("stopCcurl", {"relaunch": true});
+      return;
+    }
+
+    console.log("Doing relaunch");
+
     App.killNode(function() {
       if (win) {
         win.hide();
@@ -2037,8 +2042,8 @@ electron.app.on("browser-window-blur", function() {
   App.setFocus(false);
 });
 
-electron.ipcMain.on("relaunchApplication", function(event, config) {
-  App.relaunchApplication(config);
+electron.ipcMain.on("relaunchApplication", function(event, didFinalize) {
+  App.relaunchApplication(didFinalize);
 });
 
 electron.ipcMain.on("killAlreadyRunningProcessAndRestart", App.killAlreadyRunningProcessAndRestart);

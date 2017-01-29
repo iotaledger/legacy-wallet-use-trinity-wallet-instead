@@ -1,5 +1,15 @@
 const ipcRenderer = require("electron").ipcRenderer;
-const ccurl = require("./ccurl-interface");
+var ccurl = false;
+
+//only load for light wallets
+if (require("electron").remote.getGlobal("lightWallet")) {
+  try {
+    ccurl = require("./ccurl-interface");
+  } catch (err) {
+    ccurl = false;
+    console.log(err);
+  }
+}
 
 ipcRenderer.on("showNodeInfo", function() {
   if (typeof(UI) != "undefined") {
@@ -122,6 +132,17 @@ ipcRenderer.on("addAndRemoveNeighbors", function(event, nodes) {
   UI.addAndRemoveNeighbors(nodes.add, nodes.remove);
 });
 
+ipcRenderer.on("stopCcurl", function(event, callback) {
+  console.log("in stopCcurl renderer"); 
+  if (ccurl && connection.ccurlProvider) {
+    console.log("calling ccurlInterruptAndFinalize with " + connection.ccurlProvider);
+    ccurl.ccurlInterruptAndFinalize(connection.ccurlProvider);
+  }
+
+  console.log("Calling relaunchApplication");
+  ipcRenderer.send("relaunchApplication", true);
+});
+
 function _hoverAmountStart(amount) {
   ipcRenderer.send("hoverAmountStart", amount);
 }
@@ -156,6 +177,7 @@ function _logUINotification(type, message) {
 */
 
 process.once("loaded", function() {
+  global.backendLoaded = true;
   global.updateStatusBar = _updateStatusBar;
   global.hoverAmountStart = _hoverAmountStart;
   global.hoverAmountStop = _hoverAmountStop;
@@ -163,6 +185,8 @@ process.once("loaded", function() {
   global.rendererIsReady = _rendererIsReady;
   global.relaunchApplication = _relaunchApplication;
   global.updateAppInfo = _updateAppInfo;
-  global.ccurl = ccurl;
+  if (typeof(ccurl) != "undefined") {
+    global.ccurl = ccurl;
+  }
   //global.logUINotification = _logUINotification;
 });

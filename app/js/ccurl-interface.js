@@ -1,22 +1,67 @@
 var ffi = require('ffi');
+var isInitialized = false;
 
 var ccurlProvider = function(ccurlPath) {
-
-    if (!ccurlPath) ccurlPath = __dirname;
+    if (!ccurlPath) {
+        console.log("ccurl-interface: no path supplied, returning");
+        return false;
+    }
 
     var fullPath = ccurlPath + '/libccurl';
 
     try {
         // Define libccurl to be used for finding the nonce
-        return ffi.Library(fullPath, {
-            ccurl_pow : [ 'string', [ 'string', 'int'] ]
+        var libccurl = ffi.Library(fullPath, {
+            ccurl_pow : [ 'string', [ 'string', 'int'] ],
+            ccurl_pow_finalize : [ 'void', [] ],
+            ccurl_pow_interrupt: [ 'void', [] ]
         });
+
+        // Check to make sure the functions are available
+        if (!libccurl.hasOwnProperty("ccurl_pow") || !libccurl.hasOwnProperty("ccurl_pow_finalize") || !libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
+            throw new Error("Could not load hashing library.");
+        }
+
+        return libccurl;
     } catch (err) {
+        console.log(err);
         return false;
     }
 }
 
+var ccurlFinalize = function(libccurl) {
+    if (isInitialized) {
+        try {
+            if (libccurl && libccurl.hasOwnProperty("ccurl_pow_finalize")) {
+                libccurl.ccurl_pow_finalize();
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+}
+
+var ccurlInterrupt = function(libccurl) {
+    if (isInitialized) {
+        try {
+            if (libccurl && libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
+                libccurl.ccurl_pow_interrupt();
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+}
+
+var ccurlInterruptAndFinalize = function(libccurl) {
+    ccurlInterrupt(libccurl);
+    ccurlFinalize(libccurl);
+}
+
 var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWeightMagnitude, trytes, callback) {
+    if (!libccurl.hasOwnProperty("ccurl_pow")) {
+        return callback(new Error("Hashing not available"));
+    }
 
     // inputValidator: Check if correct hash
     if (!iota.validate.isHash(trunkTransaction)) {
@@ -41,6 +86,8 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
     //
     //     return callback(new Error("Invalid trytes supplied"));
     // }
+
+    isInitialized = true;
 
     var finalBundleTrytes = [];
     var previousTxHash;
@@ -101,6 +148,8 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
 
                 if (error) {
                     return callback(error);
+                } else if (returnedTrytes == null) {
+                    return callback("Interrupted");
                 }
 
                 var newTxObject= iota.utils.transactionObject(returnedTrytes);
@@ -129,8 +178,9 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
             libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
 
                 if (error) {
-
                     return callback(error);
+                } else if (returnedTrytes == null) {
+                    return callback("Interrupted");
                 }
 
                 var newTxObject= iota.utils.transactionObject(returnedTrytes);
@@ -151,5 +201,8 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
 
 module.exports = {
     'ccurlProvider': ccurlProvider,
-    'ccurlHashing': ccurlHashing
+    'ccurlHashing': ccurlHashing,
+    'ccurlInterrupt': ccurlInterrupt,
+    'ccurlFinalize': ccurlFinalize,
+    'ccurlInterruptAndFinalize': ccurlInterruptAndFinalize
 }

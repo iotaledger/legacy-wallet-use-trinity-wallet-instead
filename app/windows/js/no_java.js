@@ -92,7 +92,7 @@ var UI = (function(UI, undefined) {
     });*/
   }
 
-  UI.show = function(title, contents, params) {
+  UI.show = function(params) {
     // Only download immediately on windows.
     if (params && params.downloadImmediatelyIfWindows && process.platform == "win32") {
       document.getElementById("title").innerHTML = "Downloading Java...";
@@ -103,6 +103,10 @@ var UI = (function(UI, undefined) {
       electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10), false);
     } else {
       electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);
+    }
+
+    if (params && !params.java64BitsOK) {
+      document.getElementById("message-64-bit").style.display = "inline";
     }
 
     document.body.addEventListener("contextmenu", UI.showContextMenu, false);
@@ -332,7 +336,7 @@ var UI = (function(UI, undefined) {
                           document.getElementById("java-download-progress-bar").className += " indeterminate";
                           electron.remote.getCurrentWindow().setProgressBar(1.1); //set progress bar to indeterminate
 
-                          // Wait 500 ms before accessing file, it may still be writing to it. Should find a better way!
+                          // Wait 2.5 sec before accessing file, it may still be writing to it. Should find a better way!
                           setTimeout(function() {
                             try {
                               console.log("Installing on windows...");
@@ -358,7 +362,7 @@ var UI = (function(UI, undefined) {
                               console.log(err);
                               UI.showMessageAndQuit("Installation Failed", "The installation has failed, please install Java manually. The setup filed is located at " + UI.localDownloadLocation + ".");
                             }
-                          }, 500);
+                          }, 2500);
                         } else if (process.platform == "darwin") {
                           electron.remote.getCurrentWindow().setProgressBar(-1); //remove progress bar
                           electron.remote.shell.openItem(UI.localDownloadLocation);
@@ -485,6 +489,6 @@ var UI = (function(UI, undefined) {
 
 window.addEventListener("load", UI.initialize, false);
 
-electron.ipcRenderer.on("show", function(event, title, msg, params) {
-  UI.show(title, msg, params);
+electron.ipcRenderer.on("show", function(event, params) {
+  UI.show(params);
 });

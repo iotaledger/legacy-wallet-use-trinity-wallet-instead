@@ -18,10 +18,6 @@
     "publish:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --mac --x64 --publish always",
     "publish:win": "build --win --x64 --ia32 --publish always"
   },
-  "directories": {
-    "buildResources": "build",
-    "output": "out"
-  },
   "author": "IOTA Foundation <info@iotatoken.com>",
   "homepage": "https://www.iotatoken.com/",
   "repository": {
@@ -40,7 +36,13 @@
     "rimraf": "^2.5.4"
   },
   "build": {
-    "publish": ["github"],
+    "directories": {
+      "buildResources": "build",
+      "output": "out"
+    },
+    "publish": [
+      "github"
+    ],
     "appId": "com.iotatoken.wallet-testnet",
     "category": "public.app-category.developer-tools",
     "extraResources": [
