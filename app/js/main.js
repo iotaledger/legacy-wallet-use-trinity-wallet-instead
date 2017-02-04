@@ -1,6 +1,5 @@
 const electron         = require("electron");
-const fs               = require("fs");
-const fsExtra          = require("fs-extra");
+const fs               = require("fs-extra");
 const path             = require("path");
 const childProcess     = require("child_process");
 const autoUpdater      = electron.autoUpdater;
@@ -55,6 +54,7 @@ var App = (function(App, undefined) {
   var settings                  = {};
   var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
   var deleteDb                  = require("../../package.json").build.deleteDb;
+  var deleteAnyways             = false;
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
@@ -128,6 +128,13 @@ var App = (function(App, undefined) {
       }
 
       settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
+
+      if (!settings.hasOwnProperty("version")) {
+          // If no version defined yet or it's the first run
+          // Delete the iri folder anyways
+          deleteAnyways = true;
+          settings.version = appVersion;
+      }
 
       if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object") {
         settings.bounds = {width: 520, height: 736};
@@ -739,10 +746,12 @@ var App = (function(App, undefined) {
         fs.mkdirSync(appDataDirectory);
       }
 
-
-      if (deleteDb && fs.existsSync(serverDirectory)) {
+      // Delete the database if the deleteDb flag is set
+      // Also if it's the first run and settings.version is not set, deleteAnyways
+      // Else only delete if the new appVersion > previous app version
+      if (deleteDb && (deleteAnyways || appVersion > settings.version) && fs.existsSync(serverDirectory)) {
         console.log("Deleting Server Directory " + serverDirectory);
-        fsExtra.removeSync(serverDirectory);
+        fs.removeSync(serverDirectory);
       }
 
       if (!fs.existsSync(serverDirectory)) {

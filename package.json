@@ -2,7 +2,7 @@
   "name": "iota",
   "productName": "IOTA Wallet",
   "description": "IOTA Wallet",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
     "glob": "^7.1.1",
-    "pidusage": "^1.1.0"
+    "pidusage": "^1.1.1"
   },
   "devDependencies": {
     "electron": "^1.4.14",
