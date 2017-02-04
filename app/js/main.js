@@ -751,6 +751,7 @@ var App = (function(App, undefined) {
       // Else only delete if the new appVersion > previous app version
       if (deleteDb && (deleteAnyways || appVersion > settings.version) && fs.existsSync(serverDirectory)) {
         console.log("Deleting Server Directory " + serverDirectory);
+        settings.version = appVersion;
         fs.removeSync(serverDirectory);
       }
 
