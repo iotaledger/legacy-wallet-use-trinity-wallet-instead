@@ -37,6 +37,7 @@
     "rimraf": "^2.5.4"
   },
   "build": {
+    "deleteDb": true,
     "directories": {
       "buildResources": "build",
       "output": "out"

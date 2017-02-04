@@ -1,5 +1,6 @@
 const electron         = require("electron");
 const fs               = require("fs");
+const fsExtra          = require("fs-extra");
 const path             = require("path");
 const childProcess     = require("child_process");
 const autoUpdater      = electron.autoUpdater;
@@ -53,6 +54,7 @@ var App = (function(App, undefined) {
   var didKillNode               = false;
   var settings                  = {};
   var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
+  var deleteDb                  = require("../../package.json").build.deleteDb;
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
@@ -737,7 +739,14 @@ var App = (function(App, undefined) {
         fs.mkdirSync(appDataDirectory);
       }
 
+
+      if (deleteDb && fs.existsSync(serverDirectory)) {
+        console.log("Deleting Server Directory " + serverDirectory);
+        fsExtra.removeSync(serverDirectory);
+      }
+
       if (!fs.existsSync(serverDirectory)) {
+        console.log("Creating new server directory: ", serverDirectory);
         fs.mkdirSync(serverDirectory);
       }
     } catch (err) {
@@ -1137,7 +1146,7 @@ var App = (function(App, undefined) {
 
   App.relaunchApplication = function(didFinalize) {
     console.log("App.relaunchApplication: " + didFinalize);
-    // For light wallet, we want to make sure that everything is cleaned properly before restarting.. 
+    // For light wallet, we want to make sure that everything is cleaned properly before restarting..
     if (global.lightWallet && App.windowIsReady && !didFinalize) {
       console.log("Sending stopCcurl message to renderer");
       win.webContents.send("stopCcurl", {"relaunch": true});
