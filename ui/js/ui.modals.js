@@ -48,18 +48,18 @@ var UI = (function(UI, $, undefined) {
       return;
     }
 
-    iota.api.getNeighbors(function(error, activity) {
+    iota.api.getNeighbors(function(error, neighbors) {
       if (error) {
         return (callback ? callback(error) : error);
       }
 
       var html = "";
 
-      if (!activity.neighbors) {
+      if (!neighbors) {
         html = "<p>No neighbors found.</p>"; 
       } else {
-        for (var i=0; i<activity.neighbors.length; i++) {
-          var peer = activity.neighbors[i];
+        for (var i=0; i<neighbors.length; i++) {
+          var peer = neighbors[i];
 
           html += "<div class='list'><ul>";
  
@@ -69,17 +69,17 @@ var UI = (function(UI, $, undefined) {
 
           html += "</ul></div>";
 
-          if (i<activity.neighbors.length-1) {
+          if (i<neighbors.length-1) {
             html += "<br><br>";
           }
         }
 
         if (callback) {
-          callback(null, "peers-modal", "<h1>Neighbors (" + activity.neighbors.length + ")</h1><div class='contents'>" + html + "</div>");
+          callback(null, "peers-modal", "<h1>Neighbors (" + neighbors.length + ")</h1><div class='contents'>" + html + "</div>");
         } else {
           var $modal = $("#peers-modal");
 
-          $("#peer-count").html(activity.neighbors.length);
+          $("#peer-count").html(neighbors.length);
   
           $modal.find(".contents").html(html);
 

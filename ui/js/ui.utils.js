@@ -176,21 +176,21 @@ var UI = (function(UI, $, undefined) {
 
   UI.addAndRemoveNeighbors = function(addNodes, removeNodes) {
     if (addNodes && addNodes.length) {
-      iota.api.addNeighbors(addNodes, function(error, success) {
+      iota.api.addNeighbors(addNodes, function(error, addedNodes) {
         if (error) {
           UI.notify("error", "Error whilst adding neighbors.");
         } else {
-          UI.notify("success", "Added " + addNodes.length + " neighbor" + (addNodes.length != 1 ? "s" : "") + ".");
+          UI.notify("success", "Added " + addedNodes + " neighbor" + (addedNodes != 1 ? "s" : "") + ".");
         }
       });
     }
 
     if (removeNodes && removeNodes.length) {
-      iota.api.addNeighbors(removeNodes, function(error, success) {
+      iota.api.addNeighbors(removeNodes, function(error, removedNodes) {
         if (error) {
           UI.notify("error", "Error whilst removing neighbors.");
         } else {
-          UI.notify("success", "Removed " + removeNodes.length + " neighbor" + (removeNodes.length != 1 ? "s" : "") + ".");
+          UI.notify("success", "Removed " + removedNodes + " neighbor" + (removedNodes != 1 ? "s" : "") + ".");
         }
       });
     }

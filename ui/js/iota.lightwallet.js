@@ -9,7 +9,7 @@ iota.api.attachToTangle = function(trunkTransaction, branchTransaction, minWeigh
             console.log(success);
         }
         if (callback) {
-            return callback(error, {"trytes": success})
+            return callback(error, success);
         } else {
             return success;
         }
