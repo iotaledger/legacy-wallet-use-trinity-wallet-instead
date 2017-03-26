@@ -166,14 +166,12 @@
   <h1>Paste Trytes</h1>
   <div class="contents">
     <div id="paste-trytes-group">
-      <div class='input-group'><label>Trytes:</label> 
       <textarea name='trytes' id='pasted-trytes' placeholder='Paste your Trytes here (Array or JSON representation)' style='width:98%;min-height:100px;max-height:300px;'></textarea>
-      </div>
       <button id="verify-pasted-trytes-btn" type="button" class="btn" data-initial="Verify Trytes" data-loading="Verifying...">Verify Trytes</button>
     </div>
     <div id="process-trytes-group">
-      <input type="hidden" name="trytes" id="process-trytes" value="" />
-      <div id="verify-trytes"></div>
+      <div id="process-trytes"></div>
+      <input type="hidden" name="pasted_trytes_completed" id="process-pasted-trytes-completed" value="0" />
       <button id="process-pasted-trytes-btn" type="button" class="btn" data-initial="Process Trytes" data-loading="Processing...">Process Trytes</button>
     </div>
   </div>

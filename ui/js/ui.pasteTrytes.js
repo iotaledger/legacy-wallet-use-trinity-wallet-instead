@@ -1,4 +1,6 @@
 var UI = (function(UI, $, undefined) {
+  var isProcessing = false;
+
   UI.showPasteTrytes = function(callback) {
     console.log("UI.showPasteTrytes");
 
@@ -23,60 +25,121 @@ var UI = (function(UI, $, undefined) {
     modal.open();
   }
 
-  //999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999A9RGRKVGWMWMKOLVMDFWJUHNUNYWZTJADGGPZGXNLERLXYWJE9WQHWWBMCPZMVVMJUMWWBLZLNMLDCGDJ999999999999999999999999999999999999999999999999999999YGYQIVD99999999999999999999TXEFLKNPJRBYZPORHZU9CEMFIFVVQBUSTDGSJCZMBTZCDTTJVUFPTCCVHHORPMGCURKTH9VGJIXUQJVHK999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+  function parseTrytesToBundle(trytes) {
+    var bundleTxs = [];
+
+    if (iota.valid.isTrytes(trytes)) {
+      var bundle = [trytes];
+    } else {
+      try {
+        var bundle = JSON.parse(trytes);
+      } catch (err) {
+        bundle = null;
+      }
+    } 
+
+    var trytesError = false;
+
+    if ($.isArray(bundle)) {
+      $.each(bundle, function(index, trytes) {
+        if (!iota.valid.isTrytes(trytes)) {
+          trytesError = true;
+          return false;
+        } else {
+          var transaction = iota.utils.transactionObject(trytes);
+          if (transaction) {
+            bundleTxs.push(transaction);
+          } else {
+            trytesError = true;
+            return false;
+          }
+        }
+      }); 
+    }
+
+    if (trytesError || !bundleTxs || bundleTxs.length == 0) {
+      return false;
+    } 
+
+    return bundleTxs;
+  }
+
   UI.handlePastingTrytes = function() {
+    $(document).on("closed", "#paste-trytes-modal", function (e) {
+      if (isProcessing) {
+        isProcessing = false;
+        $("#process-pasted-trytes-btn").loadingReset("Process Trytes");
+        iota.api.interruptAttachingToTangle();
+      }
+    });
+
     $("#verify-pasted-trytes-btn").on("click", function(e) {
       var trytes = $("#pasted-trytes").val();
 
-      if (iota.validate.isTrytes(trytes)) {
-        var transaction = iota.utils.transactionObject(trytes);
-      } else {
-        // We conver to trytes, then back to transaction so that no extra json key/value pairs are added..
-        try {
-          var transaction = JSON.parse($("#pasted-trytes").val());
-        } catch (err) {
-          transaction = null;
-        }
-        if (transaction) {
-          trytes = iota.utils.transactionTrytes(transaction);
-          transaction = iota.utils.transactionObject(trytes);
-        }
-      }
+      var bundleTxs = parseTrytesToBundle($("#pasted-trytes").val());
 
-      $("#process-trytes").val(trytes);
-
-      if (!transaction) {
-        $("#verify-pasted-trytes-btn").loadingError("Invalid trytes", {"initial": "Verify Trytes"});
+      if (!bundleTxs) {
+        $("#verify-pasted-trytes-btn").loadingError("Invalid trytes or input", {"initial": "Verify Trytes"});
+        return;
+      } else if (!iota.utils.isBundle(bundleTxs)) {
+        $("#verify-pasted-trytes-btn").loadingError("Invalid signature", {"initial": "Process Trytes"});
         return;
       }
-
+      
       var html = "<div class='list'><ul>";
-      $.each(transaction, function(key, value) {
-        html += "<li><div class='details details-" + String(key).escapeHTML() + "' title='" + String(key).escapeHTML() + "'><div class='address'>" + String(key).escapeHTML() + "</div></div><div class='value value-" + String(key).escapeHTML() + "' title='" + String(value).escapeHTML() + "'>" + String(value).escapeHTML() + "</div></li>";
-      });
+
+      for (var i=0; i<bundleTxs.length; i++) {
+        html += "<li><div class='details'><div class='address'>" + UI.formatForClipboard(iota.utils.addChecksum(bundleTxs[i].address)) + "</div></div><div class='value'>" + UI.formatAmount(bundleTxs[i].value) + "</div></li>";
+      }
 
       html += "</ul></div>";
-
+      
+      $("#process-trytes").html(html);
       $("#paste-trytes-modal h1").html("Verify Trytes");
-      $("#verify-trytes").html(html); 
       $("#process-trytes-group").show();
       $("#paste-trytes-group").hide();
+      $("#process-pasted-trytes-completed").val(0);
+
       $("#verify-pasted-trytes-btn").loadingReset("Verify Trytes");
     });
 
     $("#process-pasted-trytes-btn").on("click", function(e) {
-      iota.api.sendTrytes($("#process-trytes").val(), connection.depth, connection.minWeightMagnitude, function(error, transfers) {
+      var bundleTxs = parseTrytesToBundle($("#pasted-trytes").val());
+
+      if ($("#process-pasted-trytes-completed").val() == 1) {
+        $("#process-pasted-trytes-btn").loadingError("Already Processed", {"initial": "Process Trytes"});
+        return;
+      } else if (!bundleTxs) {
+        $("#process-pasted-trytes-btn").loadingError("Invalid trytes or input", {"initial": "Process Trytes"});
+        return;
+      } else if (!iota.utils.isBundle(bundleTxs)) {
+        $("#process-pasted-trytes-btn").loadingError("Invalid signature", {"initial": "Process Trytes"});
+        return;
+      }
+
+      var trytes = [];
+
+      $.each(bundleTxs, function(index, transaction) {
+        trytes.push(iota.utils.transactionTrytes(transaction));
+      });
+
+      trytes = trytes.reverse();
+
+      console.log(trytes);
+
+      isProcessing = true;
+
+      iota.api.sendTrytes(trytes, connection.depth, connection.minWeightMagnitude, function(error, transfers) {
        if (error) {
           console.log("Process Pasted Trytes: Error");
           console.log(error);
-
-
+          $("#process-pasted-trytes-btn").loadingError(error);
         } else {
           console.log("Process Pasted Trytes: Success");
           $("#process-pasted-trytes-btn").loadingSuccess("Transaction Completed");
+          $("#process-pasted-trytes-completed").val(1);
           UI.updateState(1000);
         }
-        $stack.removeClass("loading");
       });
     });
   }
