@@ -824,6 +824,11 @@ electron.ipcRenderer.on("generateSeed", function() {
   UI.sendToWebview("generateSeed");
 });
 
+electron.ipcRenderer.on("pasteTrytes", function() {
+  UI.hideAlerts();
+  UI.sendToWebview("pasteTrytes");
+});
+
 electron.ipcRenderer.on("showClaimProcess", function() {
   UI.hideAlerts();
   UI.sendToWebview("showClaimProcess");

@@ -501,6 +501,12 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
+            label: "Paste Trytes",
+            click(item) {
+              App.pasteTrytes();
+            }
+          },
+          {
             label: "Generate Seed",
             click(item) {
               App.generateSeed();
@@ -558,21 +564,23 @@ var App = (function(App, undefined) {
       });
 
       if (settings.lightWallet == 1) {
-        template[2].submenu[13].label = "Switch to Full Node";
+        template[2].submenu[14].label = "Switch to Full Node";
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 2);
         // Remove "open database folder" option.
-        template[2].submenu.splice(6, 1);
+        template[2].submenu.splice(7, 1);
         if (process.platform == "darwin") {
-          template[2].submenu.splice(7 , 2);
+          // Remove options from mac platforms
+          template[2].submenu.splice(8 , 2);
         }
       } else {
         if (settings.lightWallet == -1) {
           //remove the switch to light / full node link
-          template[2].submenu.splice(12, 2);
+          template[2].submenu.splice(13, 2);
         }
         if (process.platform == "darwin") {
-          template[2].submenu.splice(10, 2);
+          // Remove options from mac platform
+          template[2].submenu.splice(11, 2);
         }
       }
     }
@@ -1661,6 +1669,13 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.pasteTrytes = function() {
+    if (App.windowIsReady()) {
+      App.showWindowIfNotVisible();
+      win.webContents.send("pasteTrytes");
+    }
+  }
+  
   App.claimProcess = function() {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible();

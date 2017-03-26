@@ -114,6 +114,7 @@ var UI = (function(UI, $, undefined) {
     UI.handleHelpMenu();
     UI.handleNetworkSpamming();
     UI.handleClaiming();
+    UI.handlePastingTrytes();
   }
 
    UI.showAppScreen = function() {

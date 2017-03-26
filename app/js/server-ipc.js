@@ -76,6 +76,12 @@ ipcRenderer.on("generateSeed", function() {
   }
 });
 
+ipcRenderer.on("pasteTrytes", function() {
+  if (typeof(UI) != "undefined") {
+    UI.showPasteTrytes();
+  }
+});
+
 ipcRenderer.on("hideAlerts", function() {
   if (typeof(UI) != "undefined") {
     UI.hideAlerts();

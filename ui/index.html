@@ -23,6 +23,7 @@
   <script type="text/javascript" src="js/ui.transfers.js"></script>
   <script type="text/javascript" src="js/ui.url.js"></script>
   <script type="text/javascript" src="js/ui.update.js"></script>
+  <script type="text/javascript" src="js/ui.pasteTrytes.js"></script>
   <script type="text/javascript" src="js/ui.utils.js"></script>
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
   <link rel="stylesheet" href="bower_components/remodal/dist/remodal.css" />
@@ -157,6 +158,24 @@
     <input type='password' name='new_seed' id='claim_process_repeat_new_seed' placeholder='Type New Seed Again' value='' /></div>
     <button id="claim-btn" type="button" class="btn" data-initial="Claim" data-loading="Claiming...">CLAIM</button>
     <div id="claim-output" class="small"></div>
+  </div>
+</div>
+
+<div id="paste-trytes-modal" class="modal" data-remodal-id="paste-trytes">
+  <button data-remodal-action="close" class="remodal-close"></button>
+  <h1>Paste Trytes</h1>
+  <div class="contents">
+    <div id="paste-trytes-group">
+      <div class='input-group'><label>Trytes:</label> 
+      <textarea name='trytes' id='pasted-trytes' placeholder='Paste your Trytes here (Array or JSON representation)' style='width:98%;min-height:100px;max-height:300px;'></textarea>
+      </div>
+      <button id="verify-pasted-trytes-btn" type="button" class="btn" data-initial="Verify Trytes" data-loading="Verifying...">Verify Trytes</button>
+    </div>
+    <div id="process-trytes-group">
+      <input type="hidden" name="trytes" id="process-trytes" value="" />
+      <div id="verify-trytes"></div>
+      <button id="process-pasted-trytes-btn" type="button" class="btn" data-initial="Process Trytes" data-loading="Processing...">Process Trytes</button>
+    </div>
   </div>
 </div>
 
