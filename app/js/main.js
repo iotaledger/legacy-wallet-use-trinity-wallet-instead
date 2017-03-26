@@ -102,10 +102,7 @@ var App = (function(App, undefined) {
 
     App.findDirectories();
 
-    if (!electron.app.isDefaultProtocolClient("iota")) {
-      console.log("Register iota as a default protocol");
-      electron.app.setAsDefaultProtocolClient("iota"); //not linux
-    }
+    App.registerProtocol();
 
     if (process.platform == "win32" && !is64BitOS) {
       App.showAlertAndQuit("Not Supported", "Windows 32-bit is not supported at the moment.");
@@ -216,6 +213,8 @@ var App = (function(App, undefined) {
     if (process.argv.length == 1 || process.argv.indexOf("--dev") != -1) {
       return;
     } else {
+      // Disable for now
+      return;
       // Ignore first argument
       for (var i=1; i<process.argv.length; i++) {
         if (/^iota:\/\//i.test(process.argv[i])) {
@@ -224,6 +223,16 @@ var App = (function(App, undefined) {
           break;
         }
       }
+    }
+  }
+
+  App.registerProtocol = function() {
+    // Disable for now
+    return;
+
+    if (!electron.app.isDefaultProtocolClient("iota")) {
+      console.log("Register iota as a default protocol");
+      electron.app.setAsDefaultProtocolClient("iota"); //not linux
     }
   }
 

@@ -660,6 +660,9 @@ var UI = (function(UI, undefined) {
   }
 
   UI.handleURL = function(url) {
+    // Disable for now.
+    return;
+
     UI.hideAlerts();
     
     url = decodeURI(url.replace("iota://", "").toLowerCase().replace(/\/$/, ""));
