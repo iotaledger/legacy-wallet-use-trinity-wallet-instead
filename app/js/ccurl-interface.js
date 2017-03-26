@@ -64,25 +64,25 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
     }
 
     // inputValidator: Check if correct hash
-    if (!iota.validate.isHash(trunkTransaction)) {
+    if (!iota.valid.isHash(trunkTransaction)) {
 
         return callback(new Error("Invalid trunkTransaction"));
     }
 
     // inputValidator: Check if correct hash
-    if (!iota.validate.isHash(branchTransaction)) {
+    if (!iota.valid.isHash(branchTransaction)) {
 
         return callback(new Error("Invalid branchTransaction"));
     }
 
     // inputValidator: Check if int
-    if (!iota.validate.isInt(minWeightMagnitude)) {
+    if (!iota.valid.isInt(minWeightMagnitude)) {
 
         return callback(new Error("Invalid minWeightMagnitude"));
     }
 
     // inputValidator: Check if array of trytes
-    // if (!iota.validate.isArrayOfTrytes(trytes)) {
+    // if (!iota.valid.isArrayOfTrytes(trytes)) {
     //
     //     return callback(new Error("Invalid trytes supplied"));
     // }
