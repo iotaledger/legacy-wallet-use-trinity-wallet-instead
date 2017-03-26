@@ -262,12 +262,12 @@ var UI = (function(UI, undefined) {
         document.getElementById("status-bar-giota").style.display = "none";
       } else {
         document.getElementById("status-bar-giota").style.display = "inline";
-        document.getElementById("status-bar-giota").innerHTML = UI.convertToGiotas(data.hoverAmount);
+        document.getElementById("status-bar-giota").innerHTML = UI.convertToMiotas(data.hoverAmount);
       }
     }
   }
 
-  UI.convertToGiotas = function(amount) {
+  UI.convertToMiotas = function(amount) {
     if (typeof(amount) != "integer") {
       amount = parseInt(amount, 10);
     }
@@ -283,7 +283,7 @@ var UI = (function(UI, undefined) {
       negative = "-";
     }
 
-    afterCommaDigits = 9;
+    afterCommaDigits = 6;
 
     amount = amount.toString();
 
@@ -317,7 +317,7 @@ var UI = (function(UI, undefined) {
 
     afterComma = afterComma.replace(/0+$/, "");
 
-    formattedAmount = "<span>" + negative + beforeComma + "</span>" + (afterComma ? "." + afterComma : "") + " Gi";
+    formattedAmount = "<span>" + negative + beforeComma + "</span>" + (afterComma ? "." + afterComma : "") + " Mi";
 
     return formattedAmount;
   }
