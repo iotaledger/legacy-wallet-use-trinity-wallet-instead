@@ -2,7 +2,7 @@
   "name": "iota",
   "productName": "IOTA Wallet",
   "description": "IOTA Wallet",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
@@ -19,8 +19,8 @@
     "publish:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --mac --x64 --publish always",
     "publish:win": "build --win --x64 --ia32 --publish always"
   },
-  "author": "IOTA Foundation <info@iotatoken.com>",
-  "homepage": "https://www.iotatoken.com/",
+  "author": "IOTA Foundation <contact@iota.org>",
+  "homepage": "https://www.iota.org",
   "repository": {
     "type": "git",
     "url": "https://github.com/iotaledger/wallet"
@@ -37,7 +37,7 @@
     "rimraf": "^2.5.4"
   },
   "build": {
-    "deleteDb": true,
+    "deleteDb": false,
     "directories": {
       "buildResources": "build",
       "output": "out"
@@ -86,7 +86,7 @@
         "rpm",
         "tar.gz"
       ],
-      "packageUrl": "https://www.iotatoken.com/"
+      "packageUrl": "https://www.iota.org/"
     }
   }
 }

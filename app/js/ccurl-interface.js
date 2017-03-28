@@ -76,7 +76,7 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
     }
 
     // inputValidator: Check if int
-    if (!iota.valid.isInt(minWeightMagnitude)) {
+    if (!iota.valid.isValue(minWeightMagnitude)) {
 
         return callback(new Error("Invalid minWeightMagnitude"));
     }
