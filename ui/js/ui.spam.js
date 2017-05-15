@@ -1,7 +1,7 @@
 var UI = (function(UI, $, undefined) {
   var spamCount  = 0;
 
-  UI.showNetworkSpammer = function() {  
+  UI.showNetworkSpammer = function() {
     /*
     if (connection.isProofOfWorking) {
       UI.notify("error", "Proof of work is busy, cannot spam.");
@@ -53,7 +53,12 @@ var UI = (function(UI, $, undefined) {
               $("#spam-msg").hide();
             }
           }
-          callback(null);
+
+          // 1sec delay for each spam
+          setTimeout(function() {
+            callback(null);
+        }, 1000)
+
         });
       }, function() {
         return isSpamming == true;

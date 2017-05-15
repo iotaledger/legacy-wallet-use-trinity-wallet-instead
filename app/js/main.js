@@ -65,7 +65,7 @@ var App = (function(App, undefined) {
   var iriVersion                = "";
   var lastError                 = "";
 
-  var isTestNet                 = String(appVersion).match(/\-testnet$/) != null;
+  var isTestNet                 = String(appVersion).match(/\-testnet$/) !== null;
 
   App.uiIsReady                 = false;
   App.uiIsInitialized           = false;
@@ -152,7 +152,7 @@ var App = (function(App, undefined) {
         settings.isFirstRun = 1;
       }
       if (!settings.hasOwnProperty("port")) {
-        settings.port = (isTestNet ? 14999 : 14265);
+        settings.port = (isTestNet ? 14900 : 14265);
       }
       if (!settings.hasOwnProperty("depth")) {
         settings.depth = 3;
@@ -171,14 +171,14 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14999 : 14265), nodes: []};
+      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), nodes: []};
     }
 
     try {
       if (electron.screen) {
         var displaySize = electron.screen.getPrimaryDisplay().workAreaSize;
 
-        if (displaySize.width < settings.bounds.width+100 || displaySize.height < settings.bounds.height+100) {
+        if (displaySize.width < settings.bounds.width + 100 || displaySize.height < settings.bounds.height+100) {
           settings.bounds.height = displaySize.height - 100;
           settings.bounds.width = Math.round(settings.bounds.height / 16 * 11);
         }
@@ -625,15 +625,15 @@ var App = (function(App, undefined) {
         },
         {
           label: "Official Website",
-          click() { shell.openExternal("https://iotatoken.com/"); }
+          click() { shell.openExternal("https://iota.org/"); }
         },
         {
           label: "Forum",
-          click() { shell.openExternal("https://forum.iotatoken.com/"); }
+          click() { shell.openExternal("https://forum.iota.org/"); }
         },
         {
           label: "Chat",
-          click() { shell.openExternal("https://slack.iotatoken.com/"); }
+          click() { shell.openExternal("https://slack.iota.org/"); }
         },
         {
           label: "Documentation",
@@ -1004,6 +1004,11 @@ var App = (function(App, undefined) {
         params.push("-e");
       }
 
+      if (isTestNet) {
+        console.log("TESTNET VERSION")
+        params.push("--testnet");
+      }
+
       params.push("-p");
       params.push(settings.port);
 
@@ -1011,8 +1016,6 @@ var App = (function(App, undefined) {
         params.push("-n");
         params.push(settings.nodes.join(" "));
       }
-
-      params.push("--headless");
 
       console.log(params.join(" "));
 
@@ -1334,13 +1337,16 @@ var App = (function(App, undefined) {
         }
       } else {
         // This can result in errors.. Need to have a real response from the console instead of just this.
-        var iri = data.match(/Welcome to IRI (Testnet)?\s*([0-9\.]+)/i);
-        if (iri) {
+        var iri = data.indexOf("Welcome to IRI")
+        var iriVersion = data.match(/\d+/g).join([])
+
+        if (iri !== -1) {
+
+          var initTestnet = data.indexOf("Testnet");
           //don't run mainnet IRI in testnet GUI, and other way around
-          if (isTestNet && !iri[1] || !isTestNet && iri[1]) {
+          if (isTestNet && !initTestnet || !isTestNet && initTestnet) {
             App.quit();
           }
-          iriVersion = iri[2];
         }
 
         if (data.match(/IOTA Node initialised correctly/i)) {
@@ -1684,7 +1690,7 @@ var App = (function(App, undefined) {
       win.webContents.send("pasteTrytes");
     }
   }
-  
+
   App.claimProcess = function() {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
@@ -1828,8 +1834,6 @@ var App = (function(App, undefined) {
           settings.minWeightMagnitude = 13;
         }
       }
-
-      App.saveSettings();
 
       if (relaunch || !App.windowIsReady()) {
         App.relaunchApplication();

@@ -1,8 +1,8 @@
 {
-  "name": "iota-testnet",
-  "productName": "IOTA Wallet Testnet",
-  "description": "IOTA Wallet Testnet",
-  "version": "2.2.1-testnet",
+  "name": "iota",
+  "productName": "IOTA Wallet",
+  "description": "IOTA Wallet",
+  "version": "2.2.1",
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "publish:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --mac --x64 --publish always",
     "publish:win": "build --win --x64 --ia32 --publish always"
   },
-  "author": "IOTA Foundation <info@iota.org>",
+  "author": "IOTA Foundation <contact@iota.org>",
   "homepage": "https://www.iota.org",
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
     "glob": "^7.1.1",
-    "pidusage": "^1.1.0"
+    "pidusage": "^1.1.1"
   },
   "devDependencies": {
     "electron": "^1.4.14",
@@ -45,17 +45,19 @@
     "publish": [
       "github"
     ],
-    "appId": "com.iotatoken.wallet-testnet",
+    "appId": "com.iotatoken.wallet",
     "category": "public.app-category.developer-tools",
     "extraResources": [
-      "iri/iri-testnet.jar",
+      "iri/iri.jar",
       "ccurl/**/*",
       "ui/**/*"
     ],
     "protocols": [
       {
         "name": "IOTA URL Scheme",
-        "schemes": ["iota"]
+        "schemes": [
+          "iota"
+        ]
       }
     ],
     "dmg": {
@@ -82,8 +84,7 @@
         "AppImage",
         "deb",
         "rpm",
-        "tar.gz",
-        "snap"
+        "tar.gz"
       ],
       "packageUrl": "https://www.iota.org/"
     }
