@@ -51,7 +51,8 @@
     "extraResources": [
       "iri/iri-testnet.jar",
       "ccurl/**/*",
-      "ui/**/*"
+      "ui/**/*",
+      "locales/**/*",
     ],
     "protocols": [
       {
