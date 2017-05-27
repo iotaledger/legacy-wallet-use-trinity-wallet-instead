@@ -5,6 +5,8 @@
   ],
   "homepage": "https://www.iotatoken.com/",
   "dependencies": {
-    "tingle": "^0.7.0"
+    "tingle": "^0.7.0",
+    "i18next": "^8.3.0",
+    "i18next-xhr-backend": "^1.4.1"
   }
 }

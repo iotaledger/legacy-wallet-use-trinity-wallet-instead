@@ -95,15 +95,13 @@ var UI = (function(UI, undefined) {
   UI.show = function(params) {
     // Only download immediately on windows.
     if (params && params.downloadImmediatelyIfWindows && process.platform == "win32") {
-      document.getElementById("title").innerHTML = "Downloading Java...";
-      document.getElementById("message").innerHTML = "Java is being downloaded. Please wait...";
+      UI.changeElementLanguage("title", "downloading_java");
+      UI.changeElementLanguage("message", "java_being_downloaded");
       document.getElementById("footer").style.display = "none";
       document.getElementById("download-btn").click();
-
-      electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10), false);
-    } else {
-      electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);
     }
+
+    UI.updateContentSize();
 
     if (params && !params.java64BitsOK) {
       document.getElementById("message-64-bit").style.display = "inline";
@@ -123,7 +121,7 @@ var UI = (function(UI, undefined) {
 
     document.getElementById("java-download-progress").style.display = "block";
 
-    electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);
+    UI.updateContentSize();
 
     document.getElementById("java-download-progress").style.visibility = "visible";
   //  document.getElementById("java-download-progress").style.opacity = "0";
@@ -313,7 +311,7 @@ var UI = (function(UI, undefined) {
                             isEnded = true;
                             res.destroy();
                             out.destroy();
-                            UI.downloadJavaFailed("No response in 15 seconds.");
+                            UI.downloadJavaFailed(i18n.t("no_response_15s"));
                           }
                         }, 15000);
                       }).on("end", function() {
@@ -331,7 +329,7 @@ var UI = (function(UI, undefined) {
 
                         if (process.platform == "win32") {
                           //do silent install
-                          UI.updateMessage("Installing Java...", "Java is being installed, please wait...");
+                          UI.updateMessage("installing_java", "java_being_installed");
                           document.getElementById("java-download-progress-bar").style.width = "0%";
                           document.getElementById("java-download-progress-bar").className += " indeterminate";
                           electron.remote.getCurrentWindow().setProgressBar(1.1); //set progress bar to indeterminate
@@ -344,7 +342,7 @@ var UI = (function(UI, undefined) {
                                 if (error != null) {
                                   console.log("Error");
                                   console.log(error);
-                                  UI.showMessageAndQuit("Installation Failed", "The installation has failed, please install manually. The setup filed is located at " + UI.localDownloadLocation + ".");
+                                  UI.showMessageAndQuit("installation_failed", "installation_failed_install_manually", UI.localDownloadLocation);
                                 } else {
                                   console.log("Installed OK.");
                                   //ok, it's installed
@@ -360,7 +358,7 @@ var UI = (function(UI, undefined) {
                             } catch (err) {
                               console.log("Error");
                               console.log(err);
-                              UI.showMessageAndQuit("Installation Failed", "The installation has failed, please install Java manually. The setup filed is located at " + UI.localDownloadLocation + ".");
+                              UI.showMessageAndQuit("installation_failed", "installation_failed_install_manually", UI.localDownloadLocation);
                             }
                           }, 2500);
                         } else if (process.platform == "darwin") {
@@ -397,7 +395,7 @@ var UI = (function(UI, undefined) {
                               }
                             }, 500);
                           } else {
-                            UI.showMessageAndQuit("Java is Downloaded", "Java has been downloaded to " + UI.localDownloadLocation + " - please install it and reopen this app after installation.");
+                            UI.showMessageAndQuit("java_downloaded", "java_downloaded_please_install", UI.localDownloadLocation);
                             UI.onQuit = function() {
                               electron.remote.shell.showItemInFolder(UI.localDownloadLocation);
                             };
@@ -420,7 +418,7 @@ var UI = (function(UI, undefined) {
 
                     downloadReq.end();
                   } else {
-                    UI.downloadJavaFailed("Incorrect status code.");
+                    UI.downloadJavaFailed(i18n.t("incorrect_status_code"));
                   }
                 }).on("error", function(err) {
                   UI.downloadJavaFailed(err);
@@ -433,7 +431,7 @@ var UI = (function(UI, undefined) {
             });
           }, 100);
         } else {
-          UI.downloadJavaFailed("Could not match regex.");
+          UI.downloadJavaFailed(i18n.t("could_not_match_regex"));
         }
       });
     }).on("error", function(err) {
@@ -455,12 +453,12 @@ var UI = (function(UI, undefined) {
     document.getElementById("quit-btn").innerHTML = "OK";
     document.getElementById("quit-btn").disabled = false;
 
-    electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);
+    UI.updateContentSize();
   }
 
   UI.updateMessage = function(title, content) {
-    document.getElementById("title").innerHTML = title;
-    document.getElementById("message").innerHTML = content;
+    UI.changeElementLanguage("title", title);
+    UI.changeElementLanguage("message", content);
   }
 
   UI.downloadJavaFailed = function(err) {
@@ -474,14 +472,59 @@ var UI = (function(UI, undefined) {
     } catch (err) {}
 
     if (UI.directDownloadLink) {
-      UI.showMessageAndQuit("Download failed", "Please <a href='" + String(UI.directDownloadLink).escapeHTML() + "' target='_blank'>click here</a> to download and install java manually.");
+      UI.showMessageAndQuit("download_failed", "download_java_manually");
     } else {
-      UI.showMessageAndQuit("Download failed", "Please <a href='http://www.oracle.com/technetwork/java/javase/downloads/index.html' target='_blank'>click here</a> to download and install java manually (JRE version).");
+      UI.showMessageAndQuit("download_failed", "download_java_jre_manually");
     }
   }
 
   UI.relaunchApplication = function() {
     electron.ipcRenderer.send("relaunchApplication");
+  }
+
+  UI.updateContentSize = function() {
+    //if (params && params.downloadImmediatelyIfWindows && process.platform == "win32") {
+    //  electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10), false);
+    //} else {
+      electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);
+    //}
+  }
+
+  UI.makeMultilingual = function(currentLanguage, callback) {
+    i18n = i18next
+      .use(window.i18nextXHRBackend)
+      .init({
+        lng: currentLanguage,
+        fallbackLng: "en",
+        backend: {
+          loadPath: "../../locales/{{lng}}/{{ns}}.json"
+        },
+        debug: false
+    }, function(err, t) {
+      updateUI();
+      callback();
+    });
+  }
+
+  UI.changeLanguage = function(language, callback) {
+    i18n.changeLanguage(language, function(err, t) {
+      updateUI();
+      if (callback) {
+        callback();
+      }
+    });
+  }
+
+  UI.changeElementLanguage = function(el, key) {
+    document.getElementById(el).innerHTML = i18n.t(key);
+    document.getElementById(el).setAttribute("data-i18n", key);
+  }
+
+  function updateUI() {
+    var i18nList = document.querySelectorAll('[data-i18n]');
+    i18nList.forEach(function(v){
+      v.innerHTML = i18n.t(v.dataset.i18n, v.dataset.i18nOptions);
+    });
   }
 
   return UI;
@@ -490,5 +533,13 @@ var UI = (function(UI, undefined) {
 window.addEventListener("load", UI.initialize, false);
 
 electron.ipcRenderer.on("show", function(event, params) {
-  UI.show(params);
+  UI.makeMultilingual(params.language, function() {
+    UI.show(params);
+  });
+});
+
+electron.ipcRenderer.on("changeLanguage", function(event, language) {
+  UI.changeLanguage(language, function() {
+    UI.updateContentSize();
+  });
 });

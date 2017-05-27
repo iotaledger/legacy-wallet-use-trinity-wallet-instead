@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IOTA Wallet</title>
+  <title data-i18n="iota_wallet"></title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -10,8 +10,10 @@
     <p id="message"></p>
   </div>
   <div id="footer">
-    <button class="btn btn-default btn-pull-right" id="quit-btn">OK</button>
+    <button class="btn btn-default btn-pull-right" id="quit-btn" data-i18n="ok"></button>
   </div>
+  <script src="../bower_components/i18next/i18next.min.js"></script>
+  <script src="../bower_components/i18next-xhr-backend/i18nextXHRBackend.min.js"></script>
   <script type="text/javascript">
     require("./js/quit.js")
   </script>

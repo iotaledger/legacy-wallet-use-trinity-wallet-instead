@@ -28,17 +28,17 @@ var UI = (function(UI, $, undefined) {
       var newSeedRepeat = $("#claim_process_repeat_new_seed").val();
 
       if (!oldSeed || !newSeed || !newSeedRepeat) {
-        return $("#claim-btn").loadingError("Fill all fields");
+        return $("#claim-btn").loadingError("fill_all_fields");
       } else if (newSeed.match(/[^A-Z9]/i)) {
-        return $("#claim-btn").loadingError("Invalid characters");
+        return $("#claim-btn").loadingError("invalid_characters");
       } else if (newSeed.match(/[a-z]/) && newSeed.match(/[A-Z]/)) {
-        return $("#claim-btn").loadingError("Mixed case characters");
+        return $("#claim-btn").loadingError("mixed_case_characters");
       } else if (newSeed.length < 41) {
-        return $("#claim-btn").loadingError("New seed too short");
+        return $("#claim-btn").loadingError("new_seed_too_short");
       } else if (newSeed.length > 81) {
-        return $("#claim-btn").loadingError("New seed too long");
+        return $("#claim-btn").loadingError("new_seed_too_long");
       } else if (newSeed != newSeedRepeat) {
-        return $("#claim-btn").loadingError("Not matching");
+        return $("#claim-btn").loadingError("not_matching");
       }
 
       oldSeed = oldSeed.toUpperCase().replace(/[^A-Z9]/ig, "9");
@@ -48,7 +48,7 @@ var UI = (function(UI, $, undefined) {
       newSeed = newSeed.toUpperCase();
 
       $(".remodal-close").on("click", function(e) {
-        UI.notify("error", "Cannot close whilst claiming.");
+        UI.notify("error", "cannot_close_whilst_claiming");
         e.preventDefault();
         e.stopPropagation();
       });
@@ -59,13 +59,13 @@ var UI = (function(UI, $, undefined) {
         if (error) {
           console.log("UI.claim: Error");
           console.log(error);
-          $("#claim-btn").loadingError(error);
+          $("#claim-btn").loadingError(error); //todo: not a key
         } else {
           console.log("UI.claim: Success");
           if (!UI.isFocused()) {
-            UI.notifyDesktop("Claimed successfully");
+            UI.notifyDesktop("claimed_successfully");
           }
-          $("#claim-btn").loadingSuccess("Claim Completed");
+          $("#claim-btn").loadingSuccess("claim_completed");
           UI.updateState(1000);
         }
 
@@ -96,22 +96,24 @@ var UI = (function(UI, $, undefined) {
         console.log(data);
 
         if (data == "The seed provided by you contains 0 iotas") {
-          return callback("Empty seed");
+          return callback(i18n.t("empty_seed"));
         }
 
         var match = data.match(/To claim these iotas send the following message to address \"([A-Z9]+)\": ([A-Z9]+)\r\n\r\nThe message must have tag \"([A-Z9]+)\"/);
         if (!match || !match[1] || !match[2] || !match[3]) {
-          return callback("Invalid input");
+          return callback(i18n.t("invalid_input"));
         }
 
         var iotaAmount = data.match(/The seed provided by you contains ([0-9]+) iotas/i);
         if (iotaAmount) {
           var formattedAmount = UI.formatAmount(iotaAmount[1]);
-          $("#claim-output").html("Seed contains: " + formattedAmount);
+          $("#claim-output").data("i18n", "seed_contains").localize({value: formattedAmoun});
 
+          /*
+          //TODO?? 
           if (String($("#claim-output span.amount").data("long")).match(/^[0-9\'\s]+$/)) {
             $("#claim-output span.amount").html($("#claim-output span.amount").html() + "i");
-          }
+          }*/
         }
 
         console.log("Amount = " + iotaAmount);
@@ -128,7 +130,7 @@ var UI = (function(UI, $, undefined) {
         });
       }).fail(function(error) {
         console.log(error);
-        return callback("Invalid input");
+        return callback(i18n.t("invalid_input"));
       });
     });
   }

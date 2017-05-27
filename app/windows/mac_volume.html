@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IOTA Wallet</title>
+  <title data-i18n="iota_wallet"></title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div class="content">
-    <h3 style="margin-top:0">Drag To Applications Folder</h3>
-    <p>Drag the app to your Applications folder instead of opening it from the DMG.</p>
+    <h3 style="margin-top:0" data-i18n="drag_to_applications_folder"></h3>
+    <p data-i18n="drag_to_applications_folder_no_execution_from_dmg"></p>
   </div>
   <div id="footer">
-    <button class="btn btn-default btn-pull-right" id="quit-btn">Quit</button>
+    <button class="btn btn-default btn-pull-right" id="quit-btn" data-i18n="quit"></button>
   </div>
+  <script src="../bower_components/i18next/i18next.min.js"></script>
+  <script src="../bower_components/i18next-xhr-backend/i18nextXHRBackend.min.js"></script>
   <script type="text/javascript">
-    require("./js/mac_volume.js")
+    require("./js/mac_volume.js");
   </script>
 </body>
 </html>

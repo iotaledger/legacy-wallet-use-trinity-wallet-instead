@@ -71,13 +71,13 @@ var UI = (function(UI, undefined) {
 
  UI.showLightNodeSection = function() {
     document.getElementById("node-choice").style.display = "none";
-    document.getElementById("title").innerHTML = "Light Node Settings:";
+    UI.changeElementLanguage("title", "light_node_settings");
     document.getElementById("message").style.display = "none";
     document.getElementById("light-node-section").style.display = "block";
     document.getElementById("full-node-section").style.display = "none";
     document.getElementById("start-btn").style.display = "block";
     document.getElementById("switch-btn").style.display = "block";
-    document.getElementById("switch-btn").innerHTML = "Switch to Full Node";
+    UI.changeElementLanguage("switch-btn", "switch_to_full_node");
     document.getElementById("quit-btn").style.display = "none";
 
     UI.updateContentSize();
@@ -85,13 +85,13 @@ var UI = (function(UI, undefined) {
 
   UI.showFullNodeSection = function() {
     document.getElementById("node-choice").style.display = "none";
-    document.getElementById("title").innerHTML = "Full Node Settings:";
+    UI.changeElementLanguage("title", "full_node_settings");
     document.getElementById("message").style.display = "none";
     document.getElementById("light-node-section").style.display = "none";
     document.getElementById("full-node-section").style.display = "block";
     document.getElementById("start-btn").style.display = "block";
     document.getElementById("switch-btn").style.display = "block";
-    document.getElementById("switch-btn").innerHTML = "Switch to Light Node";
+    UI.changeElementLanguage("switch-btn", "switch_to_light_node");
     document.getElementById("quit-btn").style.display = "none";
 
     UI.updateContentSize();
@@ -99,7 +99,7 @@ var UI = (function(UI, undefined) {
 
   UI.showDefaultSection = function() {
     document.getElementById("node-choice").style.display = "block";
-    document.getElementById("title").innerHTML = "Choose Wallet Type:";
+    UI.changeElementLanguage("title", "choose_wallet_type");
     document.getElementById("message").style.display = "block";
     document.getElementById("light-node-section").style.display = "none";
     document.getElementById("full-node-section").style.display = "none";
@@ -113,27 +113,27 @@ var UI = (function(UI, undefined) {
   UI.showOtherNodeSection = function() {
     if (document.getElementById("light-node-section").style.display == "block") {
       UI.showFullNodeSection();
-      document.getElementById("switch-btn").innerHTML = "Switch to Light Node";
+      UI.changeElementLanguage("switch-btn", "switch_to_light_node");
     } else {
       UI.showLightNodeSection();
-      document.getElementById("switch-btn").innerHTML = "Switch to Full Node";
+      UI.changeElementLanguage("switch-btn", "switch_to_full_node");
     }
   }
 
   UI.showContextMenu = function(e) {
     var template = [
       {
-        label: "Cut",
+        label: i18n.t("cut"),
         accelerator: "CmdOrCtrl+X",
         role: "cut",
       },
       {
-        label: "Copy",
+        label: i18n.t("copy"),
         accelerator: "CmdOrCtrl+C",
         role: "copy"
       },
       {
-        label: "Paste",
+        label: i18n.t("paste"),
         accelerator: "CmdOrCtrl+V",
         role: "paste"
       }
@@ -176,13 +176,50 @@ var UI = (function(UI, undefined) {
       electron.remote.getCurrentWindow().show();
     }, 20);
   }
+  
+  UI.updateNodeConfiguration = function(settings) {
+    electron.ipcRenderer.send("updateNodeConfiguration", settings);
+  }
 
   UI.updateContentSize = function() {
     electron.remote.getCurrentWindow().setContentSize(600, parseInt(document.documentElement.scrollHeight, 10) + parseInt(document.getElementById("footer").scrollHeight, 10), false);
   }
 
-  UI.updateNodeConfiguration = function(settings) {
-    electron.ipcRenderer.send("updateNodeConfiguration", settings);
+  UI.makeMultilingual = function(currentLanguage, callback) {
+    i18n = i18next
+      .use(window.i18nextXHRBackend)
+      .init({
+        lng: currentLanguage,
+        fallbackLng: "en",
+        backend: {
+          loadPath: "../../locales/{{lng}}/{{ns}}.json"
+        },
+        debug: false
+    }, function(err, t) {
+      updateUI();
+      callback();
+    });
+  }
+
+  UI.changeLanguage = function(language, callback) {
+    i18n.changeLanguage(language, function(err, t) {
+      updateUI();
+      if (callback) {
+        callback();
+      }
+    });
+  }
+
+  UI.changeElementLanguage = function(el, key) {
+    document.getElementById(el).innerHTML = i18n.t(key);
+    document.getElementById(el).setAttribute("data-i18n", key);
+  }
+
+  function updateUI() {
+    var i18nList = document.querySelectorAll('[data-i18n]');
+    i18nList.forEach(function(v){
+      v.innerHTML = i18n.t(v.dataset.i18n, v.dataset.i18nOptions);
+    });
   }
 
   return UI;
@@ -190,6 +227,14 @@ var UI = (function(UI, undefined) {
 
 window.addEventListener("load", UI.initialize, false);
 
-electron.ipcRenderer.on("show", function(event, title, msg, params) {
-  UI.show(title, msg, params);
+electron.ipcRenderer.on("show", function(event, params) {
+  UI.makeMultilingual(params.language, function() {
+    UI.show(params);
+  });
+});
+
+electron.ipcRenderer.on("changeLanguage", function(event, language) {
+  UI.changeLanguage(language, function() {
+    UI.updateContentSize();
+  });
 });

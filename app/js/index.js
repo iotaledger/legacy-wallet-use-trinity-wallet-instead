@@ -1,4 +1,5 @@
 const electron = require("electron")
+const i18n     = electron.remote.getGlobal("i18n");
 
 var __entityMap = {
   "&": "&amp;",
@@ -29,12 +30,14 @@ var UI = (function(UI, undefined) {
 
     var showStatusBar = false;
     var isFirstRun    = false;
+    var lang          = null;
 
     if (typeof(URLSearchParams) != "undefined") {
       var params = new URLSearchParams(location.search.slice(1));
       showStatusBar = params.get("showStatus") == 1;
       isFirstRun = params.get("isFirstRun") == 1;
       lightWallet = parseInt(params.get("lightWallet"), 10) == 1;
+      lang = params.get("lang");
     }
 
     if (isFirstRun) {
@@ -72,17 +75,17 @@ var UI = (function(UI, undefined) {
   UI.showContextMenu = function(e) {
     var template = [
       {
-        label: "Cut",
+        label: i18n.t("cut"),
         accelerator: "CmdOrCtrl+X",
         role: "cut",
       },
       {
-        label: "Copy",
+        label: i18n.t("copy"),
         accelerator: "CmdOrCtrl+C",
         role: "copy"
       },
       {
-        label: "Paste",
+        label: i18n.t("paste"),
         accelerator: "CmdOrCtrl+V",
         role: "paste"
       }
@@ -90,7 +93,7 @@ var UI = (function(UI, undefined) {
    
     if (electron.remote.getCurrentWindow().isFullScreen()) {
       template.push({
-        label: "Exit Fullscreen",
+        label: i18n.t("exit_fullscreen"),
         accelerator: process.platform === "darwin" ? "Ctrl+Command+F" : "F11",
         click: function() {
           electron.remote.getCurrentWindow().setFullScreen(false);
@@ -185,7 +188,7 @@ var UI = (function(UI, undefined) {
 
     log = log.replace(/\n\s*\n/g, "\n");
 
-    UI.showAlert("<h1>Server Log</h1><p>Below are the last messages from the server log (<a href='#' id='copy_server_log'>copy</a>):</p>" +
+    UI.showAlert("<h1 data-i18n='server_log'>" + i18n.t("server_log") + "</h1><p><span data-i18n='last_messages_from_server_log'>" + i18n.t("last_messages_from_server_log") + "</span> (<a href='#' id='copy_server_log' data-i18n='copy'>" + i18n.t("copy") + "</a>):</p>" +
                  "<textarea rows='10' class='form-control' id='server_output' style='background:#000;color:#fff;font-family:courier;' readonly>" + String(log).escapeHTML() + "</textarea>", function() {
       document.getElementById("copy_server_log").addEventListener("click", function(e) {
         e.preventDefault();
@@ -344,10 +347,10 @@ var UI = (function(UI, undefined) {
                      "</select>");
     */
 
-    modal.setContent("<h1>Preferences</h1>" + 
-                     (process.platform != "linux" ? "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='open_at_login' id='preferences_open_at_login' class='checkbox' value='1'" + (settings.openAtLogin ? " checked='checked'" : "") + " />Open at Login</label>" : ""));
+    modal.setContent("<h1 data-i18n='preferences'>" + i18n.t("preferences") + "</h1>" + 
+                     (process.platform != "linux" ? "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='open_at_login' id='preferences_open_at_login' class='checkbox' value='1'" + (settings.openAtLogin ? " checked='checked'" : "") + " />" + i18n.t("open_at_login") + "</label>" : ""));
     
-    modal.addFooterBtn("Save", "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {
       var settings = {};
 
       if (process.platform != "linux") {
@@ -382,16 +385,16 @@ var UI = (function(UI, undefined) {
       }
     });
 
-    modal.setContent("<h1>Add Neighbor Node</h1>" + 
-                     "<p>Are you sure you want to add this node to your server configuration?</p>" + 
+    modal.setContent("<h1 data-i18n='add_neighbor_node'>" + i18n.t("add_neighbor_node") + "</h1>" + 
+                     "<p data-i18n='confirm_add_node_to_config'>" + i18n.t("confirm_add_node_to_config") + "</p>" + 
                      "<p style='font-weight:bold'>" + String(node).escapeHTML() + "</p>");
 
-    modal.addFooterBtn("Yes, Add This Node", "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(i18n.t("yes_add_node"), "tingle-btn tingle-btn--primary", function() {
       modal.close();
       electron.ipcRenderer.send("addNeighborNode", node);
     });
 
-    modal.addFooterBtn("No, Cancel", "tingle-btn tingle-btn--default", function() {
+    modal.addFooterBtn(i18n.t("no_cancel"), "tingle-btn tingle-btn--default", function() {
       modal.close();
     });
 
@@ -424,26 +427,27 @@ var UI = (function(UI, undefined) {
     var content = "";
 
     if (configuration.lightWallet) {
-      content = "<h1>Node Config</h1>" + 
-      "<div class='input-group'><label>Host: <span class='error' id='host-error'></span></label>" + 
+      content = "<h1 data-18n='node_config'></h1>" + 
+      "<div class='input-group'><label><span data-i18n='host' class='label'>" + i18n.t("host") + "</span> <span class='error' id='host-error'></span></label>" + 
       "<input type='text' id='server_config_host' placeholder='' value='" + (configuration.lightWalletHost ? String(configuration.lightWalletHost).escapeHTML() + (configuration.lightWalletPort ? ":" + String(configuration.lightWalletPort).escapeHTML() : "") : "") + "' /></div>" + 
-      "<div class='input-group'><label>Min Weight Magnitude:</label>" + 
+      "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
       "<input type='number' min='" + (configuration.testNet ? "13" : "18") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "13": "18")) + "' /></div>";
     } else {
       content = "<h1>Node Config</h1>" + 
-      "<div class='input-group'><label>Node Port:</label>" + 
+      "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("node_port") + "</label>" + 
       "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" +  
-      "<div class='input-group'><label>Depth:</label>" + 
+      "<div class='input-group'><label data-i18n='depth'>" + i18n.t("depth") + "</label>" + 
       "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" +
-      "<div class='input-group'><label>Min Weight Magnitude:</label>" + 
+      "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
       "<input type='number' min='" + (configuration.testNet ? "13" : "18") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "13": "18")) + "' /></div>" + 
-      "<div class='input-group input-group'><label>Neighboring Nodes:</label>" + 
-      "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;' placeholder='Add nodes in the following format (one per line):\r\n\r\nudp://ip:12345'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>";
+      "<div class='input-group input-group'><label data-i18n='neighboring_nodes'>" + i18n.t("neighboring_nodes") + "</label>" + 
+      "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>" + 
+      "<p><span data-i18n='node_settings_format'>" + i18n.t("node_settings_format") + "</span>: udp://ip:12345</p>";
     }
 
     modal.setContent(content);
 
-    modal.addFooterBtn("Save", "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {
       var config = {};
 
       config.lightWallet = configuration.lightWallet;
@@ -476,7 +480,7 @@ var UI = (function(UI, undefined) {
   }
 
   UI.showUpdateAvailable = function() {
-    UI.showAlert("<h1>Update Available</h1><p>An update is available and is being downloaded.</p>");
+    UI.showAlert("<h1 data-i18n='update_available'>" + i18n.t("update_available") + "</h1><p data-i18n='update_being_downloaded'>" + i18n.t("update_being_downloaded") + "</p>");
   }
 
   UI.showUpdateDownloaded = function(releaseNotes, releaseName, releaseDate) {
@@ -492,14 +496,14 @@ var UI = (function(UI, undefined) {
       cssClass: ["update-downloaded"]
     });
 
-    modal.setContent("<h1>New Update Available...</h1><p>Version " + String(releaseName).escapeHTML() + " is downloaded and ready to install.");
+    modal.setContent("<h1 data-i18n='new_update_available'>" + i18n.t("new_update_available") + "</h1><p data-i18n='version_is_downloaded_ready_to_install' data-i18n-options={version: " + String(releaseName).escapeHTML() + "}'>" + i18n.t("version_is_downloaded_ready_to_install", {version: String(releaseName).escapeHTML()}) + "</p>");
 
-    modal.addFooterBtn("Install Now", "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(i18n.t("install_now"), "tingle-btn tingle-btn--primary", function() {
       modal.close();
       electron.ipcRenderer.send("installUpdate");
     });
 
-    modal.addFooterBtn("Install on Quit", "tingle-btn tingle-btn--default", function() {
+    modal.addFooterBtn(i18n.t("install_on_quit"), "tingle-btn tingle-btn--default", function() {
       modal.close();
     });
 
@@ -507,7 +511,7 @@ var UI = (function(UI, undefined) {
   }
 
   UI.showUpdateError = function() {
-    UI.showAlert("<h1>Update Error</h1><p>An error occurred during checking for an update.</p>");
+    UI.showAlert("<h1 data-i18n='update_error'>" + i18n.t("update_error") + "</h1><p data-i18n='error_during_update_check'>" + i18n.t("error_during_update_check") + "</p>");
   }
 
   UI.showCheckingForUpdate = function() {
@@ -515,11 +519,11 @@ var UI = (function(UI, undefined) {
       return;
     }
 
-    UI.showAlert("<h1>Checking for Updates...</h1><p>Checking for updates, please wait...</p>");
+    UI.showAlert("<h1 data-i18n='checking_for_updates'>" + i18n.t("checking_for_updates") + "</h1><p data-i18n='checking_for_updates_please_wait'>" + i18n.t("checking_for_updates_please_wait") + "</p>");
   }
 
   UI.showUpdateNotAvailable = function() {
-    UI.showAlert("<h1>No Updates</h1><p>No updates are currently available.</p>");
+    UI.showAlert("<h1 data-i18n='no_updates'>" + i18n.t("no_updates") + "</h1><p data-i18n='no_updates_available'>" + i18n.t("no_updates_available") + "</p>");
   }
 
   UI.showKillAlert = function() {
@@ -532,7 +536,7 @@ var UI = (function(UI, undefined) {
       allowClose: false
     });
 
-    modal.setContent("<h1>Shutdown In Progress</h1><p style='margin-bottom:0'>Shutting down IOTA... Please wait.</p>");
+    modal.setContent("<h1 data-i18n='shutdown_in_progress'>" + i18n.t("shutdown_in_progress") + "</h1><p style='margin-bottom:0' data-i18n='shutting_down_iota'>" + i18n.t("shutting_down_iota") + "</p>");
 
     modal.open();
   }
@@ -573,7 +577,7 @@ var UI = (function(UI, undefined) {
 
     modal.setContent(msg);
 
-    modal.addFooterBtn("OK", "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(i18n.t("ok"), "tingle-btn tingle-btn--primary", function() {
       modal.close();
     });
 
@@ -590,7 +594,7 @@ var UI = (function(UI, undefined) {
     UI.hideAlerts();
 
     if (!msg) {
-      msg = "<h1>Error</h1><p>An error occurred, the server has quit. Please restart the application.</p>";
+      msg = "<h1 data-i18n='error'>" + i18n.t("error") + "</h1><p data-i18n='error_please_restart'>" + i18n.t("error_please_restart") + "</p>";
     }
 
     if (serverOutput && serverOutput.length) {
@@ -614,7 +618,7 @@ var UI = (function(UI, undefined) {
 
     modal.setContent(html);
 
-    modal.addFooterBtn("OK", "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(i18n.t("ok"), "tingle-btn tingle-btn--primary", function() {
       modal.close();
     });
 
@@ -656,6 +660,16 @@ var UI = (function(UI, undefined) {
   UI.notify = function(type, message, options) {
     if (webviewIsLoaded && webview) {
       webview.send("notify", type, message, options);
+    }
+  }
+
+  UI.changeLanguage = function(language) {
+    var i18nList = document.querySelectorAll('[data-i18n]');
+    i18nList.forEach(function(v){
+      v.innerHTML = i18n.t(v.dataset.i18n, v.dataset.i18nOptions);
+    });
+    if (webviewIsLoaded && webview) {
+      webview.send("changeLanguage", language);
     }
   }
 
@@ -865,6 +879,10 @@ electron.ipcRenderer.on("hoverAmountStop", function() {
 
 electron.ipcRenderer.on("notify", function(event, type, message, options) {
   UI.notify(type, message, options);
+});
+
+electron.ipcRenderer.on("changeLanguage", function(event, language) {
+  UI.changeLanguage(language);
 });
 
 electron.ipcRenderer.on("relaunch", UI.relaunch);

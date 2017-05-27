@@ -3,7 +3,7 @@ var UI = (function(UI, $, undefined) {
     if (url == "faq" || url == "help") {
       UI.openHelpMenu();
     } else if (!connection.seed) {
-      UI.notify("error", "Please log in first.");
+      UI.notify("error", "please_log_in_first");
       connection.handleURL = url;
     } else {
       if (!url) {
@@ -42,15 +42,15 @@ var UI = (function(UI, $, undefined) {
           if (match[4]) {
             submatch = match[4].match(/^\/([A-Z9]{1,27})\/?$/i);
             if (!submatch) {
-              UI.notify("error", "Invalid tag value. Ignoring.");
+              UI.notify("error", "ignoring_invalid_tag_value");
               return;
             }
           }
 
           if ($("#transfer-address").val() || $("#transfer-amount").val() || (submatch && submatch[1] && $("#transfer-tag").val())) {
-            UI.notify("error", "Transfer fields are already filled, won't overwrite.");
+            UI.notify("error", "wont_overwrite_transfer_fields");
           } else {
-            UI.notify("success", "Transfer fields have been prefilled from a clicked link.");
+            UI.notify("success", "transfer_fields_prefilled_link");
 
             $("#transfer-address").val(match[1].toUpperCase());
             $("#transfer-amount").val(match[2]);
@@ -72,7 +72,7 @@ var UI = (function(UI, $, undefined) {
             }
           }
         } else {
-          UI.notify("error", "Unknown or invalid URL.");
+          UI.notify("error", "unknown_or_invalid_url");
         }
       }
     }

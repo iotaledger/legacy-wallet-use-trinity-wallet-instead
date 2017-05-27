@@ -12,6 +12,8 @@
     "remodal": "^1.0.7",
     "toastr": "^2.1.2",
     "async": "^2.1.4",
-    "iota.lib.js": "^0.2.3"
+    "iota.lib.js": "^0.2.3",
+    "i18next": "^8.3.0",
+    "i18next-xhr-backend": "^1.4.1"
   }
 }

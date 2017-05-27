@@ -26,7 +26,7 @@ var UI = (function(UI, $, undefined) {
         html += "</ul></div>";
       
         $modal.find(".contents").html(html);
-        $modal.find(".hash").html("<strong>Hash:</strong> " + UI.formatForClipboard(hash));
+        $modal.find(".hash").html("<strong><span data-i18n='hash'>" + i18n.t("Hash") + "</span>:</strong> " + UI.formatForClipboard(hash));
 
         /*
         if (bundle.transactions[0].signatureMessageChunk != "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999") {
@@ -35,7 +35,7 @@ var UI = (function(UI, $, undefined) {
           $modal.find(".message").html("").hide();
         }*/
 
-        $modal.find(".persistence").html("Persistence: " + (persistence ? "Confirmed" : "Pending")).show(); 
+        $modal.find(".persistence").html("<span data-i18n='persistence'>" + i18n.t("Persistence") + "</span>: " + (persistence ? "<span data-i18n='confirmed'>" + i18n.t("confirmed") + "</span>" : "<span data-i18n='pending'>" + i18n.t("pending") + "</span>")).show(); 
         $modal.find(".btn").data("hash", hash);
 
         $modal.find(".btn").each(function() {
@@ -72,7 +72,7 @@ var UI = (function(UI, $, undefined) {
       }
 
       $(".remodal-close").on("click", function(e) {
-        UI.notify("error", "Cannot close whilst " + (isRebroadcast ? "rebroadcasting" : "replaying") + ".");
+        UI.notify("error", isRebroadcast ? "cannot_close_whilst_rebroadcasting" : "cannot_close_whilst_replaying");
         e.preventDefault();
         e.stopPropagation();
       });
@@ -86,13 +86,13 @@ var UI = (function(UI, $, undefined) {
           if (error) {
             console.log("UI.rebroadcast: Error");
             console.log(error);
-            $("#rebroadcast-btn").loadingError(error);
+            $("#rebroadcast-btn").loadingError(error); //todo: not a key
           } else {
             console.log("UI.rebroadcast: Success");
             if (!UI.isFocused()) {
-              UI.notifyDesktop("Transaction rebroadcasted successfully");
+              UI.notifyDesktop("transaction_rebroadcasted_successfully");
             }
-            $("#rebroadcast-btn").loadingSuccess("Rebroadcast Completed");
+            $("#rebroadcast-btn").loadingSuccess("rebroadcast_completed");
             UI.updateState(1000);
           }
 
@@ -106,13 +106,13 @@ var UI = (function(UI, $, undefined) {
           if (error) {
             console.log("UI.replay: Error");
             console.log(error);
-            $("#replay-btn").loadingError(error);
+            $("#replay-btn").loadingError(error); //todo: not a key
           } else {
             console.log("UI.replay: Success");
             if (!UI.isFocused()) {
-              UI.notifyDesktop("Transaction replayed successfully");
+              UI.notifyDesktop("transaction_replayed_successfully");
             }
-            $("#replay-btn").loadingSuccess("Replay Completed");
+            $("#replay-btn").loadingSuccess("replay_completed");
             $("#bundle-modal .persistence").hide();
 
             UI.updateState(1000);
@@ -185,17 +185,17 @@ var UI = (function(UI, $, undefined) {
         transfersHtml += "<li data-hash='" + String(bundle[0].hash).escapeHTML() + "' data-type='" + (isSent ? "spending" : "receiving") + "' data-persistence='" + persistence*1 + "'>";
         transfersHtml += "<div class='type'><i class='fa fa-arrow-circle-" + (isSent ? "left" : "right") + "'></i></div>";
         transfersHtml += "<div class='details'>";
-        transfersHtml += "<div class='date'>" + (bundle[0].timestamp != "0" ? UI.formatDate(bundle[0].timestamp, true) : "Genesis") + "</div>";
+        transfersHtml += "<div class='date'>" + (bundle[0].timestamp != "0" ? UI.formatDate(bundle[0].timestamp, true) : i18n.t("genesis")) + "</div>";
         transfersHtml += "<div class='address'>" + (bundle[0].address ? UI.formatForClipboard(iota.utils.addChecksum(bundle[0].address)) : "/") + "</div>";
-        transfersHtml += "<div class='action'>" + (bundle[0].hash ? "<a href='#' class='show-bundle'>Show bundle</a> " : "") + "<span>" + (persistence ? "Confirmed" : "Pending") + "</span></div>";
+        transfersHtml += "<div class='action'>" + (bundle[0].hash ? "<a href='#' class='show-bundle' data-i18n='show_bundle'>" + i18n.t("show_bundle") + "</a> " : "") + "<span data-i18n='" + (persistence ? "confirmed" : "pending") + "'>" + i18n.t(persistence ? "confirmed" : "pending") + "</span></div>";
         transfersHtml += "</div>";
         transfersHtml += "<div class='value'>" + UI.formatAmount(bundle[0].value) + "</div>";
         transfersHtml += "</li>";
       });
     }
 
-    $transfersBtn.html("<span>" + connection.accountData.transfers.length + " </span>Transfer" + (connection.accountData.transfers.length != "1" ? "s" : ""));
-    $addressesBtn.html("<span>" + connection.accountData.addresses.length + " </span>Address" + (connection.accountData.addresses.length != "1" ? "es" : ""));
+    $transfersBtn.localize({count: connection.accountData.transfers.length}).data("i18n-options", {count: connection.accountData.transfers.length});
+    $addressesBtn.localize({count: connection.accountData.addresses.length}).data("i18n-options", {count: connection.accountData.addresses.length});
 
     if (!transfersHtml) {
       $transfers.find("ul").empty().hide();
@@ -206,7 +206,6 @@ var UI = (function(UI, $, undefined) {
     }
 
     if (!addressesHtml) {
-      $addressesBtn.html("0 Addresses");
       $addresses.find("ul").empty().hide();
       $addresses.find("p").show();
     } else {

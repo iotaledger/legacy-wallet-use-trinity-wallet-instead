@@ -6,7 +6,7 @@ var UI = (function(UI, $, undefined) {
       var $stack = $("#transfer-stack");
 
       if ($("#transfer-autofill").val() == "1") {
-        UI.formError("transfer", "Are you sure?", {"initial": "Yes, Send It Now"});
+        UI.formError("transfer", i18n.t("are_you_sure"), {"initial": i18n.t("yes_send_it_now")});
         $("#transfer-autofill").val("0");
         return;
       }
@@ -17,25 +17,25 @@ var UI = (function(UI, $, undefined) {
         var address = $("#transfer-address").val().toUpperCase();
 
         if (!address) {
-          throw "Address is required";
+          throw i18n.t("address_is_required");
         } else if (address.length == 81) {
-          throw "Missing address checksum";
+          throw i18n.t("missing_address_checksum");
         } else if (address.length != 90) {
-          throw "Incorrect address length";
+          throw i18n.t("incorrect_address_length");
         } else if (!iota.utils.isValidChecksum(address)) {
-          throw "Incorrect address checksum";
+          throw i18n.t("incorrect_address_checksum");
         }
       
         var amount = iota.utils.convertUnits(parseFloat($("#transfer-amount").val()), $("#transfer-units-value").html(), "i");
 
         if (!amount) {
-          throw "Amount cannot be zero";
+          throw i18n.t("amount_cannot_be_zero");
         }
 
         var tag = $.trim($("#transfer-tag").val().toUpperCase());
 
         if (tag && /[^A-Z9]/.test(tag)) {
-          throw "Tag is invalid";
+          throw i18n.t("tag_is_invalid");
         }
       } catch (error) {
         $stack.removeClass("loading");
@@ -49,10 +49,10 @@ var UI = (function(UI, $, undefined) {
         if (error) {
           console.log("UI.handleTransfers: Error");
           console.log(error);
-          UI.formError("transfer", error, {"initial": "Send It Now"});
+          UI.formError("transfer", error, {"initial": i18n.t("send_it_now")});
         } else {
           console.log("UI.handleTransfers: Success");
-          UI.formSuccess("transfer", "Transfer Completed", {"initial": "Send It Now"});
+          UI.formSuccess("transfer", i18n.t("transfer_completed"), {"initial": i18n.t("send_it_now")});
           UI.updateState(1000);
         }
         $stack.removeClass("loading");

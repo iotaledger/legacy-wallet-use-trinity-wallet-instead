@@ -29,6 +29,7 @@
     "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
     "glob": "^7.1.1",
+    "i18next": "^8.3.0",
     "pidusage": "^1.1.0"
   },
   "devDependencies": {
@@ -55,7 +56,9 @@
     "protocols": [
       {
         "name": "IOTA URL Scheme",
-        "schemes": ["iota"]
+        "schemes": [
+          "iota"
+        ]
       }
     ],
     "dmg": {

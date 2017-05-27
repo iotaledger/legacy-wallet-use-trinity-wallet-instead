@@ -13,7 +13,10 @@ var connection = {"accountData"         : false,
                   "depth"               : 3,
                   "minWeightMagnitude"  : 18,
                   "ccurlPath"           : null,
-                  "lightWallet"         : false};
+                  "lightWallet"         : false,
+                  "language"            : "en"};
+
+var i18n;
 
 var __entityMap = {
   "&": "&amp;",
@@ -75,6 +78,9 @@ var UI = (function(UI, $, undefined) {
         if (params.has("ccurlPath")) {
           connection.ccurlPath = params.get("ccurlPath");
         }
+        if (params.has("language")) {
+          connection.language = params.get("language");
+        }
       }
 
       if (connection.inApp && (typeof(backendLoaded) == "undefined" || !backendLoaded)) {
@@ -110,14 +116,18 @@ var UI = (function(UI, $, undefined) {
 
         // Overwrite iota lib with light wallet functionality
         $.getScript("js/iota.lightwallet.js").done(function() {
-          setTimeout(initialize, 100);
+          setTimeout(function() {
+            UI.makeMultilingual(connection.language, initialize);
+          }, 100);
         }).fail(function(jqxhr, settings, exception) {
           console.log("Could not load iota.lightwallet.js");
           console.log(exception);
           showLightWalletErrorMessage();
         });
       } else {
-        setTimeout(initialize, 100);
+        setTimeout(function() {
+          UI.makeMultilingual(connection.language, initialize);
+        }, 100);
       }
    }
   }
@@ -139,7 +149,7 @@ var UI = (function(UI, $, undefined) {
     // Enable copy to clipboard
     var clipboard = new Clipboard(".clipboard");
     clipboard.on("success", function(e) {
-      UI.notify("success", "Copied to clipboard.");
+      UI.notify("success", "copied_to_clipboard");
     });
 
     // Show full amounts on click
@@ -170,11 +180,11 @@ var UI = (function(UI, $, undefined) {
   }
 
   function showLightWalletErrorMessage() {
-    showErrorMessage("Could not load light wallet functionality.");
+    showErrorMessage(i18n.t("could_not_load_light_wallet_functionality"));
   }
 
   function showBackendConnectionError() {
-    showErrorMessage("Could not load required backend files.");
+    showErrorMessage(i18n.t("could_not_load_required_backend_files"));
   }
 
   function showOutdatedBrowserMessage() {
@@ -183,11 +193,11 @@ var UI = (function(UI, $, undefined) {
     var html = "";
 
     html += "<div style='padding: 20px;background:#efefef;border:#aaa;border-radius: 5px;max-width: 60%;margin: 100px auto;'>";
-    html += "<strong>Your browser is out-of date. Please download one of these up-to-date, free and excellent browsers:</strong>";
+    html += "<strong data-i18n='browser_out_of_date'>" + i18n.t("browser_out_of_date") + "</strong>";
     html += "<ul>";
-    html += "<li><a href='https://www.google.com/chrome/browser/desktop/' rel='noopener noreferrer'>Google Chrome</a></li>";
-    html += "<li><a href='http://www.mozilla.com/firefox/' rel='noopener noreferrer'>Mozilla Firefox</a></li>";
-    html += "<li><a href='http://www.opera.com/' rel='noopener noreferrer'>Opera</a></li>";
+    html += "<li><a href='https://www.google.com/chrome/browser/desktop/' rel='noopener noreferrer' data-i18n='google_chrome'>" + i18n.t("google_chrome") + "</a></li>";
+    html += "<li><a href='http://www.mozilla.com/firefox/' rel='noopener noreferrer' data-i18n='mozilla_firefox'>" + i18n.t("mozilla_firefox") + "</a></li>";
+    html += "<li><a href='http://www.opera.com/' rel='noopener noreferrer' data-i18n='opera'>" + i18n.t("opera") + "</a></li>";
     html += "</ul>";
     html += "</div>";
 

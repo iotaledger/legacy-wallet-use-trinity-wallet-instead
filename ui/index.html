@@ -1,8 +1,11 @@
 <!doctype html>
 <html>
 <head>
-  <title>IOTA Wallet</title>
+  <title data-i18n="iota_wallet"></title>
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="bower_components/i18next/i18next.min.js"></script>
+  <script type="text/javascript" src="bower_components/i18next-xhr-backend/i18nextXHRBackend.min.js"></script>
+  <script type="text/javascript" src="bower_components/jquery-i18next/jquery-i18next.min.js"></script>
   <script type="text/javascript" src="bower_components/clipboard/dist/clipboard.min.js"></script>
   <script type="text/javascript" src="bower_components/jquery-qrcode/dist/jquery.qrcode.min.js"></script>
   <script type="text/javascript" src="bower_components/remodal/dist/remodal.min.js"></script>
@@ -37,13 +40,13 @@
 
 <div id="login" class="white">
   <div class="logo">
-    <span>IOTA</span>
+    <span data-i18n="iota"></span>
   </div>
 
   <div id="login-form">
-    <input type="password" id="login-password" placeholder="Seed / Password" />
-    <button type="button" id="login-btn" class="btn" data-initial="LOGIN" data-loading="LOGGING IN..." data-bar-timeout="50" data-auto-reset="1">LOGIN</button>
-    <button type="button" id="error-btn" class="btn btn-no-loading">ERROR</button>
+    <input type="password" id="login-password" data-i18n="[placeholder]seed_password" />
+    <button type="button" id="login-btn" class="btn" data-initial="logging" data-loading="logging_in" data-bar-timeout="50" data-auto-reset="1" data-i18n="login"></button>
+    <button type="button" id="error-btn" class="btn btn-no-loading" data-i18n="error"></button>
   </div>
 </div>
 
@@ -57,7 +60,7 @@
     <div id="balance-stack" class="stack open">
       <div class="inner">
         <div class="row">
-          <h1>Balance</h1>
+          <h1 data-i18n="balance"></h1>
           <div id="available-balance-always" class="show-closed"></div>
         </div>
         <div class="content padded">
@@ -69,48 +72,48 @@
     </div>
     <div id="transfer-stack" class="stack closed" data-higher="open" data-lower="closed" data-onopen="onOpenTransferStack">
       <div class="inner">
-        <h1>Send</h1>
+        <h1 data-i18n="send"></h1>
         <div class="content">
           <div class="padded">
-            <div class="input"><input type="text" name="recipient" id="transfer-address" placeholder="Recipient Address" autocomplete="off" /></div>
+            <div class="input"><input type="text" name="recipient" id="transfer-address" data-i18n="[placeholder]recipient_address" autocomplete="off" /></div>
             <div class="input" id="transfer-amount-container">
-              <input type="number" name="amount" id="transfer-amount" placeholder="Amount" autocomplete="off" min="0" />
+              <input type="number" name="amount" id="transfer-amount" data-i18n="[placeholder]amount" autocomplete="off" min="0" />
               <label id="transfer-units-value">i</label>
             </div>
-            <div class="input"><input type="text" name="tag" id="transfer-tag" placeholder="Optional Tag" autocomplete="off" /></div>
+            <div class="input"><input type="text" name="tag" id="transfer-tag" data-i18n="[placeholder]optional_tag" autocomplete="off" /></div>
           </div>
           <input type="hidden" name="transfer-autofill" id="transfer-autofill" value="0" />
-          <button id="transfer-btn" type="button" class="btn" data-initial="Send It Now" data-loading="Sending...">SEND IT NOW</button>
+          <button id="transfer-btn" type="button" class="btn" data-initial="send_it_now" data-loading="sending" data-i18n="send_it_now"></button>
         </div>
       </div>
     </div>
     <div id="generate-address-stack" class="stack closed" data-higher="open" data-lower="closed">
       <div class="inner">
-        <h1>Receive</h1>
+        <h1 data-i18n="receive"></h1>
         <div class="content">
           <div class="padded">
             <p id="generate-address-result" class="address clipboard">OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMQQQQQQQQQQQQQQQQQQQQQ</p>
             <div id="generate-address-qr-code" class="address-qr clipboard"></div>
           </div>
-          <button id="generate-address-btn" type="button" class="btn" data-initial="Generate New Address" data-loading="Generating Address...">GENERATE NEW ADDRESS</button>
+          <button id="generate-address-btn" type="button" class="btn" data-initial="generate_new_address" data-loading="generating_address" data-i18n="generate_new_address"></button>
         </div>
       </div>
     </div>
     <div id="history-stack" class="stack closed" data-lower="closed">
       <div class="inner">
-        <h1>History<span></span></h1>
+        <h1 data-i18n="history"><span></span></h1>
         <ul class="submenu">
-          <li data-type="transfers" class="active">Transfers</li>
-          <li data-type="addresses">Addresses</li>
+          <li data-type="transfers" class="active" data-i18n="transfer"></li>
+          <li data-type="addresses" data-i18n="address"></li>
         </ul>
         <div class="content">
           <div class="transfers list">
-            <p>No transfers found.</p>
+            <p data-i18n="no_transfers_found"></p>
             <ul></ul>
           </div>
           <div class="addresses list">
             <ul></ul>
-            <p>No addresses found.</p>
+            <p data-i18n="no_addresses_found"></p>
           </div>
         </div>
       </div>
@@ -120,89 +123,89 @@
 
 <div id="bundle-modal" class="modal" data-remodal-id="bundle">
   <button data-remodal-action="close" class="remodal-close"></button>
-  <h1>Bundle Details</h1>
+  <h1 data-i18n="bundle_details"></h1>
   <p class="hash overflow-text"></p>
   <div class="contents"></div>
-  <button id="rebroadcast-btn" type="button" class="btn" data-initial="Rebroadcast" data-loading="Rebroadcasting...">REBROADCAST</button>
-  <button id="replay-btn" type="button" class="btn" data-initial="Replay" data-loading="Replaying...">REPLAY </button>
+  <button id="rebroadcast-btn" type="button" class="btn" data-initial="rebroadcast" data-loading="rebroadcasting" data-i18n="rebroadcast"></button>
+  <button id="replay-btn" type="button" class="btn" data-initial="replay" data-loading="replaying" data-i18n="replay"></button>
   <div class="persistence small"></div>
 </div>
 
 <div id="node-info-modal" class="modal" data-remodal-id="node-info">
   <button data-remodal-action="close" class="remodal-close"></button>
-  <h1>Node Info</h1>
+  <h1 data-i18n="node_info"></h1>
   <div class="contents"></div>
 </div>
 
 <div id="peers-modal" class="modal" data-remodal-id="peers">
   <button data-remodal-action="close" class="remodal-close"></button>
-  <h1>Neighbors (<span id="peer-count"></span>)</h1>
+  <h1 id='neighbors' data-i18n="neighbors"></h1>
   <div class="contents"></div>
 </div>
 
 <div id="generated-seed-modal" class="modal" data-remodal-id="generated-seed">
   <button data-remodal-action="close" class="remodal-close"></button>
-  <h1>Generated Seed</h1>
+  <h1 data-i18n="generated_seed"></h1>
   <div class="contents"></div>
 </div>
 
 <div id="claim-modal" class="modal gray" data-remodal-id="claim">
   <button data-remodal-action="close" class="remodal-close"></button>
-  <h1>Claim Process</h1>
+  <h1 data-i18n="claim_process"></h1>
   <div class="contents">
-    <div class='input-group'><label>Old Seed:</label> 
-    <input type='password' name='old_seed' id='claim_process_old_seed' placeholder='Seed of Old Account' value='' /></div>
-    <div class='input-group input-group'><label>New Seed:</label>
-    <input type='password' name='new_seed' id='claim_process_new_seed' placeholder='Seed of New Account' value='' /></div>
-    <div class='input-group input-group'><label>Repeat New Seed:</label>
-    <input type='password' name='new_seed' id='claim_process_repeat_new_seed' placeholder='Type New Seed Again' value='' /></div>
-    <button id="claim-btn" type="button" class="btn" data-initial="Claim" data-loading="Claiming...">CLAIM</button>
-    <div id="claim-output" class="small"></div>
+    <div class='input-group'><label data-i18n="old_seed"></label> 
+    <input type='password' name='old_seed' id='claim_process_old_seed' data-i18n="[placeholder]seed_of_old_account" value='' /></div>
+    <div class='input-group input-group'><label data-i18n="new_seed"></label>
+    <input type='password' name='new_seed' id='claim_process_new_seed' data-i18n="[placeholder]seed_of_new_account" value='' /></div>
+    <div class='input-group input-group'><label data-i18n="repeat_new_seed"></label>
+    <input type='password' name='new_seed' id='claim_process_repeat_new_seed' data-i18n="[placeholder]type_new_seed_again" value='' /></div>
+    <button id="claim-btn" type="button" class="btn" data-initial="Claim" data-loading="claiming" data-i18n="claim"></button>
+    <div id="claim-output" data-i18n="seed_contains" class="small"></div>
   </div>
 </div>
 
 <div id="paste-trytes-modal" class="modal" data-remodal-id="paste-trytes">
   <button data-remodal-action="close" class="remodal-close"></button>
-  <h1>Paste Trytes</h1>
+  <h1 data-i18n="paste_trytes"></h1>
   <div class="contents">
     <div id="paste-trytes-group">
-      <textarea name='trytes' id='pasted-trytes' placeholder='Paste your Trytes here (Array or JSON representation)' style='width:98%;min-height:100px;max-height:300px;'></textarea>
-      <button id="verify-pasted-trytes-btn" type="button" class="btn" data-initial="Verify Trytes" data-loading="Verifying...">Verify Trytes</button>
+      <textarea name='trytes' id='pasted-trytes' data-i18n="[placeholder]paste_trytes_here" style='width:98%;min-height:100px;max-height:300px;'></textarea>
+      <button id="verify-pasted-trytes-btn" type="button" class="btn" data-initial="verify_trytes" data-loading="verifying" data-i18n="verify_trytes"></button>
     </div>
     <div id="process-trytes-group">
       <div id="process-trytes"></div>
       <input type="hidden" name="pasted_trytes_completed" id="process-pasted-trytes-completed" value="0" />
-      <button id="process-pasted-trytes-btn" type="button" class="btn" data-initial="Process Trytes" data-loading="Processing...">Process Trytes</button>
+      <button id="process-pasted-trytes-btn" type="button" class="btn" data-initial="process_trytes" data-loading="processing" data-i18n="process_trytes"></button>
     </div>
   </div>
 </div>
 
 <div id="spam-modal" class="modal" data-remodal-id="spam">
   <button data-remodal-action="close" class="remodal-close"></button>
-  <h1>Network Spammer</h1>
-  <div class="contents"><p>Help the network by spamming it.</p></div>
-  <button id="spam-btn" type="button" class="btn" data-initial="Spam the Network" data-loading="Spamming...">SPAM THE NETWORK</button>
-  <div id="spam-output" class="small"><span id="spam-cnt">0</span> transactions generated. <span id="spam-msg"></span></div>
-  <div id="spam-not-synced" class="small" style="color:red;display:none;">Not synced</div>
+  <h1 data-i18n="network_spammer"></h1>
+  <div class="contents"><p data-i18n="help_network_spamming"></p></div>
+  <button id="spam-btn" type="button" class="btn" data-initial="spam_the_network" data-loading="spamming" data-i18n="spam_the_network"></button>
+  <div id="spam-output" class="small"><span id="spam-cnt">0</span> <span data-i18n="x_transactions_generated"></span> <span id="spam-msg"></span></div>
+  <div id="spam-not-synced" class="small" style="color:red;display:none;" data-i18n="not_synced"></div>
 </div>
 
 <div id="help">
   <div class="start">
     <div class="close"></div>
     <ul class="sections">
-      <li class="help">Help</li>
-      <li class="contact">Contact</li>
-      <li class="privacy">Privacy &amp; Terms</li>
-      <li class="logout">Logout</li>
+      <li class="help" data-i18n="help"></li>
+      <li class="contact" data-i18n="contact"></li>
+      <li class="privacy" data-i18n="privacy_terms"></li>
+      <li class="logout" data-i18n="logout"></li>
     </ul>
   </div>
   <div class="section" data-section="help">
     <div class="title">
       <div class="back"></div>
-      <h2>Help</h2>
+      <h2 data-i18n="help"></h2>
     </div>
     <div class="content">
-      <h3>FAQs</h3>
+      <h3 data-i18n="faqs"></h3>
       <dl class="faq">
         <dt>Creating a New Account</dt>
         <dd>Creating a new account is as easy as generating a new, unique seed (consisting of 81 characters, only uppercase latin letters and the number 9 is allowed). You do not need to make your seed 81-chars long, but that is suggested. If you already generated a seed before you can enter it and access your account directly.<br /><br />Your seed is your password that is used to access your account, and thus your IOTA tokens. Do not share it with anyone and keep it stored safely somewhere where nobody else but you can access it. If you have forgotten your seed, you will lose access to your IOTA tokens. You can generate a seed via Tools &raquo; Generate Seed.</dd>
@@ -226,10 +229,10 @@
   <div class="section" data-section="contact">
     <div class="title">
       <div class="back"></div>
-      <h2>Community</h2>
+      <h2 data-i18n="community"></h2>
     </div>
     <div class="content">
-      <h3>Join us</h3>
+      <h3 data-i18n="join_us"></h3>
       <p><a href="https://slack.iotatoken.com" target="_blank" rel="noopener noreferrer">slack.iotatoken.com</a></p>
       <p><a href="https://forum.iotatoken.com" target="_blank" rel="noopener noreferrer">forum.iotatoken.com</a></p>
     </div>
@@ -237,11 +240,11 @@
   <div class="section" data-section="privacy">
     <div class="title">
       <div class="back"></div>
-      <h2>Terms &amp; Agreements</h2>
+      <h2 data-i18n="terms_agreements"></h2>
     </div>
     <div class="content">
-      <p>IOTA is open-source software that was initially developed by IOTA AS and then handed over to the IOTA community for maintenance and further development, as such IOTA AS assumes no responsibility of the software (Client and GUI) post-launch. All transactions conducted via this Graphical User Interface is at your own responsibility, IOTA AS is not liable for any and all errors or unintended 'fatfinger' type incidences that a user might encounter.</p>
-      <p>If you are unsure about how to operate the GUI consult the FAQ, if you are still uncertain consult the IOTA community.</p>
+      <p data-i18n="iota_tos"></p>
+      <p data-i18n="iota_consult"></p>
     </div>
   </div>
 </div>

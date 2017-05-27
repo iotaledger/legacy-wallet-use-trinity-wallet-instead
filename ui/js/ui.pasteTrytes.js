@@ -8,7 +8,7 @@ var UI = (function(UI, $, undefined) {
       console.log("UI.showPasteTrytes: UI is locked");
       return;
     } else if (!connection.seed) {
-      UI.notify("error", "Please log in first.");
+      UI.notify("error", "please_log_in_first");
       return;
     }
 
@@ -68,7 +68,7 @@ var UI = (function(UI, $, undefined) {
     $(document).on("closed", "#paste-trytes-modal", function (e) {
       if (isProcessing) {
         isProcessing = false;
-        $("#process-pasted-trytes-btn").loadingReset("Process Trytes");
+        $("#process-pasted-trytes-btn").loadingReset("process_trytes");
         iota.api.interruptAttachingToTangle();
       }
     });
@@ -79,10 +79,10 @@ var UI = (function(UI, $, undefined) {
       var bundleTxs = parseTrytesToBundle($("#pasted-trytes").val());
 
       if (!bundleTxs) {
-        $("#verify-pasted-trytes-btn").loadingError("Invalid trytes or input", {"initial": "Verify Trytes"});
+        $("#verify-pasted-trytes-btn").loadingError("invalid_trytes_or_input", {"initial": "verify_trytes"});
         return;
       } else if (!iota.utils.isBundle(bundleTxs)) {
-        $("#verify-pasted-trytes-btn").loadingError("Invalid signature", {"initial": "Process Trytes"});
+        $("#verify-pasted-trytes-btn").loadingError("invalid_signature", {"initial": "process_trytes"});
         return;
       }
       
@@ -95,25 +95,25 @@ var UI = (function(UI, $, undefined) {
       html += "</ul></div>";
       
       $("#process-trytes").html(html);
-      $("#paste-trytes-modal h1").html("Verify Trytes");
+      $("#paste-trytes-modal h1").html(i18n.t("verify_trytes"));
       $("#process-trytes-group").show();
       $("#paste-trytes-group").hide();
       $("#process-pasted-trytes-completed").val(0);
 
-      $("#verify-pasted-trytes-btn").loadingReset("Verify Trytes");
+      $("#verify-pasted-trytes-btn").loadingReset("verify_trytes");
     });
 
     $("#process-pasted-trytes-btn").on("click", function(e) {
       var bundleTxs = parseTrytesToBundle($("#pasted-trytes").val());
 
       if ($("#process-pasted-trytes-completed").val() == 1) {
-        $("#process-pasted-trytes-btn").loadingError("Already Processed", {"initial": "Process Trytes"});
+        $("#process-pasted-trytes-btn").loadingError("already_processed", {"initial": "process_trytes"});
         return;
       } else if (!bundleTxs) {
-        $("#process-pasted-trytes-btn").loadingError("Invalid trytes or input", {"initial": "Process Trytes"});
+        $("#process-pasted-trytes-btn").loadingError("invalid_trytes_or_input", {"initial": "process_trytes"});
         return;
       } else if (!iota.utils.isBundle(bundleTxs)) {
-        $("#process-pasted-trytes-btn").loadingError("Invalid signature", {"initial": "Process Trytes"});
+        $("#process-pasted-trytes-btn").loadingError("invalid_signature", {"initial": "process_trytes"});
         return;
       }
 
@@ -136,7 +136,7 @@ var UI = (function(UI, $, undefined) {
           $("#process-pasted-trytes-btn").loadingError(error);
         } else {
           console.log("Process Pasted Trytes: Success");
-          $("#process-pasted-trytes-btn").loadingSuccess("Transaction Completed");
+          $("#process-pasted-trytes-btn").loadingSuccess("transaction_completed");
           $("#process-pasted-trytes-completed").val(1);
           UI.updateState(1000);
         }

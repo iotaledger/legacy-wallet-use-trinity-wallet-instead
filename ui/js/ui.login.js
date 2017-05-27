@@ -35,13 +35,13 @@ var UI = (function(UI, $, undefined) {
     var mixedCase = value.match(/[a-z]/) && value.match(/[A-Z]/);
 
     if (invalidCharacters) {
-      return "Your seed contains invalid characters. Only A-Z and the number 9 are accepted." + (value.length > 81 ? " Your seed is also too long." : (value.length < 41 ? " Your seed is also too short." : ""));
+      return i18n.t("seed_invalid_characters") + (value.length > 81 ? " " + i18n.t("seed_too_long") : (value.length < 41 ? " " + i18n.t("seed_too_short") : ""));
     } else if (mixedCase) {
-      return "Your seed contains mixed case characters. Lowercase is converted to uppercase." + (value.length > 81 ? " Your seed is also too long." : (value.length < 41 ? " Your seed is also too short." : ""));
+      return i18n.t("seed_mixed_characters") + (value.length > 81 ? " " + i18n.t("seed_too_long") : (value.length < 41 ? " " + i18n.t("seed_too_short") : ""));
     } else if (value.length > 81) {
-      return "Your seed should not contain more than 81 characters. Extra characters are ignored.";
+      return i18n.t("seed_extra_characters_ignored");
     } else if (value.length < 41) {
-      return "Your seed does not contain enough characters. This is not secure.";
+      return i18n.t("seed_not_secure");
     } else {
       return "";
     }
@@ -79,7 +79,7 @@ var UI = (function(UI, $, undefined) {
         var seed = $("#login-password").val();
 
         if (!seed) {
-          throw "Seed is required";
+          throw i18n.t("seed_is_required");
         }
 
         connection.seed = getSeed(seed);
@@ -98,12 +98,12 @@ var UI = (function(UI, $, undefined) {
         UI.executeState(function(error) {
           if (error) {
             connection.seed = "";
-            $("#login-btn").loadingError("Connection refused");
+            $("#login-btn").loadingError("connection_refused");
             UI.initialConnection = false;
             UI.createStateInterval(500, false);
           } else {
             $("#login-password").val("");
-            $("#login-btn").loadingReset("Logging in...", {"icon": "fa-cog fa-spin fa-fw"});
+            $("#login-btn").loadingReset("logging_in", {"icon": "fa-cog fa-spin fa-fw"});
             UI.showAppScreen();
           }
           UI.isLoggingIn = false;
@@ -217,12 +217,12 @@ var UI = (function(UI, $, undefined) {
         if (timeTaken >= 500 && timeTaken < 10000) {
           if (!$("#error-btn").hasClass("no-connection")) {
             $("#login-btn, #login-password").hide();
-            $("#error-btn").addClass("no-connection").html("Connecting...").fadeIn();
+            $("#error-btn").addClass("no-connection").html(i18n.t("connecting")).fadeIn();
           }
         }
       } else {
         $("#login-btn, #login-password").hide();
-        $("#error-btn").removeClass("no-connection").html("CONNECTION REFUSED").show();
+        $("#error-btn").removeClass("no-connection").html(i18n.t("connection_refused")).show();
         if (UI.updateIntervalTime != 500) {
           UI.createStateInterval(500, false);
         }

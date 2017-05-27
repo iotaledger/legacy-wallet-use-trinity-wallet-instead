@@ -208,7 +208,7 @@ html, body {
   background-color: #a4a8ab;
 }
 
-label {
+label, span.label {
   font-weight:bold;
   text-align:left;
   font-size:22px;
@@ -216,6 +216,10 @@ label {
   margin-bottom: 5px;
   padding: 0;
   display: block;
+}
+
+span.label {
+  display: inline-block;
 }
 
 input {

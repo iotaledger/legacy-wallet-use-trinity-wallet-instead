@@ -27,7 +27,7 @@ var UI = (function(UI, $, undefined) {
           console.log("UI.handleAddressGeneration: GetNewAddress Error:");
           console.log(error);
           $stack.find(".padded").css("visibility", "hidden");
-          $btn.loadingUpdate("Generate New Address", {"initial": "Generate New Address", "loading": "Attaching to Tangle..."});
+          $btn.loadingUpdate(i18n.t("generate_new_address"), {"initial": i18n.t("generate_new_address"), "loading": i18n.t("attaching_to_tangle")});
           UI.animateStacks(0);
           return;
         }
@@ -112,7 +112,7 @@ var UI = (function(UI, $, undefined) {
             } else {
               $btn.data("address", "");
               console.log("UI.handleAddressGeneration: Attached to Tangle");
-              UI.formSuccess("generate-address", "Address Attached", {"initial": "Generate New Address", "loading": "Attaching to Tangle..."});
+              UI.formSuccess("generate-address", i18n.t("address_attached"), {"initial": i18n.t("generate_new_address"), "loading": i18n.t("attaching_to_tangle")});
               UI.updateState(1000);
             }
             $stack.removeClass("loading");
@@ -143,7 +143,7 @@ var UI = (function(UI, $, undefined) {
 
     if (notYetGenerated) {
       $("#generate-address-result, #generate-address-qr-code").on("click.notyetgenerated", function(e) {
-        UI.notify("error", "Be sure to attach to the Tangle before using the address.");
+        UI.notify("error", "attach_tangle_before_using_address");
       });
     } else {
       $("#generate-address-result, #generate-address-qr-code").off("click.notyetgenerated");

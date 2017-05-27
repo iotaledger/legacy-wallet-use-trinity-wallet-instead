@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IOTA Wallet</title>
+  <title data-i18n="iota_wallet"></title>
   <link rel="stylesheet" href="css/style.css" />
   <style type="text/css">
   #message span {
@@ -68,34 +68,38 @@
 </head>
 <body>
   <div class="content">
-    <h1 id="title">Java Not Found...</h1>
+    <h1 id="title" data-i18n="java_not_found"></h1>
     <p id="message">
-      The correct java version was not found on your system<span id="message-64-bit" style="font-weight:bold;"> (64-bit Java)</span>.
-      <span id="message-win">Click on the button below to start downloading. Alternatively you may switch to a Light Node which does not require java.</span>
-      <span id="message-mac">Click on the button below to start downloading. Reopen the wallet after installation.  Alternatively you may switch to a Light Node which does not require java.</span>
-      <span id="message-lin-default">Click on the button below to start downloading, or install it by typing the following command(s) in the terminal:
+      <span data-i18n="correct_java_version_not_found"></span>
+      <span id="message-64-bit" style="font-weight:bold;"> (<strong data-i18n="64_bit_java"></strong>)</span>
+      <span id="message-win" data-i18n="click_to_download_or_switch_to_light_node"></span>
+      <span id="message-mac" data-i18n="click_to_download_and_reopen_or_switch_to_light_node"></span>
+      <span id="message-lin-default">
+        <span data-i18n="click_to_download_or_use_terminal"></span>
         <span id="message-lin-apt-get">
           <br /><br />
           <strong style="font-family:courier;">sudo apt-get install openjdk-8-jre</strong>
           <br /><br />
-          or (depending on your system):
+          <span data-i18n="or_depending_on_your_system"></span>
           <br /><br />
           <strong style="font-family:courier;">sudo add-apt-repository ppa:webupd8team/java<br />sudo apt-get update<br />sudo apt-get install oracle-java8-installer</strong>
         </span>
         <span style="font-family:courier;font-weight:bold;" id="message-lin-yum">su -c "yum install java-1.8.0-openjdk"</span>
-        Alternatively you may switch to a Light Node which does not require java.
+        <span data-i18n="light_node_alternative_no_java"></span>
       </span>
-      <span id="message-lin-alternative">Click on the button below to start downloading. Reopen the wallet after installation. Alternatively you may switch to a Light Node which does not require java.</span>
+      <span id="message-lin-alternative" data-i18n="click_to_download_and_reopen_or_switch_to_light_node"></span>
     </p>
     <div id="java-download-progress" class="progress-wrap progress">
       <div id="java-download-progress-bar" class="progress-bar progress" style="width:0%"></div>
     </div>
   </div>
   <div id="footer">
-    <button class="btn btn-primary btn-pull-right" id="light-node-btn">Switch to Light Node</button>
-    <button class="btn btn-primary btn-pull-right" id="download-btn">Download</button>
-    <button class="btn btn-default btn-pull-right" id="quit-btn">Quit</button>
+    <button class="btn btn-primary btn-pull-right" id="light-node-btn" data-i18n="switch_to_light_node"></button>
+    <button class="btn btn-primary btn-pull-right" id="download-btn" data-i18n="download"></button>
+    <button class="btn btn-default btn-pull-right" id="quit-btn" data-i18n="quit"></button>
   </div>
+  <script src="../bower_components/i18next/i18next.min.js"></script>
+  <script src="../bower_components/i18next-xhr-backend/i18nextXHRBackend.min.js"></script>
   <script type="text/javascript">
     require("./js/no_java.js");
   </script>

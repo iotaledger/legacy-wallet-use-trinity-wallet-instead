@@ -116,6 +116,12 @@ ipcRenderer.on("notify", function(event, type, message, options) {
   }
 });
 
+ipcRenderer.on("changeLanguage", function(event, language) {
+  if (typeof(UI) != "undefined") {
+    UI.changeLanguage(language);
+  }
+});
+
 ipcRenderer.on("handleURL", function(event, url) {
   if (typeof(UI) != "undefined") {
     UI.handleURL(url);

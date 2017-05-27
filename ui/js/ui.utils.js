@@ -98,7 +98,8 @@ var UI = (function(UI, $, undefined) {
   UI.notify = function(type, message, options) {
     console.log("UI.notify: " + message);
 
-    message = String(message).escapeHTML();
+    message = i18n.t(message, options); //should be escaped!
+    //message = String(message).escapeHTML();
 
     if (type == "error") {
       toastr.error(message, "", options);
@@ -127,14 +128,38 @@ var UI = (function(UI, $, undefined) {
     if (!("Notification" in window)) {
       return;
     } else if (Notification.permission === "granted") {
-      var notification = new Notification("Iota Wallet", {"body": message});
+      var notification = new Notification(i18n.t("iota_wallet"), {"body": message});
     } else if (Notification.permission !== "denied") {
       Notification.requestPermission(function (permission) {
         if (permission === "granted") {
-          var notification = new Notification("Iota Wallet", {"body": message});
+          var notification = new Notification(i18n.t("iota_wallet"), {"body": message});
         }
       });
     }
+  }
+
+  UI.makeMultilingual = function(currentLanguage, callback) {
+    i18n = i18next
+      .use(window.i18nextXHRBackend)
+      .init({
+        lng: currentLanguage,
+        fallbackLng: "en",
+        backend: {
+          loadPath: "../locales/{{lng}}/{{ns}}.json"
+        },
+        debug: false
+    }, function(err, t) {
+      jqueryI18next.init(i18next, $, {useOptionsAttr: true});
+      $("*[data-i18n]").localize();
+      callback();
+    });
+  }
+
+  UI.changeLanguage = function(language) {
+    i18n.changeLanguage(language, function(err, t) {
+      connection.language = language;
+      $("*[data-i18n]").localize();
+    });
   }
 
   UI.formSuccess = function(form, message, options) {
@@ -174,13 +199,14 @@ var UI = (function(UI, $, undefined) {
     $btn.loadingUpdate(message, options);
   }
 
+  //todo
   UI.addAndRemoveNeighbors = function(addNodes, removeNodes) {
     if (addNodes && addNodes.length) {
       iota.api.addNeighbors(addNodes, function(error, addedNodes) {
         if (error) {
-          UI.notify("error", "Error whilst adding neighbors.");
+          UI.notify("error", "error_whilst_adding_neighbors");
         } else {
-          UI.notify("success", "Added " + addedNodes + " neighbor" + (addedNodes != 1 ? "s" : "") + ".");
+          UI.notify("success", "added_neighbor", {count: addedNodes});
         }
       });
     }
@@ -188,9 +214,9 @@ var UI = (function(UI, $, undefined) {
     if (removeNodes && removeNodes.length) {
       iota.api.addNeighbors(removeNodes, function(error, removedNodes) {
         if (error) {
-          UI.notify("error", "Error whilst removing neighbors.");
+          UI.notify("error", "error_whilst_removing_nodes");
         } else {
-          UI.notify("success", "Removed " + removedNodes + " neighbor" + (removedNodes != 1 ? "s" : "") + ".");
+          UI.notify("success", "removed_neighbor", {count: removedNodes});
         }
       });
     }

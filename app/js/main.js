@@ -7,6 +7,10 @@ const powerSaveBlocker = electron.powerSaveBlocker;
 const shell            = electron.shell;
 const clipboard        = electron.clipboard;
 const pusage           = require("pidusage");
+const i18n             = require("i18next");
+const i18nBackend      = require("i18next-sync-fs-backend");
+
+global.i18n            = i18n;
 
 let win;
 let otherWin;
@@ -78,6 +82,10 @@ var App = (function(App, undefined) {
     if (!isDevelopment) {
       resourcesDirectory = path.dirname(resourcesDirectory);
     }
+ 
+    App.loadSettings();
+
+    App.makeMultilingual(settings.language);
 
     if (process.platform == "darwin") {
       var appPath = electron.app.getPath("exe");
@@ -93,8 +101,6 @@ var App = (function(App, undefined) {
     } else {
       is64BitOS = process.arch == "x64";
     }
- 
-    App.loadSettings();
 
     App.checkLaunchURL();
 
@@ -105,7 +111,7 @@ var App = (function(App, undefined) {
     App.registerProtocol();
 
     if (process.platform == "win32" && !is64BitOS) {
-      App.showAlertAndQuit("Not Supported", "Windows 32-bit is not supported at the moment.");
+      App.showAlertAndQuit("not_supported", "windows_32_bit_unsupported");
       return;
     }
 
@@ -121,18 +127,20 @@ var App = (function(App, undefined) {
       var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : "") + path.sep + "settings.json");
 
       if (!fs.existsSync(settingsFile)) {
-        throw "Settings file does not exist.";
+        throw "settings_file_does_not_exist";
       }
 
       settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
 
+      if (!settings.hasOwnProperty("language")) {
+        settings.language = "en";
+      }
       if (!settings.hasOwnProperty("version")) {
           // If no version defined yet or it's the first run
           // Delete the iri folder anyways
           deleteAnyways = true;
           settings.version = appVersion;
       }
-
       if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object") {
         settings.bounds = {width: 520, height: 736};
       }
@@ -415,15 +423,15 @@ var App = (function(App, undefined) {
 
     template.push(
     {
-      label: "Edit",
+      label: i18n.t("edit"),
       submenu: [
         {
-          label: "Undo",
+          label: i18n.t("undo"),
           accelerator: "CmdOrCtrl+Z",
           role: "undo"
         },
         {
-          label: "Redo",
+          label: i18n.t("redo"),
           accelerator: "Shift+CmdOrCtrl+Z",
           role: "redo"
         },
@@ -431,76 +439,148 @@ var App = (function(App, undefined) {
           type: "separator"
         },
         {
-          label: "Cut",
+          label: i18n.t("cut"),
           accelerator: "CmdOrCtrl+X",
           role: "cut"
         },
         {
-          label: "Copy",
+          label: i18n.t("copy"),
           accelerator: "CmdOrCtrl+C",
           role: "copy"
         },
         {
-          label: "Paste",
+          label: i18n.t("paste"),
           accelerator: "CmdOrCtrl+V",
           role: "paste"
         },
         {
-          label: "Select All",
+          label: i18n.t("select_all"),
           accelerator: "CmdOrCtrl+A",
           role: "selectall"
         },
       ]
     });
 
-    if (!simple) {
-      template.push(
-      {
-        label: "View",
-        submenu: [
-          {
-            label: (settings.showStatusBar ? "Hide Status Bar" : "Show Status Bar"),
-            accelerator: "CmdOrCtrl+/",
-            click() {
-              App.toggleStatusBar();
-            }
-          },
-          {
-            label: "Toggle Web Inspector",
-            accelerator: process.platform === "darwin" ? "Alt+Command+I" : "Ctrl+Shift+I",
-            click() {
-              win.webContents.send("toggleDeveloperTools");
-            }
-          },
-          {
-            label: "Enter Full Screen",
-            accelerator: process.platform === "darwin" ? "Ctrl+Command+F" : "F11",
-            click() {
-              win.setFullScreen(!win.isFullScreen());
-            }
+    template.push(
+    {
+      label: i18n.t("view"),
+      submenu: [
+        {
+          label: (settings.showStatusBar ? i18n.t("hide_status_bar") : i18n.t("show_status_bar")),
+          accelerator: "CmdOrCtrl+/",
+          click() {
+            App.toggleStatusBar();
           }
-        ]
-      });
+        },
+        {
+          label: i18n.t("toggle_web_inspector"),
+          accelerator: process.platform === "darwin" ? "Alt+Command+I" : "Ctrl+Shift+I",
+          click() {
+            win.webContents.send("toggleDeveloperTools");
+          }
+        },
+        {
+          label: i18n.t("enter_full_screen"),
+          accelerator: process.platform === "darwin" ? "Ctrl+Command+F" : "F11",
+          click() {
+            win.setFullScreen(!win.isFullScreen());
+          },
+        },
+        {
+          label: i18n.t("change_language"),
+          //Todo: glob from dir and build dynamically
+          submenu: [
+            {
+              label: i18n.t("english"),
+              click(item) {
+                App.changeLanguage("en");
+              },
+              type: "checkbox",
+              checked: settings.language == "en"
+            },
+            {
+              label: i18n.t("chinese"),
+              click(item) {
+                App.changeLanguage("ch");
+              },
+              type: "checkbox",
+              checked: settings.language == "ch"
+            },
+            {
+              label: i18n.t("french"),
+              click(item) {
+                App.changeLanguage("fr");
+              },
+              type: "checkbox",
+              checked: settings.language == "fr"
+            },
+            {
+              label: i18n.t("german"),
+              click(item) {
+                App.changeLanguage("de");
+              },
+              type: "checkbox",
+              checked: settings.language == "de"
+            },
+            {
+              label: i18n.t("greek"),
+              click(item) {
+                App.changeLanguage("el");
+              },
+              type: "checkbox",
+              checked: settings.language == "el"
+            },
+            {
+              label: i18n.t("italian"),
+              click(item) {
+                App.changeLanguage("it");
+              },
+              type: "checkbox",
+              checked: settings.language == "it"
+            },
+            {
+              label: i18n.t("japanese"),
+              click(item) {
+                App.changeLanguage("jp");
+              },
+              type: "checkbox",
+              checked: settings.language == "jp"
+            },
+            {
+              label: i18n.t("spanish"),
+              click(item) {
+                App.changeLanguage("es");
+              },
+              type: "checkbox",
+              checked: settings.language == "es"
+            }
+          ]
+        }
+      ]
+    });
 
+    if (simple) {
+      template[1].submenu.splice(0, 3); //TODO check
+    } else {
       template.push(
       {
-        label: "Tools",
+        label: i18n.t("tools"),
         submenu: [
           {
-            label: "View Node Info",
+            label: i18n.t("view_node_info"),
             accelerator: "CmdOrCtrl+I",
             click(item) {
               App.showNodeInfo();
             }
           },
           {
-            label: "View Neighbors",
+            label: i18n.t("view_neighbors"),
             click(item) {
               App.showPeers();
             }
           },
           {
-            label: "View Server Log",
+            label: i18n.t("view_server_log"),
             accelerator: "CmdOrCtrl+L",
             click(item) {
               App.showServerLog();
@@ -510,25 +590,25 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: "Paste Trytes",
+            label: i18n.t("paste_trytes"),
             click(item) {
               App.pasteTrytes();
             }
           },
           {
-            label: "Generate Seed",
+            label: i18n.t("generate_seed"),
             click(item) {
               App.generateSeed();
             }
           },
           {
-            label: "Claim Process",
+            label: i18n.t("claim_process"),
             click(item) {
               App.claimProcess();
             }
           },
           {
-            label: "Network Spammer",
+            label: i18n.t("network_spammer"),
             click(item) {
               App.showNetworkSpammer();
             }
@@ -537,14 +617,14 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: "Open Database Folder",
+            label: i18n.t("open_database_folder"),
             //accelerator: "CmdOrCtrl+I",
             click(item) {
               App.openDatabaseFolder();
             }
           },
           {
-            label: "Edit Node Configuration",
+            label: i18n.t("edit_node_configuration"),
             //accelerator: "CmdOrCtrl+E",
             click(item) {
               App.editNodeConfiguration();
@@ -554,7 +634,7 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: "Options",
+            label: i18n.t("options"),
             accelerator: "CmdOrCtrl+O",
             click() {
               App.showPreferences();
@@ -564,7 +644,7 @@ var App = (function(App, undefined) {
             type: "separator",
           },
           {
-            label: "Switch to Light Node",
+            label: i18n.t("switch_to_light_node"),
             click() {
               App.switchNodeType();
             }
@@ -573,7 +653,7 @@ var App = (function(App, undefined) {
       });
 
       if (settings.lightWallet == 1) {
-        template[2].submenu[14].label = "Switch to Full Node";
+        template[2].submenu[14].label = i18n.t("switch_to_full_node");
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 2);
         // Remove "open database folder" option.
@@ -596,16 +676,16 @@ var App = (function(App, undefined) {
 
     template.push(
     {
-      label: "Window",
+      label: i18n.t("window"),
       role: "window",
       submenu: [
         {
-          label: "Minimize",
+          label: i18n.t("minimize"),
           accelerator: "CmdOrCtrl+M",
           role: "minimize"
         },
         {
-          label: "Close",
+          label: i18n.t("close"),
           accelerator: "CmdOrCtrl+W",
           role: "close"
         },
@@ -614,29 +694,29 @@ var App = (function(App, undefined) {
 
     template.push(
     {
-      label: "Help",
+      label: i18n.t("help"),
       role: "help",
       submenu: [
         {
-          label: "FAQ",
+          label: i18n.t("faq"),
           click() {
             App.showFAQ();
           }
         },
         {
-          label: "Official Website",
+          label: i18n.t("official_website"),
           click() { shell.openExternal("https://iota.org/"); }
         },
         {
-          label: "Forum",
+          label: i18n.t("forum"),
           click() { shell.openExternal("https://forum.iota.org/"); }
         },
         {
-          label: "Chat",
+          label: i18n.t("chat"),
           click() { shell.openExternal("https://slack.iota.org/"); }
         },
         {
-          label: "Documentation",
+          label: i18n.t("documentation"),
           click() { shell.openExternal("https://iota.readme.io/docs"); }
         }
       ]
@@ -648,12 +728,12 @@ var App = (function(App, undefined) {
     }
 
     if (process.platform === "darwin") {
-      const name = electron.app.getName();
+      const name = electron.app.getName().escapeHTML();
       template.unshift({
         label: name,
         submenu: [
           {
-            label: "About " + name,
+            label: i18n.t("about") + " " + name,
             role: "about"
           },/*
           {
@@ -666,7 +746,7 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: "Preferences...",
+            label: i18n.t("preferences"),
             accelerator: "Command+,",
             click() {
               App.showPreferences();
@@ -676,7 +756,7 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: "Services",
+            label: i18n.t("services"),
             role: "services",
             submenu: []
           },
@@ -684,24 +764,24 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: "Hide " + name,
+            label: i18n.t("hide") + " " + name,
             accelerator: "Command+H",
             role: "hide"
           },
           {
-            label: "Hide Others",
+            label: i18n.t("hide_others"),
             accelerator: "Command+Alt+H",
             role: "hideothers"
           },
           {
-            label: "Show All",
+            label: i18n.t("show_all"),
             role: "unhide"
           },
           {
             type: "separator"
           },
           {
-            label: "Quit",
+            label: i18n.t("quit"),
             accelerator: "Command+Q",
             click() { electron.app.quit(); }
           },
@@ -718,7 +798,7 @@ var App = (function(App, undefined) {
           type: "separator"
         },
         {
-          label: "Bring All to Front",
+          label: i18n.t("bring_all_to_front"),
           role: "front"
         }
       );
@@ -1073,7 +1153,7 @@ var App = (function(App, undefined) {
           if (!isStarted) {
             App.showInitializationAlertWindow();
           } else {
-            App.showAlertAndQuit("Server exited", "The Iota server process has exited.");
+            App.showAlertAndQuit("server_exited", "iota_server_process_exited");
             return;
           }
         } else if (!doNotQuit) {
@@ -1316,7 +1396,8 @@ var App = (function(App, undefined) {
           "port": (settings.lightWallet == 1 ? settings.lightWalletPort : settings.port),
           "depth": settings.depth,
           "minWeightMagnitude": settings.minWeightMagnitude,
-          "ccurlPath": ccurlPath
+          "ccurlPath": ccurlPath,
+          "language": settings.language
       });
     } catch (err) {
       console.log("Error:");
@@ -1328,7 +1409,7 @@ var App = (function(App, undefined) {
     if (!isStarted && !didKillNode && !nodeInitializationError)   {
       if (type == "error") {
         if (data.match(/java\.net\.BindException/i)) {
-          lastError = "The server address is already in use. Please close any other apps/services that may be running on port " + String(settings.port).escapeHTML() + ".";
+          lastError = i18n.t("server_address_already_in_use", {port: String(settings.port).escapeHTML()});
         } else {
           var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
           if (error && !lastError.match(/URI Syntax Exception|Illegal Argument Exception/i)) {
@@ -1420,6 +1501,39 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.makeMultilingual = function(currentLanguage) {
+    i18n
+      .use(i18nBackend)
+      .init({
+        lng: currentLanguage,
+        fallbackLng: "en",
+        initImmediate: false, //Needed to make it work synchronously
+        backend: {
+          loadPath: path.join(resourcesDirectory, "locales", "{{lng}}", "{{ns}}.json")
+        },
+        debug: false
+    });
+  }
+
+  App.changeLanguage = function(language) {
+    i18n.changeLanguage(language, function(err, t) {
+      settings.language = language;
+
+      App.saveSettings();
+
+      if (otherWin) {
+        App.createMenuBar(true);
+        otherWin.webContents.send("changeLanguage", language);
+      } else {
+        App.createMenuBar();
+
+        if (App.windowIsReady()) {
+          win.webContents.send("changeLanguage", language);
+        }
+      }
+    });
+  }
+
   App.startTrackingCPU = function() {
     if (cpuTrackInterval) {
       clearInterval(cpuTrackInterval);
@@ -1504,7 +1618,7 @@ var App = (function(App, undefined) {
     }
 
     if (!msg) {
-      msg = (lastError ? lastError : "A server initialization error occurred.");
+      msg = (lastError ? lastError : i18n.t("server_initialization_error_occurred"));
     }
 
     if (!selectedJavaLocation) {
@@ -1556,7 +1670,7 @@ var App = (function(App, undefined) {
       App.showWindow("quit.html", {"title": title, "message": msg});
     } else {
       App.showWindowIfNotVisible();
-      win.webContents.send("showAlertAndQuit", "<h1>" + title + "</h1><p>" + msg + "</p>", serverOutput);
+      win.webContents.send("showAlertAndQuit", "<h1 data-i18n='" + String(title).escapeHTML() + "'>" + i18n.t(title) + "</h1><p data-i18n='" + String(msg).escapeHTML() + "'>" + i18n.t(msg) + "</p>", serverOutput);
     }
   }
 
@@ -1596,6 +1710,12 @@ var App = (function(App, undefined) {
       App.showDefaultWindow();
       return;
     }
+
+    if (!params) {
+      params = {};
+    }
+
+    params.language = settings.language;
 
     if (filename == "init_error.html") {
       var height = 480;
