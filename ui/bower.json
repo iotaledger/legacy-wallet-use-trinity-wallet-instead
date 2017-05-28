@@ -1,9 +1,9 @@
 {
   "name": "iota-ui",
   "authors": [
-    "Iota Foundation <info@iotatoken.com>"
+    "IOTA Foundation <contact@iota.org>"
   ],
-  "homepage": "https://www.iotatoken.com/",
+  "homepage": "https://www.iota.org/",
   "dependencies": {
     "font-awesome": "^4.6.3",
     "clipboard": "^1.5.10",
@@ -12,8 +12,9 @@
     "remodal": "^1.0.7",
     "toastr": "^2.1.2",
     "async": "^2.1.4",
-    "iota.lib.js": "^0.2.3",
+    "iota.lib.js": "^0.2.7",
     "i18next": "^8.3.0",
-    "i18next-xhr-backend": "^1.4.1"
+    "i18next-xhr-backend": "^1.4.1",
+    "jquery-i18next": "^1.2.0"
   }
 }

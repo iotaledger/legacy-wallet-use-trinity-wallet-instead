@@ -2,7 +2,7 @@
   "name": "iota-testnet",
   "productName": "IOTA Wallet Testnet",
   "description": "IOTA Wallet Testnet",
-  "version": "2.2.1-testnet",
+  "version": "2.2.2-testnet",
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
@@ -30,6 +30,7 @@
     "fs-extra": "^1.0.0",
     "glob": "^7.1.1",
     "i18next": "^8.3.0",
+    "i18next-sync-fs-backend": "^0.1.0",
     "pidusage": "^1.1.0"
   },
   "devDependencies": {
@@ -52,7 +53,7 @@
       "iri/iri-testnet.jar",
       "ccurl/**/*",
       "ui/**/*",
-      "locales/**/*",
+      "locales/**/*"
     ],
     "protocols": [
       {
@@ -86,8 +87,7 @@
         "AppImage",
         "deb",
         "rpm",
-        "tar.gz",
-        "snap"
+        "tar.gz"
       ],
       "packageUrl": "https://www.iota.org/"
     }
