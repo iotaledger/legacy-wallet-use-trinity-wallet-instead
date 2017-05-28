@@ -82,14 +82,6 @@ var UI = (function(UI, undefined) {
     document.getElementById("light-node-btn").addEventListener("click", function(e) {
       electron.ipcRenderer.send("showSetupWindow", {"section": "light-node"});
     });
-
-    /*
-    document.getElementById("download-manually-btn").addEventListener("click", function(e) {
-      if (UI.directDownloadLink) {
-        electron.remote.shell.openExternal(UI.directDownloadLink);
-        electron.remote.getCurrentWindow().close();
-      }
-    });*/
   }
 
   UI.show = function(params) {
@@ -439,11 +431,11 @@ var UI = (function(UI, undefined) {
     });
   }
 
-  UI.showMessageAndQuit = function(title, content) {
+  UI.showMessageAndQuit = function(title, content, options) {
     electron.remote.getCurrentWindow().setProgressBar(-1); //remove progress bar
     document.getElementById("java-download-progress").style.display = "none";
 
-    UI.updateMessage(title, content);
+    UI.updateMessage(title, content, options);
 
     var btns = document.getElementsByClassName("btn");
     for (var i=0; i<btns.length; i++) {
@@ -456,9 +448,9 @@ var UI = (function(UI, undefined) {
     UI.updateContentSize();
   }
 
-  UI.updateMessage = function(title, content) {
-    UI.changeElementLanguage("title", title);
-    UI.changeElementLanguage("message", content);
+  UI.updateMessage = function(title, content, options) {
+    UI.changeElementLanguage("title", title, options);
+    UI.changeElementLanguage("message", content, options);
   }
 
   UI.downloadJavaFailed = function(err) {
@@ -471,11 +463,15 @@ var UI = (function(UI, undefined) {
       }
     } catch (err) {}
 
+    /*
     if (UI.directDownloadLink) {
-      UI.showMessageAndQuit("download_failed", "download_java_manually");
+      UI.showMessageAndQuit("download_failed", "[html]download_java_manually", {url: UI.directDownloadLink});
     } else {
-      UI.showMessageAndQuit("download_failed", "download_java_jre_manually");
-    }
+      UI.showMessageAndQuit("download_failed", "[html]download_java_jre_manually");
+    }*/
+
+    //For now just show the normal download location, as UI.directDownloadLink may fail also..
+    UI.showMessageAndQuit("download_failed", "[html]download_java_jre_manually");
   }
 
   UI.relaunchApplication = function() {
@@ -515,9 +511,29 @@ var UI = (function(UI, undefined) {
     });
   }
 
-  UI.changeElementLanguage = function(el, key) {
-    document.getElementById(el).innerHTML = i18n.t(key);
-    document.getElementById(el).setAttribute("data-i18n", key);
+  UI.changeElementLanguage = function(el, key, options) {
+    if (!options) {
+      options = {};
+    }
+
+    //Don't escape HTML
+    if (key.indexOf("[html]") == 0 ) {
+      options.interpolation = {escapeValue: false};
+      document.getElementById(el).innerHTML = i18n.t(key.replace("[html]", ""), options);
+      document.getElementById(el).setAttribute("data-18n", key);
+
+      var aTags = document.getElementById(el).getElementsByTagName("a");
+      for (var i = 0; i < aTags.length; i++) {
+        aTags[i].onclick = function(e) {
+          electron.remote.shell.openExternal(e.target.href);
+          electron.remote.getCurrentWindow().close();
+          return false;
+        }
+      }
+    } else {
+      document.getElementById(el).innerHTML = i18n.t(key);
+      document.getElementById(el).setAttribute("data-i18n", key);
+    }
   }
 
   function updateUI() {

@@ -288,7 +288,7 @@
   "incorrect_status_code": "Incorrect status code.",
   "could_not_match_regex": "Could not match regex.",
   "download_failed": "Download Failed",
-  "download_java_manually": "Please <a href='__' target='_blank'>click here</a> to download and install java manually.",
+  "download_java_manually": "Please <a href='{{url}}' target='_blank'>click here</a> to download and install java manually.",
   "download_java_jre_manually": "Please <a href='http://www.oracle.com/technetwork/java/javase/downloads/index.html' target='_blank'>click here</a> to download and install java manually (JRE version).",
   "full_node_settings": "Full Node Settings:",
   "light_node_settings": "Light Node Settings:",
