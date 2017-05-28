@@ -98,6 +98,10 @@ var UI = (function(UI, $, undefined) {
   UI.notify = function(type, message, options) {
     console.log("UI.notify: " + message);
 
+    if (!options) {
+      options = {};
+    }
+
     message = i18n.t(message, options); //should be escaped!
     //message = String(message).escapeHTML();
 
@@ -144,6 +148,9 @@ var UI = (function(UI, $, undefined) {
       .init({
         lng: currentLanguage,
         fallbackLng: "en",
+        defaultValueFromContent: true,
+        keySeparator: false,
+        nsSeparator: false,
         backend: {
           loadPath: "../locales/{{lng}}/{{ns}}.json"
         },
@@ -203,7 +210,7 @@ var UI = (function(UI, $, undefined) {
   UI.addAndRemoveNeighbors = function(addNodes, removeNodes) {
     if (addNodes && addNodes.length) {
       iota.api.addNeighbors(addNodes, function(error, addedNodes) {
-        if (error) {
+        if (error || addedNodes === undefined) {
           UI.notify("error", "error_whilst_adding_neighbors");
         } else {
           UI.notify("success", "added_neighbor", {count: addedNodes});
@@ -213,8 +220,8 @@ var UI = (function(UI, $, undefined) {
 
     if (removeNodes && removeNodes.length) {
       iota.api.addNeighbors(removeNodes, function(error, removedNodes) {
-        if (error) {
-          UI.notify("error", "error_whilst_removing_nodes");
+        if (error || removedNodes === undefined) {
+          UI.notify("error", "error_whilst_removing_neighbors");
         } else {
           UI.notify("success", "removed_neighbor", {count: removedNodes});
         }
