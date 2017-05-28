@@ -16,7 +16,7 @@ var connection = {"accountData"         : false,
                   "lightWallet"         : false,
                   "language"            : "en"};
 
-var i18n;
+var i18n = {t: function(msg) { return msg; }}
 
 var __entityMap = {
   "&": "&amp;",
@@ -54,33 +54,36 @@ var UI = (function(UI, $, undefined) {
 
     UI.initializationTime = new Date().getTime();
 
-    var d = document.documentElement.style;
-    var supported = ("flex" in d || "msFlex" in d || "webkitFlex" in d || "webkitBoxFlex" in d);
-    if (!supported || String(2779530283277761) != "2779530283277761") {
-      showOutDatedBrowserMessage();
-    } else {
-      if (typeof(URLSearchParams) != "undefined" && parent) {
-        var params = new URLSearchParams(location.search.slice(1));
-        connection.inApp = params.get("inApp") == 1;
-        connection.showStatus = params.get("showStatus") == 1;
-        if (params.has("host")) {
-          connection.host = params.get("host");
-        }
-        if (params.has("port")) {
-          connection.port = params.get("port");
-        }
-        if (params.has("depth")) {
-          connection.depth = parseInt(params.get("depth"), 10);
-        }
-        if (params.has("minWeightMagnitude")) {
-          connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
-        }
-        if (params.has("ccurlPath")) {
-          connection.ccurlPath = params.get("ccurlPath");
-        }
-        if (params.has("language")) {
-          connection.language = params.get("language");
-        }
+    if (typeof(URLSearchParams) != "undefined" && parent) {
+      var params = new URLSearchParams(location.search.slice(1));
+      connection.inApp = params.get("inApp") == 1;
+      connection.showStatus = params.get("showStatus") == 1;
+      if (params.has("host")) {
+        connection.host = params.get("host");
+      }
+      if (params.has("port")) {
+        connection.port = params.get("port");
+      }
+      if (params.has("depth")) {
+        connection.depth = parseInt(params.get("depth"), 10);
+      }
+      if (params.has("minWeightMagnitude")) {
+        connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
+      }
+      if (params.has("ccurlPath")) {
+        connection.ccurlPath = params.get("ccurlPath");
+      }
+      if (params.has("language")) {
+        connection.language = params.get("language");
+      }
+    }
+
+    UI.makeMultilingual(connection.language, function() {
+      var d = document.documentElement.style;
+      var supported = ("flex" in d || "msFlex" in d || "webkitFlex" in d || "webkitBoxFlex" in d);
+      if (!supported || String(2779530283277761) != "2779530283277761") {
+        showOutDatedBrowserMessage();
+        return;
       }
 
       if (connection.inApp && (typeof(backendLoaded) == "undefined" || !backendLoaded)) {
@@ -116,20 +119,16 @@ var UI = (function(UI, $, undefined) {
 
         // Overwrite iota lib with light wallet functionality
         $.getScript("js/iota.lightwallet.js").done(function() {
-          setTimeout(function() {
-            UI.makeMultilingual(connection.language, initialize);
-          }, 100);
+          setTimeout(initialize, 100);
         }).fail(function(jqxhr, settings, exception) {
           console.log("Could not load iota.lightwallet.js");
           console.log(exception);
           showLightWalletErrorMessage();
         });
       } else {
-        setTimeout(function() {
-          UI.makeMultilingual(connection.language, initialize);
-        }, 100);
+        setTimeout(initialize, 100);
       }
-   }
+    });
   }
 
   function initialize() {
