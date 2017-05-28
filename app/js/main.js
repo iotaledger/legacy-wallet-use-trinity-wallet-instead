@@ -126,11 +126,11 @@ var App = (function(App, undefined) {
     try {
       var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : "") + path.sep + "settings.json");
 
-      if (!fs.existsSync(settingsFile)) {
-        throw "settings_file_does_not_exist";
+      if (fs.existsSync(settingsFile)) {
+        settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
+      } else {
+        settings = {};
       }
-
-      settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
 
       if (!settings.hasOwnProperty("language")) {
         settings.language = "en";
