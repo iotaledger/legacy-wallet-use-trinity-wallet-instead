@@ -49,6 +49,7 @@ var UI = (function(UI, undefined) {
 
         if (!settings.nodes || !settings.port) {
           document.getElementById("start-btn").disabled = false;
+          document.getElementById("switch-btn").disabled = false;
           return;
         }
       } else {
@@ -57,6 +58,7 @@ var UI = (function(UI, undefined) {
           document.getElementById("host-error").style.display = "inline";
           document.getElementById("host-error").innerHTML = "Invalid!";
           document.getElementById("start-btn").disabled = false;
+          document.getElementById("switch-btn").disabled = false;
           return;
         } else {
           settings.lightWallet = 1;
