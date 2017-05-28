@@ -92,7 +92,7 @@ var UI = (function(UI, $, undefined) {
   UI.formatDate = function(timestamp, full) {
     var date = new Date(timestamp*1000);
 
-    return ("0"+date.getDate()).substr(-2) + "/" + ("0"+(date.getMonth()+1)).substr(-2) + (full ? "/" + date.getFullYear() : "") + " " + date.getHours() + ":" + date.getMinutes();
+    return ("0"+date.getDate()).substr(-2) + "/" + ("0"+(date.getMonth()+1)).substr(-2) + (full ? "/" + date.getFullYear() : "") + " " + ("0"+date.getHours()).substr(-2) + ":" + ("0"+date.getMinutes()).substr(-2);
   }
 
   UI.notify = function(type, message, options) {
