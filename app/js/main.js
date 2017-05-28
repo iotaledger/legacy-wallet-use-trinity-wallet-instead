@@ -480,10 +480,10 @@ var App = (function(App, undefined) {
           }
         },
         {
-          label: i18n.t("enter_full_screen"),
+          label: (win.isFullScreen() ? i18n.t("exit_full_screen") : i18n.t("enter_full_screen")),
           accelerator: process.platform === "darwin" ? "Ctrl+Command+F" : "F11",
           click() {
-            win.setFullScreen(!win.isFullScreen());
+            App.toggleFullScreen();
           },
         },
         {
@@ -1479,6 +1479,11 @@ var App = (function(App, undefined) {
     if (serverOutput.length > 500) {
       serverOutput.shift();
     }
+  }
+
+  App.toggleFullScreen = function() {
+    win.setFullScreen(!win.isFullScreen());
+    App.createMenuBar();
   }
 
   App.toggleStatusBar = function() {

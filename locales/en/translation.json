@@ -146,6 +146,7 @@
   "show_status_bar": "Show Status Bar",
   "toggle_web_inspector": "Toggle Web Inspector",
   "enter_full_screen": "Enter Full Screen",
+  "exit_full_screen": "Exit Full Screen",
   "undo": "Undo",
   "redo": "Redo",
   "cut": "Cut",
