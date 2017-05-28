@@ -789,6 +789,13 @@ hr {
   font-size: 45px;
 }
 
+#history-stack .type .fa-arrow-circle-left {
+  color: #ea98b3;
+}
+#history-stack .type .fa-arrow-circle-right {
+  color: #caffb0;
+}
+
 #rebroadcast-btn {
   margin-top: 10px;
 }
