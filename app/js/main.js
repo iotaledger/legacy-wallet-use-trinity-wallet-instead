@@ -482,7 +482,11 @@ var App = (function(App, undefined) {
           label: i18n.t("toggle_web_inspector"),
           accelerator: process.platform === "darwin" ? "Alt+Command+I" : "Ctrl+Shift+I",
           click() {
-            win.webContents.send("toggleDeveloperTools");
+            if (otherWin) {
+              otherWin.toggleDevTools({mode: "undocked"});
+            } else if (App.uiIsReady()) {
+              win.webContents.send("toggleDeveloperTools");
+            }
           }
         },
         {
@@ -566,7 +570,8 @@ var App = (function(App, undefined) {
     });
 
     if (simple) {
-      template[1].submenu.splice(0, 3); //TODO check
+      template[1].submenu.splice(0, 1);
+      template[1].submenu.splice(1, 1);
     } else {
       template.push(
       {
@@ -1775,7 +1780,6 @@ var App = (function(App, undefined) {
                                              "useContentSize" : true,
                                              "center"         : true,
                                              "resizable"      : false});
-      //otherWin.toggleDevTools({mode: "undocked"});
       otherWin.setFullScreenable(false);
       var isClosing;
 
