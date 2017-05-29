@@ -39,12 +39,12 @@ var UI = (function(UI, undefined) {
         settings.port  = parseInt(document.getElementById("port").value, 10);
         if (!settings.port) {
           document.getElementById("port-error").style.display = "inline";
-          document.getElementById("port-error").innerHTML = "Required!";
+          UI.changeElementLanguage("port-error", "required");
         }
         settings.nodes = document.getElementById("nodes").value;
         if (!settings.nodes) {
           document.getElementById("nodes-error").style.display = "inline";
-          document.getElementById("nodes-error").innerHTML = "Required!";
+          UI.changeElementLanguage("nodes-error", "required");
         }
 
         if (!settings.nodes || !settings.port) {
@@ -55,8 +55,12 @@ var UI = (function(UI, undefined) {
       } else {
         var res = String(document.getElementById("host").value).match(/^(https?:\/\/.*):([0-9]+)$/i);
         if (!res) {
+          if (!document.getElementById("host").value) {
+            UI.changeElementLanguage("host-error", "required");
+          } else {
+            UI.changeElementLanguage("host-error", "invalid");
+          }
           document.getElementById("host-error").style.display = "inline";
-          document.getElementById("host-error").innerHTML = "Invalid!";
           document.getElementById("start-btn").disabled = false;
           document.getElementById("switch-btn").disabled = false;
           return;

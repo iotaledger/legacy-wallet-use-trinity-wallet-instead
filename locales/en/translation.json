@@ -313,5 +313,7 @@
   "success": "Success",
   "copied_to_clipboard": "Copied to Clipboard.",
   "udp_receiver_port": "UDP Receiver Port",
-  "tcp_receiver_port": "TCP Receiver Port"
+  "tcp_receiver_port": "TCP Receiver Port",
+  "invalid": "Invalid",
+  "required": "Required"
 }
