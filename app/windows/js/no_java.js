@@ -196,7 +196,7 @@ var UI = (function(UI, undefined) {
                     break;
                 }
 
-                var regex = new RegExp("http:\/\/download\.oracle\.com\/otn\-pub\/java\/jdk\/[a-z0-9\-]+\/jre\-[a-z0-9\-]+" + regexFilename, "ig");
+                var regex = new RegExp("http:\/\/download\.oracle\.com\/otn\-pub\/java\/jdk\/[a-z0-9\-]+\/[a-z0-9]+\/jre\-[a-z0-9\-]+" + regexFilename, "ig");
 
                 var downloadUrl = body.match(regex);
 
@@ -204,8 +204,11 @@ var UI = (function(UI, undefined) {
                   downloadUrl = downloadUrl.pop();
                 }
 
+                console.log("Download URL: " + downloadUrl);
+
                 if (!downloadUrl) {
-                  downloadUrl = "http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jre-8u92-" + filename;
+                  UI.downloadJavaFailed("Could not find java download URL.");
+                  return;
                 }
    
                 downloadUrl = downloadUrl.replace(/http:\/\//i, "https://");
