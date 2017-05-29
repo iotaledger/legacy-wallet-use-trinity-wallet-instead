@@ -162,6 +162,12 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("port")) {
         settings.port = (isTestNet ? 14900 : 14265);
       }
+      if (!settings.hasOwnProperty("udpReceiverPort")) {
+        settings.udpReceiverPort = 0;
+      }
+      if (!settings.hasOwnProperty("tcpReceiverPort")) {
+        settings.tcpReceiverPort = 0;
+      }
       if (!settings.hasOwnProperty("depth")) {
         settings.depth = 3;
       }
@@ -179,7 +185,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), nodes: []};
+      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 0, tcpReceiverPort: 0, nodes: []};
     }
 
     try {
@@ -631,6 +637,13 @@ var App = (function(App, undefined) {
             }
           },
           {
+            label: i18n.t("edit_neighbors"),
+            //accelerator: "CmdOrCtrl+E",
+            click(item) {
+              App.editNeighbors();
+            }
+          },
+          {
             type: "separator"
           },
           {
@@ -653,11 +666,13 @@ var App = (function(App, undefined) {
       });
 
       if (settings.lightWallet == 1) {
-        template[2].submenu[14].label = i18n.t("switch_to_full_node");
+        template[2].submenu[15].label = i18n.t("switch_to_full_node");
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 2);
         // Remove "open database folder" option.
         template[2].submenu.splice(7, 1);
+        // Remove "edit neighbors" option.
+        template[2].submenu.splice(8, 1);
         if (process.platform == "darwin") {
           // Remove options from mac platforms
           template[2].submenu.splice(8 , 2);
@@ -665,11 +680,11 @@ var App = (function(App, undefined) {
       } else {
         if (settings.lightWallet == -1) {
           //remove the switch to light / full node link
-          template[2].submenu.splice(13, 2);
+          template[2].submenu.splice(14, 2);
         }
         if (process.platform == "darwin") {
           // Remove options from mac platform
-          template[2].submenu.splice(11, 2);
+          template[2].submenu.splice(12, 2);
         }
       }
     }
@@ -1091,6 +1106,16 @@ var App = (function(App, undefined) {
 
       params.push("-p");
       params.push(settings.port);
+
+      if (settings.udpReceiverPort) {
+        params.push("-u");
+        params.push(settings.udpReceiverPort);
+      }
+
+      if (settings.tcpReceiverPort) {
+        params.push("-t");
+        params.push(settings.tcpReceiverPort);
+      }
 
       if (settings.nodes) {
         params.push("-n");
@@ -1841,30 +1866,36 @@ var App = (function(App, undefined) {
       if (walletType == 1) {
         var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet};
       } else {
-        var config = {"lightWallet": 0, "port": settings.port, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "nodes": settings.nodes.join("\r\n"), "testNet": isTestNet};
+        var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet};
       }
       win.webContents.send("editNodeConfiguration", config);
     }
   }
 
+  App.editNeighbors = function() {
+    if (App.windowIsReady() && !settings.lightWallet) {
+      App.showWindowIfNotVisible();
+      win.webContents.send("editNeighbors", settings.nodes.join("\r\n"));
+    }
+  }
+
   App.checkNodeValidity = function(node) {
+    var getInside = /^(udp|tcp):\/\/([\[][^\]\.]*[\]]|[^\[\]:]*)[:]{0,1}([0-9]{1,}$|$)/i;
 
-      var getInside = /^(udp|tcp):\/\/([\[][^\]\.]*[\]]|[^\[\]:]*)[:]{0,1}([0-9]{1,}$|$)/i;
+    var stripBrackets = /[\[]{0,1}([^\[\]]*)[\]]{0,1}/;
 
-      var stripBrackets = /[\[]{0,1}([^\[\]]*)[\]]{0,1}/;
+    var uriTest = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))|(^\s*((?=.{1,255}$)(?=.*[A-Za-z].*)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)*)\s*$)/;
 
-      var uriTest = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))|(^\s*((?=.{1,255}$)(?=.*[A-Za-z].*)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)*)\s*$)/;
+    if(!getInside.test(node)) {
+        console.log(node + " formatting is invalid!")
+        return false;
+    }
 
-      if(!getInside.test(node)) {
-          console.log(node + " formatting is invalid!")
-          return false;
-      }
-
-      return uriTest.test(stripBrackets.exec(getInside.exec(node)[1])[1]);
+    return uriTest.test(stripBrackets.exec(getInside.exec(node)[1])[1]);
   }
 
   App.updateNodeConfiguration = function(configuration) {
-    console.log("update node config");
+    console.log("Update Node Config");
     try {
       if (!configuration) {
         configuration = {};
@@ -1938,6 +1969,22 @@ var App = (function(App, undefined) {
           }
         }
 
+        if (configuration.hasOwnProperty("udpReceiverPort")) {
+          var udpReceiverPort = parseInt(configuration.udpReceiverPort, 10);
+          if (udpReceiverPort != settings.udpReceiverPort) {
+            settings.udpReceiverPort = udpReceiverPort;
+            relaunch = true;
+          }
+        }
+
+        if (configuration.hasOwnProperty("tcpReceiverPort")) {
+          var tcpReceiverPort = parseInt(configuration.tcpReceiverPort, 10);
+          if (tcpReceiverPort != settings.tcpReceiverPort) {
+            settings.tcpReceiverPort = tcpReceiverPort;
+            relaunch = true;
+          }
+        }
+
         if (configuration.hasOwnProperty("depth")) {
           settings.depth = parseInt(configuration.depth, 10);
         }
@@ -1958,7 +2005,7 @@ var App = (function(App, undefined) {
       } else if (lightWalletHostChange) {
         // For now we'll just relaunch, easiest... TODO
         App.relaunchApplication();
-      } else if (addedNodes || removedNodes) {
+      } else if (addedNodes || removedNodes && App.windowIsReady()) {
         win.webContents.send("addAndRemoveNeighbors", addedNodes, removedNodes);
       }
     } catch (err) {

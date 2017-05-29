@@ -401,6 +401,47 @@ var UI = (function(UI, undefined) {
     modal.open();
   }
 
+  UI.editNeighbors = function(nodes) {
+    if (showQuitAlert) {
+      return;
+    }
+
+    UI.hideAlerts();
+
+    var modal = new tingle.modal({
+      footer: true,
+      onOpen: function() {
+        var close = document.querySelector(".tingle-modal__close");
+        var modalContent = document.querySelector(".tingle-modal-box__content");
+        modalContent.appendChild(close);
+
+        var el = document.getElementById("server_config_neighboring_nodes");
+
+        var temp = el.value;
+        el.value = "";
+        el.value = temp;
+        el.focus();
+      }
+    });
+
+    var content = "";
+
+    content = "<h1 data-i18n='edit_neighbors'></h1>" + 
+    "<div class='input-group input-group'><label data-i18n='neighboring_nodes'>" + i18n.t("neighboring_nodes") + "</label>" + 
+    "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + String(nodes).escapeHTML() + "</textarea></div>" + 
+    "<p style='text-align:left;background:#efefef;padding:5px;color:gray;font-size:14px;'><span data-i18n='node_settings_format' style='text-align:left;font-size:14px;'>" + i18n.t("node_settings_format") + "</span>: udp://ip:12345</p>";
+
+    modal.setContent(content);
+
+    modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {      
+      modal.close();
+
+      electron.ipcRenderer.send("updateNodeConfiguration", {"nodes": document.getElementById("server_config_neighboring_nodes").value});
+    });
+
+    modal.open();
+  }
+
   UI.editNodeConfiguration = function(configuration) {
     if (showQuitAlert) {
       return;
@@ -433,20 +474,21 @@ var UI = (function(UI, undefined) {
       "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
       "<input type='number' min='" + (configuration.testNet ? "13" : "18") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "13": "18")) + "' /></div>";
     } else {
-      content = "<h1>Node Config</h1>" + 
+      content = "<h1 data-i18n='node_config'></h1>" + 
       "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("node_port") + "</label>" + 
       "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" +  
+      "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("udp_receiver_port") + "</label>" + 
+      "<input type='number' min='1024' name='udp_receiver_port' id='server_config_udp_receiver_port' placeholder='' value='" + (configuration.udpReceiverPort ? String(configuration.udpReceiverPort).escapeHTML() : "") + "' /></div>" +  
+      "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("tcp_receiver_port") + "</label>" + 
+      "<input type='number' min='1024' name='tcp_receiver_port' id='server_config_tcp_receiver_port' placeholder='' value='" + (configuration.tcpReceiverPort ? String(configuration.tcpReceiverPort).escapeHTML() : "") + "' /></div>" +  
       "<div class='input-group'><label data-i18n='depth'>" + i18n.t("depth") + "</label>" + 
       "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" +
       "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
-      "<input type='number' min='" + (configuration.testNet ? "13" : "18") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "13": "18")) + "' /></div>" + 
-      "<div class='input-group input-group'><label data-i18n='neighboring_nodes'>" + i18n.t("neighboring_nodes") + "</label>" + 
-      "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + String(configuration.nodes).escapeHTML() + "</textarea></div>" + 
-      "<p><span data-i18n='node_settings_format'>" + i18n.t("node_settings_format") + "</span>: udp://ip:12345</p>";
+      "<input type='number' min='" + (configuration.testNet ? "13" : "18") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "13": "18")) + "' /></div>";
     }
 
     modal.setContent(content);
-
+    
     modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {
       var config = {};
 
@@ -466,9 +508,10 @@ var UI = (function(UI, undefined) {
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
       } else {
         config.port = parseInt(document.getElementById("server_config_port").value, 10);
+        config.udpReceiverPort = parseInt(document.getElementById("server_config_udp_receiver_port").value, 10);
+        config.tcpReceiverPort = parseInt(document.getElementById("server_config_tcp_receiver_port").value, 10);
         config.depth = parseInt(document.getElementById("server_config_depth").value, 10);
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
-        config.nodes = document.getElementById("server_config_neighboring_nodes").value;
       }
 
       modal.close();
@@ -683,6 +726,8 @@ var UI = (function(UI, undefined) {
 
     if (url == "config" || url == "configuration" || url == "setup") {
       electron.ipcRenderer.send("editNodeConfiguration");
+    } else if (url == "nodes" || url == "neighbors") {
+      electron.ipcRenderer.send("editNeighbors");
     } else if (url == "log") {
       if (!lightWallet) {
         electron.ipcRenderer.send("showServerLog");
@@ -862,6 +907,11 @@ electron.ipcRenderer.on("stopCcurl", function(event, data) {
 electron.ipcRenderer.on("editNodeConfiguration", function(event, serverConfiguration) {
   UI.editNodeConfiguration(serverConfiguration);
 });
+
+electron.ipcRenderer.on("editNeighbors", function(event, nodes) {
+  UI.editNeighbors(nodes);
+});
+
 
 electron.ipcRenderer.on("toggleDeveloperTools", UI.toggleDeveloperTools);
 

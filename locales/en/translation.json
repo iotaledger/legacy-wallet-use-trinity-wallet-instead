@@ -167,6 +167,7 @@
   "network_spammer": "Network Spammer",
   "open_database_folder": "Open Database Folder",
   "edit_node_configuration": "Edit Node Configuration",
+  "edit_neighbors": "Edit Neighbors",
   "options": "Options",
   "switch_to_light_node": "Switch to Light Node",
   "switch_to_full_node": "Switch to Full Node",
@@ -216,9 +217,9 @@
   "node_config": "Node Config",
   "host": "Host",
   "min_weight_magnitude": "Min Weight Magnitude",
-  "node_port": "Node port",
-  "depth": "depth",
-  "neighboring_nodes": "Neighboring nodes",
+  "node_port": "Node Port",
+  "depth": "Depth",
+  "neighboring_nodes": "Neighboring Nodes",
   "node_settings_format": "Add nodes in the following format (one per line)",
   "update_available": "Update available.",
   "update_being_downloaded": "An update is available and is being downloaded.",
@@ -310,5 +311,7 @@
   "electron": "Electron",
   "submit": "Submit",
   "success": "Success",
-  "copied_to_clipboard": "Copied to Clipboard."
+  "copied_to_clipboard": "Copied to Clipboard.",
+  "udp_receiver_port": "UDP Receiver Port",
+  "tcp_receiver_port": "TCP Receiver Port"
 }
