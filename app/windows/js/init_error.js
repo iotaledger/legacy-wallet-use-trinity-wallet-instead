@@ -121,6 +121,10 @@ var UI = (function(UI, undefined) {
     electron.ipcRenderer.send("showNoJavaInstalledWindow", {"downloadImmediatelyIfWindows": true});
   }
 
+  UI.relaunchApplication = function() {
+    electron.ipcRenderer.send("relaunchApplication");
+  }
+  
   UI.showSetupWindow = function(section) {
     electron.ipcRenderer.send("showSetupWindow", {"section": section});
   }
