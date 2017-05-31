@@ -1453,7 +1453,7 @@ var App = (function(App, undefined) {
 
         if (iri !== -1) {
 
-          var initTestnet = data.indexOf("Testnet");
+          var initTestnet = data.indexOf("Testnet") != -1;
           //don't run mainnet IRI in testnet GUI, and other way around
           if (isTestNet && !initTestnet || !isTestNet && initTestnet) {
             App.quit();
