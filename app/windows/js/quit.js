@@ -1,4 +1,5 @@
 const electron = require("electron");
+const path     = require("path");
 
 var __entityMap = {
   "&": "&amp;",
@@ -8,6 +9,9 @@ var __entityMap = {
   "'": '&#39;',
   "/": '&#x2F;'
 };
+
+var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
+var resourcesDirectory = isDevelopment ? "../../" : "../../../";
 
 String.prototype.escapeHTML = function() {
   return String(this).replace(/[&<>"'\/]/g, function(s) {
@@ -81,7 +85,7 @@ var UI = (function(UI, undefined) {
         lng: currentLanguage,
         fallbackLng: "en",
         backend: {
-          loadPath: "../../locales/{{lng}}/{{ns}}.json"
+          loadPath: path.join(resourcesDirectory, "locales", "{{lng}}", "{{ns}}.json")
         },
         debug: false
     }, function(err, t) {

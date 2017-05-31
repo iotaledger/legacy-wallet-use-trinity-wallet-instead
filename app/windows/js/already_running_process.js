@@ -1,4 +1,8 @@
 const electron = require("electron");
+const path     = require("path");
+
+var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
+var resourcesDirectory = isDevelopment ? "../../" : "../../../";
 
 var UI = (function(UI, undefined) {
   UI.initialize = function() {
@@ -59,7 +63,7 @@ var UI = (function(UI, undefined) {
         lng: currentLanguage,
         fallbackLng: "en",
         backend: {
-          loadPath: "../../locales/{{lng}}/{{ns}}.json"
+          loadPath: path.join(resourcesDirectory, "locales", "{{lng}}", "{{ns}}.json")
         },
         debug: false
     }, function(err, t) {
