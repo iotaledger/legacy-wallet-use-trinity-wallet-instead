@@ -90,11 +90,11 @@ var UI = (function(UI, $, undefined) {
       UI.initialConnection = true;
       if (connection.nodeInfo.appName.match(/testnet/i)) {
         connection.testNet = true;
-        if (connection.minWeightMagnitude < 13) {
-          connection.minWeightMagnitude = 13;
+        if (connection.minWeightMagnitude < 9) {
+          connection.minWeightMagnitude = 9;
         }
-      } else if (connection.minWeightMagnitude < 18) {
-        connection.minWeightMagnitude = 18;
+      } else if (connection.minWeightMagnitude < 13) {
+        connection.minWeightMagnitude = 13;
       }
       if (connection.inApp && connection.lightWallet) {
         updateAppInfo({"name": connection.nodeInfo.appName, "version": connection.nodeInfo.appVersion, "testnet": connection.testNet});

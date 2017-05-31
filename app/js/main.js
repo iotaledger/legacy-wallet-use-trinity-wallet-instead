@@ -492,7 +492,7 @@ var App = (function(App, undefined) {
           click() {
             if (otherWin) {
               otherWin.toggleDevTools({mode: "undocked"});
-            } else if (App.uiIsReady()) {
+            } else if (App.uiIsReady) {
               win.webContents.send("toggleDeveloperTools");
             }
           }

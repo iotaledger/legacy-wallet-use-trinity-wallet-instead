@@ -1,8 +1,8 @@
 {
-  "name": "iota",
-  "productName": "IOTA Wallet",
-  "description": "IOTA Wallet",
-  "version": "2.2.3",
+  "name": "iota-testnet",
+  "productName": "IOTA Wallet Testnet",
+  "description": "IOTA Wallet Testnet",
+  "version": "2.2.2-testnet",
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "publish:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --mac --x64 --publish always",
     "publish:win": "build --win --x64 --ia32 --publish always"
   },
-  "author": "IOTA Foundation <contact@iota.org>",
+  "author": "IOTA Foundation <info@iota.org>",
   "homepage": "https://www.iota.org",
   "repository": {
     "type": "git",
@@ -47,10 +47,10 @@
     "publish": [
       "github"
     ],
-    "appId": "com.iotatoken.wallet",
+    "appId": "com.iotatoken.wallet-testnet",
     "category": "public.app-category.developer-tools",
     "extraResources": [
-      "iri/iri.jar",
+      "iri/iri-testnet.jar",
       "ccurl/**/*",
       "ui/**/*",
       "locales/**/*"
