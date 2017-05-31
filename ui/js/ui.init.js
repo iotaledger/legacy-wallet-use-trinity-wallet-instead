@@ -11,7 +11,7 @@ var connection = {"accountData"         : false,
                   "host"                : "http://localhost",
                   "port"                : 14265,
                   "depth"               : 3,
-                  "minWeightMagnitude"  : 18,
+                  "minWeightMagnitude"  : 13,
                   "ccurlPath"           : null,
                   "lightWallet"         : false,
                   "language"            : "en"};

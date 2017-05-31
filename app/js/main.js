@@ -171,13 +171,21 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("depth")) {
         settings.depth = 3;
       }
-      if (!settings.hasOwnProperty("minWeightMagnitude")) {
-        settings.minWeightMagnitude = 18;
+      if (!settings.hasOwnProperty("lastOverride")) {
+        settings.lastOverride = null;
       }
-      if (!isTestNet && settings.minWeightMagnitude < 18) {
-        settings.minWeightMagnitude = 18;
-      } else if (isTestNet && settings.minWeightMagnitude < 13) {
+      if (settings.lastOverride != 1) {
+        console.log("overriding");
+        settings.minWeightMagnitude = (isTestNet ? 9 : 13);
+        settings.lastOverride = 1;
+      }
+      if (!settings.hasOwnProperty("minWeightMagnitude")) {
         settings.minWeightMagnitude = 13;
+      }
+      if (!isTestNet && settings.minWeightMagnitude < 13) {
+        settings.minWeightMagnitude = 13;
+      } else if (isTestNet && settings.minWeightMagnitude < 9) {
+        settings.minWeightMagnitude = 9;
       }
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
         settings.nodes = [];
@@ -1997,10 +2005,10 @@ var App = (function(App, undefined) {
       if (configuration.hasOwnProperty("minWeightMagnitude")) {
         settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
 
-        if (!isTestNet && settings.minWeightMagnitude < 18) {
-          settings.minWeightMagnitude = 18;
-        } else if (isTestNet && settings.minWeightMagnitude < 13) {
+        if (!isTestNet && settings.minWeightMagnitude < 13) {
           settings.minWeightMagnitude = 13;
+        } else if (isTestNet && settings.minWeightMagnitude < 9) {
+          settings.minWeightMagnitude = 9;
         }
       }
 
