@@ -90,7 +90,7 @@ var UI = (function(UI, $, undefined) {
                      timeout : 10000000000};
 
       console.log("Calling https://service.iotatoken.com");
-      
+
       $.ajax(options).done(function(data) {
         console.log("got data");
         console.log(data);
@@ -107,10 +107,10 @@ var UI = (function(UI, $, undefined) {
         var iotaAmount = data.match(/The seed provided by you contains ([0-9]+) iotas/i);
         if (iotaAmount) {
           var formattedAmount = UI.formatAmount(iotaAmount[1]);
-          $("#claim-output").data("i18n", "seed_contains").localize({value: formattedAmoun});
+          $("#claim-output").data("i18n", "seed_contains").localize({value: formattedAmount});
 
           /*
-          //TODO?? 
+          //TODO??
           if (String($("#claim-output span.amount").data("long")).match(/^[0-9\'\s]+$/)) {
             $("#claim-output span.amount").html($("#claim-output span.amount").html() + "i");
           }*/

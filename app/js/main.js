@@ -1456,8 +1456,13 @@ var App = (function(App, undefined) {
         }
       } else {
         // This can result in errors.. Need to have a real response from the console instead of just this.
-        var iri = data.indexOf("Welcome to IRI")
-        var iriVersion = data.match(/\d+/g).join([])
+        var iri = data.indexOf("Welcome to IRI");
+        var iriVersion = "";
+
+        if (iri !== -1) {
+            var newString = data.slice(iri, data.length);
+            var iriVersion = newString.replace(/[^0-9\.]+/g,"");
+        }
 
         if (iri !== -1) {
 
