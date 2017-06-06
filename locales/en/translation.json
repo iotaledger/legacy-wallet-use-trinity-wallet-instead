@@ -315,5 +315,6 @@
   "reattach": "RE-ATTACH",
   "cannot_close_whilst_reattaching": "Cannot close whilst re-attaching.",
   "transaction_reattached_successfully": "Transaction re-attached successfully",
-  "reattach_completed": "Re-attach completed"
+  "reattach_completed": "Re-attach completed",
+  "transfer_completed": "Transfer completed",
 }
