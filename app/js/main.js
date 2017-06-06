@@ -162,11 +162,11 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("port")) {
         settings.port = (isTestNet ? 14900 : 14265);
       }
-      if (!settings.hasOwnProperty("udpReceiverPort")) {
-        settings.udpReceiverPort = 0;
+      if (!settings.hasOwnProperty("udpReceiverPort") || settings.udpReceiverPort == 0) {
+        settings.udpReceiverPort = 14600;
       }
-      if (!settings.hasOwnProperty("tcpReceiverPort")) {
-        settings.tcpReceiverPort = 0;
+      if (!settings.hasOwnProperty("tcpReceiverPort") || settings.tcpReceiverPort == 0) {
+        settings.tcpReceiverPort = 15600;
       }
       if (!settings.hasOwnProperty("sendLimit")) {
         settings.sendLimit = 0;
@@ -196,7 +196,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 0, tcpReceiverPort: 0, sendLimit: 0, nodes: []};
+      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: []};
     }
 
     try {
@@ -1123,12 +1123,12 @@ var App = (function(App, undefined) {
       params.push("-p");
       params.push(settings.port);
 
-      if (settings.udpReceiverPort) {
+      if (settings.udpReceiverPort != 14600) {
         params.push("-u");
         params.push(settings.udpReceiverPort);
       }
 
-      if (settings.tcpReceiverPort) {
+      if (settings.tcpReceiverPort != 15600) {
         params.push("-t");
         params.push(settings.tcpReceiverPort);
       }

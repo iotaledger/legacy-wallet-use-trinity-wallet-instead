@@ -478,9 +478,9 @@ var UI = (function(UI, undefined) {
       "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("node_port") + "</label>" + 
       "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" +  
       "<div class='input-group'><label data-i18n='udp_receiver_port'>" + i18n.t("udp_receiver_port") + "</label>" + 
-      "<input type='number' min='1024' name='udp_receiver_port' id='server_config_udp_receiver_port' placeholder='' value='" + (configuration.udpReceiverPort ? String(configuration.udpReceiverPort).escapeHTML() : "") + "' /></div>" +  
+      "<input type='number' min='1024' name='udp_receiver_port' id='server_config_udp_receiver_port' placeholder='' value='" + (configuration.udpReceiverPort ? String(configuration.udpReceiverPort).escapeHTML() : "14600") + "' /></div>" +  
       "<div class='input-group'><label data-i18n='tcp_receiver_port'>" + i18n.t("tcp_receiver_port") + "</label>" + 
-      "<input type='number' min='1024' name='tcp_receiver_port' id='server_config_tcp_receiver_port' placeholder='' value='" + (configuration.tcpReceiverPort ? String(configuration.tcpReceiverPort).escapeHTML() : "") + "' /></div>" +  
+      "<input type='number' min='1024' name='tcp_receiver_port' id='server_config_tcp_receiver_port' placeholder='' value='" + (configuration.tcpReceiverPort ? String(configuration.tcpReceiverPort).escapeHTML() : "15600") + "' /></div>" +  
       "<div class='input-group'><label data-i18n='send_limit'>" + i18n.t("send_limit") + "</label>" + 
       "<input type='number' min='0' name='send_limit' id='server_config_send_limit' placeholder='' value='" + (configuration.sendLimit > 0 ? String(configuration.sendLimit).escapeHTML() : "") + "' /></div>" +  
       "<div class='input-group'><label data-i18n='depth'>" + i18n.t("depth") + "</label>" + 
