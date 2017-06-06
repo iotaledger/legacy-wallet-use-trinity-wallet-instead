@@ -477,10 +477,12 @@ var UI = (function(UI, undefined) {
       content = "<h1 data-i18n='node_config'></h1>" + 
       "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("node_port") + "</label>" + 
       "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("udp_receiver_port") + "</label>" + 
+      "<div class='input-group'><label data-i18n='udp_receiver_port'>" + i18n.t("udp_receiver_port") + "</label>" + 
       "<input type='number' min='1024' name='udp_receiver_port' id='server_config_udp_receiver_port' placeholder='' value='" + (configuration.udpReceiverPort ? String(configuration.udpReceiverPort).escapeHTML() : "") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("tcp_receiver_port") + "</label>" + 
+      "<div class='input-group'><label data-i18n='tcp_receiver_port'>" + i18n.t("tcp_receiver_port") + "</label>" + 
       "<input type='number' min='1024' name='tcp_receiver_port' id='server_config_tcp_receiver_port' placeholder='' value='" + (configuration.tcpReceiverPort ? String(configuration.tcpReceiverPort).escapeHTML() : "") + "' /></div>" +  
+      "<div class='input-group'><label data-i18n='send_limit'>" + i18n.t("send_limit") + "</label>" + 
+      "<input type='number' min='0' name='send_limit' id='server_config_send_limit' placeholder='' value='" + (configuration.sendLimit > 0 ? String(configuration.sendLimit).escapeHTML() : "") + "' /></div>" +  
       "<div class='input-group'><label data-i18n='depth'>" + i18n.t("depth") + "</label>" + 
       "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" +
       "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
@@ -510,6 +512,7 @@ var UI = (function(UI, undefined) {
         config.port = parseInt(document.getElementById("server_config_port").value, 10);
         config.udpReceiverPort = parseInt(document.getElementById("server_config_udp_receiver_port").value, 10);
         config.tcpReceiverPort = parseInt(document.getElementById("server_config_tcp_receiver_port").value, 10);
+        config.sendLimit = parseFloat(document.getElementById("server_config_send_limit").value);
         config.depth = parseInt(document.getElementById("server_config_depth").value, 10);
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
       }

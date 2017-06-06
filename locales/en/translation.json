@@ -317,4 +317,5 @@
   "transaction_reattached_successfully": "Transaction re-attached successfully",
   "reattach_completed": "Re-attach completed",
   "transfer_completed": "Transfer completed",
+  "send_limit": "Send Limit (Mbit/s)"
 }

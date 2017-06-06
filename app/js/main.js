@@ -168,6 +168,9 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("tcpReceiverPort")) {
         settings.tcpReceiverPort = 0;
       }
+      if (!settings.hasOwnProperty("sendLimit")) {
+        settings.sendLimit = 0;
+      }
       if (!settings.hasOwnProperty("depth")) {
         settings.depth = 3;
       }
@@ -193,7 +196,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 0, tcpReceiverPort: 0, nodes: []};
+      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 0, tcpReceiverPort: 0, sendLimit: 0, nodes: []};
     }
 
     try {
@@ -1130,6 +1133,11 @@ var App = (function(App, undefined) {
         params.push(settings.tcpReceiverPort);
       }
 
+      if (settings.sendLimit > 0) {
+        params.push("--send-limit");
+        params.push(settings.sendLimit);
+      }
+
       if (settings.nodes) {
         params.push("-n");
         params.push(settings.nodes.join(" "));
@@ -1883,7 +1891,7 @@ var App = (function(App, undefined) {
       if (walletType == 1) {
         var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet};
       } else {
-        var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet};
+        var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "sendLimit": settings.sendLimit, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet};
       }
       win.webContents.send("editNodeConfiguration", config);
     }
@@ -1998,6 +2006,14 @@ var App = (function(App, undefined) {
           var tcpReceiverPort = parseInt(configuration.tcpReceiverPort, 10);
           if (tcpReceiverPort != settings.tcpReceiverPort) {
             settings.tcpReceiverPort = tcpReceiverPort;
+            relaunch = true;
+          }
+        }
+
+        if (configuration.hasOwnProperty("sendLimit")) {
+          var sendLimit = parseFloat(configuration.sendLimit);
+          if (sendLimit != settings.sendLimit) {
+            settings.sendLimit = sendLimit;
             relaunch = true;
           }
         }
