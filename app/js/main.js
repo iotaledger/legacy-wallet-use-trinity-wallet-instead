@@ -1111,8 +1111,12 @@ var App = (function(App, undefined) {
 
       params.push(path.join(jarDirectory, "iri" + (isTestNet ? "-testnet" : "") + ".jar"));
 
-      if (settings.experimental) {
-        params.push("-e");
+      // temporary !
+      // Only rescan once 
+      if (!('rescan' in settings) || settings.rescan) {
+          params.push("--rescan");
+
+          settings.rescan = false;
       }
 
       if (isTestNet) {
