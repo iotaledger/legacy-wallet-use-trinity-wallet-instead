@@ -53,31 +53,31 @@ var UI = (function(UI, $, undefined) {
       });
     });
 
-    $("#replay-btn, #rebroadcast-btn").on("click", function(e) {
+    $("#reattach-btn, #rebroadcast-btn").on("click", function(e) {
       e.preventDefault();
 
       var hash = $(this).data("hash");
 
       if (!hash) {
-        console.log("UI.replay/rebroadcast: No hash");
+        console.log("UI.reattach/rebroadcast: No hash");
         return;
       }
 
       var isRebroadcast = $(this).attr("id") == "rebroadcast-btn";
 
       if (isRebroadcast) {
-        $("#replay-btn").attr("disabled", "disabled");
+        $("#reattach-btn").attr("disabled", "disabled");
       } else {
         $("#rebroadcast-btn").attr("disabled", "disabled");
       }
 
       $(".remodal-close").on("click", function(e) {
-        UI.notify("error", isRebroadcast ? "cannot_close_whilst_rebroadcasting" : "cannot_close_whilst_replaying");
+        UI.notify("error", isRebroadcast ? "cannot_close_whilst_rebroadcasting" : "cannot_close_whilst_reattaching");
         e.preventDefault();
         e.stopPropagation();
       });
 
-      console.log("UI.handleHistory: Do " + (isRebroadcast ? "rebroadcast" : "replay") + " for hash " + hash);
+      console.log("UI.handleHistory: Do " + (isRebroadcast ? "rebroadcast" : "reattach") + " for hash " + hash);
 
       UI.isLocked = true;
 
@@ -98,21 +98,21 @@ var UI = (function(UI, $, undefined) {
 
           UI.isLocked = false;
           $(".remodal-close").off("click");
-          $("#replay-btn").removeAttr("disabled");
+          $("#reattach-btn").removeAttr("disabled");
         });
       } else {
         iota.api.replayBundle(hash, connection.depth, connection.minWeightMagnitude, function(error, bundle) {
           console.log(bundle);
           if (error) {
-            console.log("UI.replay: Error");
+            console.log("UI.reattach: Error");
             console.log(error);
-            $("#replay-btn").loadingError(error); //todo: not a key
+            $("#reattach-btn").loadingError(error); //todo: not a key
           } else {
-            console.log("UI.replay: Success");
+            console.log("UI.reattach: Success");
             if (!UI.isFocused()) {
-              UI.notifyDesktop("transaction_replayed_successfully");
+              UI.notifyDesktop("transaction_reattached_successfully");
             }
-            $("#replay-btn").loadingSuccess("replay_completed");
+            $("#reattach-btn").loadingSuccess("reattach_completed");
             $("#bundle-modal .persistence").hide();
 
             UI.updateState(1000);

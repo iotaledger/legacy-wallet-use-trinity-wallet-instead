@@ -18,8 +18,6 @@
   "bundle_details": "Bundle Details",
   "rebroadcasting": "Rebroadcasting...",
   "rebroadcast": "REBROADCAST",
-  "replaying": "Replaying...",
-  "replay": "REPLAY",
   "node_info": "Node Info",
   "neighbors": "Neighbors",
   "generated_seed": "Generated Seed",
@@ -76,11 +74,8 @@
   "confirmed": "Confirmed",
   "pending": "Pending",
   "cannot_close_whilst_rebroadcasting": "Cannot close whilst rebroadcasting.",
-  "cannot_close_whilst_replaying": "Cannot close whilst replaying.",
   "transaction_rebroadcasted_successfully": "Transaction rebroadcasted successfully",
   "rebroadcast_completed": "Rebroadcast completed",
-  "transaction_replayed_successfully": "Transaction replayed successfully",
-  "replay_completed": "Replay completed",
   "genesis": "Genesis",
   "show_bundle": "Show bundle",
   "transfer": "{{count}} Transfer",
@@ -315,5 +310,10 @@
   "udp_receiver_port": "UDP Receiver Port",
   "tcp_receiver_port": "TCP Receiver Port",
   "invalid": "Invalid",
-  "required": "Required"
+  "required": "Required",
+  "reattaching": "Re-attaching...",
+  "reattach": "RE-ATTACH",
+  "cannot_close_whilst_reattaching": "Cannot close whilst re-attaching.",
+  "transaction_reattached_successfully": "Transaction re-attached successfully",
+  "reattach_completed": "Re-attach completed"
 }
