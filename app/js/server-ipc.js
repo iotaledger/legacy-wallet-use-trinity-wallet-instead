@@ -63,19 +63,6 @@ ipcRenderer.on("showNetworkSpammer", function() {
   }
 });
 
-ipcRenderer.on("showClaimProcess", function() {
-  if (typeof(UI) != "undefined") {
-    UI.showClaimProcess();
-  }
-});
-
-ipcRenderer.on("generateSeed", function() {
-  if (typeof(UI) != "undefined") {
-    var modal = UI.showGeneratedSeed(true);
-    ipcRenderer.send("showModal", "generated-seed-modal", modal);
-  }
-});
-
 ipcRenderer.on("pasteTrytes", function() {
   if (typeof(UI) != "undefined") {
     UI.showPasteTrytes();

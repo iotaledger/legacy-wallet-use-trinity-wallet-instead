@@ -113,7 +113,6 @@ var UI = (function(UI, $, undefined) {
 
     UI.handleHelpMenu();
     UI.handleNetworkSpamming();
-    UI.handleClaiming();
     UI.handlePastingTrytes();
   }
 
@@ -136,14 +135,6 @@ var UI = (function(UI, $, undefined) {
     if (seedError) {
       var options = {timeOut: 10000, 
                      extendedTimeOut: 10000};
-
-      /*
-      if (connection.inApp) {
-        options.onclick = function() {
-          UI.showGeneratedSeed();
-        }
-      }
-      */
 
       UI.notify("error", seedError, options);
     }

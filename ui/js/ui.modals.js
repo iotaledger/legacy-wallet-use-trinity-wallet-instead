@@ -1,45 +1,4 @@
 var UI = (function(UI, $, undefined) {
-  UI.showGeneratedSeed = function(returnHTML) {
-    console.log("UI.showGeneratedSeed");
-
-    var seed = generateSeed();
-
-    var html = "<p><span data-i18n='your_generated_seed_is'>" + i18n.t("your_generated_seed_is") + "</span>" + (connection.inApp ? " (<a href='#' id='generated-seed-value-copy' data-i18n='copy'>" + i18n.t("copy") + "</a>)" : "") + ":</p>";
-
-    html += "<div style='font-family:courier;background:black;color:white;word-break:break-all;font-size:120%;padding:10px'>" + UI.formatForClipboard(seed, "generated-seed-value") + "</div>";
-
-    if (returnHTML) {
-      return "<h1 data-i18n='generated_seed'>" + i18n.t("generated_seed") + "</h1><div class='contents'>" + html + "</div>";
-    } else {
-      var $modal = $("#generated-seed-modal");
-
-      $modal.find(".contents").html(html);
-
-      var modal = $modal.remodal({hashTracking: false});
-      modal.open();
-    }
-  }
-
-  function generateSeed() {
-    var cryptoObj = window.crypto || window.msCrypto; // for IE 11
-
-    if (!cryptoObj) {
-      throw i18n.t("crypto_tools_not_available");
-    }
-
-    var seed       = "";
-    var characters = "9ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    var randomValues = new Uint32Array(81);
-    cryptoObj.getRandomValues(randomValues);
-
-    for (var i=0; i<81; i++) {
-      seed += characters.charAt(randomValues[i]%27);
-    }
-
-    return seed;
-  }
-  
   UI.showPeers = function(callback) {
     console.log("UI.showPeers");
 

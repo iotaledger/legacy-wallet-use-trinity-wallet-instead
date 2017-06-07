@@ -758,10 +758,6 @@ var UI = (function(UI, undefined) {
       UI.sendToWebview("showPeers");
     } else if (url == "spam" || url == "spammer") {
       UI.sendToWebview("showNetworkSpammer");
-    } else if (url == "generateseed" || url == "seed") {
-      UI.sendToWebview("generateSeed");
-    } else if (url == "claim") {
-      UI.sendToWebview("showClaimProcess");
     } else if (url == "faq") {
       UI.sendToWebview("faq");
     } else {
@@ -901,19 +897,9 @@ electron.ipcRenderer.on("showNetworkSpammer", function() {
   UI.sendToWebview("showNetworkSpammer");
 });
 
-electron.ipcRenderer.on("generateSeed", function() {
-  UI.hideAlerts();
-  UI.sendToWebview("generateSeed");
-});
-
 electron.ipcRenderer.on("pasteTrytes", function() {
   UI.hideAlerts();
   UI.sendToWebview("pasteTrytes");
-});
-
-electron.ipcRenderer.on("showClaimProcess", function() {
-  UI.hideAlerts();
-  UI.sendToWebview("showClaimProcess");
 });
 
 electron.ipcRenderer.on("updateSettings", function(event, settings) {
@@ -931,7 +917,6 @@ electron.ipcRenderer.on("editNodeConfiguration", function(event, serverConfigura
 electron.ipcRenderer.on("editNeighbors", function(event, nodes) {
   UI.editNeighbors(nodes);
 });
-
 
 electron.ipcRenderer.on("toggleDeveloperTools", UI.toggleDeveloperTools);
 

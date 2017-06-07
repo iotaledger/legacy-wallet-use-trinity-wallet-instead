@@ -620,18 +620,6 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: i18n.t("generate_seed"),
-            click(item) {
-              App.generateSeed();
-            }
-          },
-          {
-            label: i18n.t("claim_process"),
-            click(item) {
-              App.claimProcess();
-            }
-          },
-          {
             label: i18n.t("network_spammer"),
             click(item) {
               App.showNetworkSpammer();
@@ -684,25 +672,25 @@ var App = (function(App, undefined) {
       });
 
       if (settings.lightWallet == 1) {
-        template[2].submenu[15].label = i18n.t("switch_to_full_node");
+        template[2].submenu[13].label = i18n.t("switch_to_full_node");
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 2);
         // Remove "open database folder" option.
-        template[2].submenu.splice(7, 1);
+        template[2].submenu.splice(5, 1);
         // Remove "edit neighbors" option.
-        template[2].submenu.splice(8, 1);
+        template[2].submenu.splice(6, 1);
         if (process.platform == "darwin") {
           // Remove options from mac platforms
-          template[2].submenu.splice(8 , 2);
+          template[2].submenu.splice(6 , 2);
         }
       } else {
         if (settings.lightWallet == -1) {
           //remove the switch to light / full node link
-          template[2].submenu.splice(14, 2);
+          template[2].submenu.splice(12, 2);
         }
         if (process.platform == "darwin") {
           // Remove options from mac platform
-          template[2].submenu.splice(12, 2);
+          template[2].submenu.splice(10, 2);
         }
       }
     }
@@ -1930,24 +1918,10 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.generateSeed = function() {
-    if (App.windowIsReady()) {
-      App.showWindowIfNotVisible();
-      win.webContents.send("generateSeed");
-    }
-  }
-
   App.pasteTrytes = function() {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("pasteTrytes");
-    }
-  }
-
-  App.claimProcess = function() {
-    if (App.windowIsReady()) {
-      App.showWindowIfNotVisible();
-      win.webContents.send("showClaimProcess");
     }
   }
 

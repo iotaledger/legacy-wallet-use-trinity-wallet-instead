@@ -22,7 +22,6 @@
   <script type="text/javascript" src="js/ui.login.js"></script>
   <script type="text/javascript" src="js/ui.modals.js"></script>
   <script type="text/javascript" src="js/ui.spam.js"></script>
-  <script type="text/javascript" src="js/ui.claim.js"></script>
   <script type="text/javascript" src="js/ui.transfers.js"></script>
   <script type="text/javascript" src="js/ui.url.js"></script>
   <script type="text/javascript" src="js/ui.update.js"></script>
@@ -141,27 +140,6 @@
   <button data-remodal-action="close" class="remodal-close"></button>
   <h1 id='neighbors' data-i18n="neighbors"></h1>
   <div class="contents"></div>
-</div>
-
-<div id="generated-seed-modal" class="modal" data-remodal-id="generated-seed">
-  <button data-remodal-action="close" class="remodal-close"></button>
-  <h1 data-i18n="generated_seed"></h1>
-  <div class="contents"></div>
-</div>
-
-<div id="claim-modal" class="modal gray" data-remodal-id="claim">
-  <button data-remodal-action="close" class="remodal-close"></button>
-  <h1 data-i18n="claim_process"></h1>
-  <div class="contents">
-    <div class='input-group'><label data-i18n="old_seed"></label> 
-    <input type='password' name='old_seed' id='claim_process_old_seed' data-i18n="[placeholder]seed_of_old_account" value='' /></div>
-    <div class='input-group input-group'><label data-i18n="new_seed"></label>
-    <input type='password' name='new_seed' id='claim_process_new_seed' data-i18n="[placeholder]seed_of_new_account" value='' /></div>
-    <div class='input-group input-group'><label data-i18n="repeat_new_seed"></label>
-    <input type='password' name='new_seed' id='claim_process_repeat_new_seed' data-i18n="[placeholder]type_new_seed_again" value='' /></div>
-    <button id="claim-btn" type="button" class="btn" data-initial="Claim" data-loading="claiming" data-i18n="claim"></button>
-    <div id="claim-output" data-i18n="seed_contains" class="small"></div>
-  </div>
 </div>
 
 <div id="paste-trytes-modal" class="modal" data-remodal-id="paste-trytes">
