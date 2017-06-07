@@ -1996,16 +1996,15 @@ var App = (function(App, undefined) {
   }
 
   App.updateNodeConfiguration = function(configuration) {
-    console.log("Update Node Config");
     try {
       if (!configuration) {
         configuration = {};
       }
 
-      var relaunch = false;
+      var relaunch              = false;
       var lightWalletHostChange = false;
-      var addedNodes = [];
-      var removedNodes = [];
+      var addedNodes            = [];
+      var removedNodes          = [];
 
       if (configuration.hasOwnProperty("lightWallet")) {
         var lightWallet = parseInt(configuration.lightWallet, 10);
@@ -2120,11 +2119,18 @@ var App = (function(App, undefined) {
 
       if (relaunch || !App.windowIsReady()) {
         App.relaunchApplication();
-      } else if (lightWalletHostChange) {
-        // For now we'll just relaunch, easiest... TODO
-        App.relaunchApplication();
-      } else if (addedNodes || removedNodes && App.windowIsReady()) {
-        win.webContents.send("addAndRemoveNeighbors", addedNodes, removedNodes);
+      } else if (lightWalletHostChange && settings.lightWallet == 1) {
+        win.webContents.send("updateSettings", {
+          "host": settings.lightWalletHost,
+          "port": settings.lightWalletPort
+        })
+      } else {
+        win.webContents.send("updateSettings", {
+          "depth": settings.depth,
+          "minWeightMagnitude": settings.minWeightMagnitude,
+          "addedNodes": addedNodes,
+          "removedNodes": removedNodes
+        });
       }
     } catch (err) {
       console.log("Error:");
@@ -2148,7 +2154,7 @@ var App = (function(App, undefined) {
         App.saveSettings();
 
         if (App.windowIsReady()) {
-          win.webContents.send("addAndRemoveNeighbors", [node]);
+          win.webContents.send("updateSettings", {"addedNodes": [node]});
         }
       }
     } catch (err) {

@@ -206,10 +206,21 @@ var UI = (function(UI, $, undefined) {
     $btn.loadingUpdate(message, options);
   }
 
-  //todo
-  UI.addAndRemoveNeighbors = function(addNodes, removeNodes) {
-    if (addNodes && addNodes.length) {
-      iota.api.addNeighbors(addNodes, function(error, addedNodes) {
+  UI.updateSettings = function(settings) {
+    if (settings.hasOwnProperty("minWeightMagnitude")) {
+      connection.minWeightMagnitude = parseInt(settings.minWeightMagnitude, 10);
+    }
+    if (settings.hasOwnProperty("depth")) {
+      connection.depth = parseInt(settings.depth, 10);
+    }
+    if (settings.hasOwnProperty("host")) {
+      connection.host = settings.host;
+    }
+    if (settings.hasOwnProperty("port")) {
+      connection.port = settings.port;
+    }
+    if (settings.hasOwnProperty("addedNodes") && settings.addedNodes.length) {
+      iota.api.addNeighbors(settings.addedNodes, function(error, addedNodes) {
         if (error || addedNodes === undefined) {
           UI.notify("error", "error_whilst_adding_neighbors");
         } else {
@@ -218,8 +229,8 @@ var UI = (function(UI, $, undefined) {
       });
     }
 
-    if (removeNodes && removeNodes.length) {
-      iota.api.addNeighbors(removeNodes, function(error, removedNodes) {
+    if (settings.hasOwnProperty("removedNodes") && settings.removedNodes.length) {
+      iota.api.addNeighbors(settings.removedNodes, function(error, removedNodes) {
         if (error || removedNodes === undefined) {
           UI.notify("error", "error_whilst_removing_neighbors");
         } else {

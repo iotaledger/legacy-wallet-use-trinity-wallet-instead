@@ -140,8 +140,8 @@ ipcRenderer.on("shutdown", function() {
   }
 });
 
-ipcRenderer.on("addAndRemoveNeighbors", function(event, nodes) {
-  UI.addAndRemoveNeighbors(nodes.add, nodes.remove);
+ipcRenderer.on("updateSettings", function(event, settings) {
+  UI.updateSettings(settings);
 });
 
 ipcRenderer.on("stopCcurl", function(event, callback) {

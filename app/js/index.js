@@ -539,7 +539,7 @@ var UI = (function(UI, undefined) {
 
     modal.open();
   }
-  
+
   UI.showUpdateAvailable = function() {
     UI.showAlert("<h1 data-i18n='update_available'>" + i18n.t("update_available") + "</h1><p data-i18n='update_being_downloaded'>" + i18n.t("update_being_downloaded") + "</p>");
   }
@@ -914,8 +914,8 @@ electron.ipcRenderer.on("showClaimProcess", function() {
   UI.sendToWebview("showClaimProcess");
 });
 
-electron.ipcRenderer.on("addAndRemoveNeighbors", function(event, addedNodes, removedNodes) {
-  UI.sendToWebview("addAndRemoveNeighbors", {"add": addedNodes, "remove": removedNodes});
+electron.ipcRenderer.on("updateSettings", function(event, settings) {
+  UI.sendToWebview("updateSettings", settings);
 });
 
 electron.ipcRenderer.on("stopCcurl", function(event, data) {
