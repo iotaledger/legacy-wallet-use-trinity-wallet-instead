@@ -311,11 +311,12 @@
   "tcp_receiver_port": "TCP Receiver Port",
   "invalid": "Invalid",
   "required": "Required",
-  "reattaching": "Re-attaching...",
-  "reattach": "RE-ATTACH",
-  "cannot_close_whilst_reattaching": "Cannot close whilst re-attaching.",
-  "transaction_reattached_successfully": "Transaction re-attached successfully",
-  "reattach_completed": "Re-attach completed",
+  "reattaching": "Reattaching...",
+  "reattach": "REATTACH",
+  "cannot_close_whilst_reattaching": "Cannot close whilst reattaching.",
+  "transaction_reattached_successfully": "Transaction reattached successfully",
+  "reattach_completed": "Reattach completed",
   "transfer_completed": "Transfer completed",
-  "send_limit": "Send Limit (Mbit/s)"
+  "send_limit": "Send Limit (Mbit/s)",
+  "db_location": "Database Location"
 }

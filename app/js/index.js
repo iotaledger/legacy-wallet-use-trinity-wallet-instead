@@ -486,11 +486,25 @@ var UI = (function(UI, undefined) {
       "<div class='input-group'><label data-i18n='depth'>" + i18n.t("depth") + "</label>" + 
       "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" +
       "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
-      "<input type='number' min='" + (configuration.testNet ? "9" : "13") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "9": "13")) + "' /></div>";
-    }
+      "<input type='number' min='" + (configuration.testNet ? "9" : "13") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "9": "13")) + "' /></div>" + 
+      "<div class='input-group'><label><span data-i18n='db_location'>" + i18n.t("db_location") + "</span> <button id='db_location_select' class='small' style='display:inline-block;'>change</button></label>" + 
+      "<div class='file-path' id='server_config_db_location_preview'>" + String(configuration.dbLocation).escapeHTML() + "</div>" + 
+      "<input type='hidden' name='db_location' id='server_config_db_location' value='" + String(configuration.dbLocation).escapeHTML() + "' />";
+    } 
 
     modal.setContent(content);
     
+    document.getElementById('db_location_select').addEventListener('click', function(e) {
+      currentLocation = document.getElementById('server_config_db_location').value;
+
+      electron.remote.dialog.showOpenDialog({title: "Select Database Location", message: "Select Database Location", defaultPath: currentLocation, properties: ["openDirectory", "createDirectory"]}, function(filePaths) {
+        if (filePaths && filePaths[0]) {
+          document.getElementById('server_config_db_location').value = filePaths[0];
+          document.getElementById('server_config_db_location_preview').innerHTML = String(filePaths[0]).escapeHTML();
+        }
+      });
+    });
+
     modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {
       var config = {};
 
@@ -515,6 +529,7 @@ var UI = (function(UI, undefined) {
         config.sendLimit = parseFloat(document.getElementById("server_config_send_limit").value);
         config.depth = parseInt(document.getElementById("server_config_depth").value, 10);
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
+        config.dbLocation = document.getElementById("server_config_db_location").value;
       }
 
       modal.close();
@@ -524,7 +539,7 @@ var UI = (function(UI, undefined) {
 
     modal.open();
   }
-
+  
   UI.showUpdateAvailable = function() {
     UI.showAlert("<h1 data-i18n='update_available'>" + i18n.t("update_available") + "</h1><p data-i18n='update_being_downloaded'>" + i18n.t("update_being_downloaded") + "</p>");
   }

@@ -43,7 +43,7 @@ var App = (function(App, undefined) {
   var appDirectory              = "";
   var appDataDirectory          = "";
   var resourcesDirectory        = "";
-  var serverDirectory           = "";
+  var databaseDirectory         = "";
   var jarDirectory              = "";
   var javaLocations             = [];
   var selectedJavaLocation;
@@ -178,7 +178,6 @@ var App = (function(App, undefined) {
         settings.lastOverride = null;
       }
       if (settings.lastOverride != 1) {
-        console.log("overriding");
         settings.minWeightMagnitude = (isTestNet ? 9 : 13);
         settings.lastOverride = 1;
       }
@@ -193,10 +192,13 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
         settings.nodes = [];
       }
+      if (!settings.hasOwnProperty("dbLocation")) {
+        settings.dbLocation = "";
+      }
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: []};
+      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: ""};
     }
 
     try {
@@ -862,34 +864,102 @@ var App = (function(App, undefined) {
     try {
       appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
 
-      if (settings.hasOwnProperty("db")) {
-        serverDirectory = settings.db;
-      } else {
-        serverDirectory = path.join(appDataDirectory, "iri");
-      }
+      databaseDirectory = (settings.dbLocation ? settings.dbLocation : path.join(appDataDirectory, "iri"));
 
-      jarDirectory     = path.join(resourcesDirectory, "iri");
+      jarDirectory = path.join(resourcesDirectory, "iri");
 
       if (!fs.existsSync(appDataDirectory)) {
         fs.mkdirSync(appDataDirectory);
       }
 
+      if (!fs.existsSync(databaseDirectory)) {
+        fs.mkdirSync(databaseDirectory);
+      }
+
       // Delete the database if the deleteDb flag is set
       // Also if it's the first run and settings.version is not set, deleteAnyways
       // Else only delete if the new appVersion > previous app version
-      if (deleteDb && (deleteAnyways || appVersion > settings.version) && fs.existsSync(serverDirectory)) {
-        console.log("Deleting Server Directory " + serverDirectory);
+      if (deleteDb && (deleteAnyways || appVersion > settings.version) && fs.existsSync(databaseDirectory)) {
+        console.log("Deleting Database Directory " + databaseDirectory);
         settings.version = appVersion;
-        fs.removeSync(serverDirectory);
-      }
-
-      if (!fs.existsSync(serverDirectory)) {
-        console.log("Creating new server directory: ", serverDirectory);
-        fs.mkdirSync(serverDirectory);
+        App.deleteDatabase();
       }
     } catch (err) {
       console.log("Error:");
       console.log(err);
+    }
+  }
+
+  App.moveDatabase = function(newDatabaseDirectory) {
+    //Doing it synchronous for now, easier..
+    console.log("Moving database to " + newDatabaseDirectory);
+
+    if (!databaseDirectory || !newDatabaseDirectory) {
+      return -1;
+    }
+
+    if (!fs.existsSync(newDatabaseDirectory)) {
+      fs.mkdirSync(newDatabaseDirectory);
+    }
+
+    if (isTestNet) {
+      var paths = [{"from": path.join(databaseDirectory, "ixi"), "to": path.join(newDatabaseDirectory, "ixi")},
+                   {"from": path.join(databaseDirectory, "testnet.log"), "to": path.join(newDatabaseDirectory, "testnet.log")},
+                   {"from": path.join(databaseDirectory, "testnetdb"), "to": path.join(newDatabaseDirectory, "testnetdb")}];
+
+      var paths = [path.join(databaseDirectory, "ixi"),
+                   path.join(databaseDirectory, "testnet.log"),
+                   path.join(databaseDirectory, "testnetdb")];
+    } else {
+      var paths = [{"from": path.join(databaseDirectory, "ixi"), "to": path.join(newDatabaseDirectory, "ixi")},
+                   {"from": path.join(databaseDirectory, "mainnet.log"), "to": path.join(newDatabaseDirectory, "mainnet.log")},
+                   {"from": path.join(databaseDirectory, "mainnetdb"), "to": path.join(newDatabaseDirectory, "mainnetdb")}];
+    }
+
+    try {
+      for (var i=0; i<paths.length; i++) {
+        if (fs.existsSync(paths[i].to)) {
+          console.log(paths[i].to + " already exists.");
+          return 0;
+        }
+      }
+
+      for (var i=0; i<paths.length; i++) {
+        if (fs.existsSync(paths[i].from)) {
+          console.log("Renaming " + paths[i].from + " to " + paths[i].to);
+          fs.renameSync(paths[i].from, paths[i].to);
+        }
+      }
+      return 1;
+    } catch (err) {
+      console.log(err);
+      return -1;
+    }
+  }
+
+  App.deleteDatabase = function() {
+    //Doing it synchronous for now, easier..
+    console.log("Delete database");
+
+    if (!databaseDirectory) {
+      return -1;
+    }
+
+    if (isTestNet) {
+      var paths = [path.join(databaseDirectory, "ixi"),
+                   path.join(databaseDirectory, "testnet.log"),
+                   path.join(databaseDirectory, "testnetdb")];
+    } else {
+      var paths = [path.join(databaseDirectory, "ixi"),
+                   path.join(databaseDirectory, "mainnet.log"),
+                   path.join(databaseDirectory, "mainnetdb")];
+    }
+
+    for (var i=0; i<paths.length; i++) {
+      if (fs.existsSync(paths[i])) {
+        console.log("Delete " + paths[i]);
+        fs.removeSync(paths[i]);
+      }
     }
   }
 
@@ -1152,7 +1222,7 @@ var App = (function(App, undefined) {
       serverOutput = [];
 
       server = childProcess.spawn(javaLocation, params, {
-        "cwd": serverDirectory,
+        "cwd": databaseDirectory,
         "detached": true
       }, function(err) {
         if (err) {
@@ -1241,13 +1311,9 @@ var App = (function(App, undefined) {
     }, (!hasServer ? 0 : 500));
   }
 
-  App.openDatabaseFolder = function(file) {
-    if (!file) {
-      file = "transactions.iri";
-    }
-
+  App.openDatabaseFolder = function() {
     try {
-      shell.showItemInFolder(path.join(serverDirectory, file));
+      shell.showItemInFolder(path.join(databaseDirectory, (isTestNet ? "testnetdb" : "mainnetdb")));
     } catch (err) {}
   }
 
@@ -1330,6 +1396,12 @@ var App = (function(App, undefined) {
         isRelaunch = true;
         iriVersion = "";
         serverOutput = [];
+
+        if (settings.dbLocation != databaseDirectory) {
+          //Todo: During db move, user should not close the app? How to prevent..
+          App.moveDatabase(settings.dbLocation);
+          databaseDirectory = settings.dbLocation; //because this is not reloaded during relaunch.. 
+        }
 
         App.start();
       }, 300);
@@ -1895,7 +1967,7 @@ var App = (function(App, undefined) {
       if (walletType == 1) {
         var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet};
       } else {
-        var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "sendLimit": settings.sendLimit, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet};
+        var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "sendLimit": settings.sendLimit, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "dbLocation": databaseDirectory};
       }
       win.webContents.send("editNodeConfiguration", config);
     }
@@ -2025,6 +2097,13 @@ var App = (function(App, undefined) {
         if (configuration.hasOwnProperty("depth")) {
           settings.depth = parseInt(configuration.depth, 10);
         }
+
+        if (configuration.hasOwnProperty("dbLocation") && fs.existsSync(configuration.dbLocation)) {
+          if (configuration.dbLocation != databaseDirectory) {
+            settings.dbLocation = configuration.dbLocation;
+            relaunch = true;
+          }
+        }
       }
 
       if (configuration.hasOwnProperty("minWeightMagnitude")) {
@@ -2036,6 +2115,8 @@ var App = (function(App, undefined) {
           settings.minWeightMagnitude = 9;
         }
       }
+
+      App.saveSettings();
 
       if (relaunch || !App.windowIsReady()) {
         App.relaunchApplication();
