@@ -493,17 +493,19 @@ var UI = (function(UI, undefined) {
     } 
 
     modal.setContent(content);
-    
-    document.getElementById('db_location_select').addEventListener('click', function(e) {
-      currentLocation = document.getElementById('server_config_db_location').value;
+      
+    if (!configuration.lightWallet) {
+      document.getElementById('db_location_select').addEventListener('click', function(e) {
+        currentLocation = document.getElementById('server_config_db_location').value;
 
-      electron.remote.dialog.showOpenDialog({title: "Select Database Location", message: "Select Database Location", defaultPath: currentLocation, properties: ["openDirectory", "createDirectory"]}, function(filePaths) {
-        if (filePaths && filePaths[0]) {
-          document.getElementById('server_config_db_location').value = filePaths[0];
-          document.getElementById('server_config_db_location_preview').innerHTML = String(filePaths[0]).escapeHTML();
-        }
+        electron.remote.dialog.showOpenDialog({title: "Select Database Location", message: "Select Database Location", defaultPath: currentLocation, properties: ["openDirectory", "createDirectory"]}, function(filePaths) {
+          if (filePaths && filePaths[0]) {
+            document.getElementById('server_config_db_location').value = filePaths[0];
+            document.getElementById('server_config_db_location_preview').innerHTML = String(filePaths[0]).escapeHTML();
+          }
+        });
       });
-    });
+    }
 
     modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {
       var config = {};
