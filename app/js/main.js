@@ -674,14 +674,14 @@ var App = (function(App, undefined) {
       if (settings.lightWallet == 1) {
         template[2].submenu[13].label = i18n.t("switch_to_full_node");
         // Remove "view neighbors and view server log" options.
-        template[2].submenu.splice(1, 2);
-        // Remove "open database folder" option.
-        template[2].submenu.splice(5, 1);
+        template[2].submenu.splice(1, 3);
+        // Remove "network spammer and open database folder" options.
+        template[2].submenu.splice(2, 3);
         // Remove "edit neighbors" option.
-        template[2].submenu.splice(6, 1);
+        template[2].submenu.splice(3, 1);
         if (process.platform == "darwin") {
           // Remove options from mac platforms
-          template[2].submenu.splice(6 , 2);
+          template[2].submenu.splice(4, 2);
         }
       } else {
         if (settings.lightWallet == -1) {
