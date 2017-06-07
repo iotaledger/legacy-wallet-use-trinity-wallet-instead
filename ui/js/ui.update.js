@@ -106,8 +106,15 @@ var UI = (function(UI, $, undefined) {
       }
     }
 
-    if (connection.nodeInfo && connection.inApp) {
-      updateStatusBar({"latestMilestoneIndex": connection.nodeInfo.latestMilestoneIndex, "latestSolidSubtangleMilestoneIndex": connection.nodeInfo.latestSolidSubtangleMilestoneIndex});
+    if (connection.nodeInfo && connection.inApp && connection.lightWallet) {
+      var data = {};
+      if (connection.nodeInfo.latestSolidSubtangleMilestoneIndex) {
+        data.latestSolidSubtangleMilestoneIndex = connection.nodeInfo.latestSolidSubtangleMilestoneIndex;
+      }
+      if (connection.nodeInfo.latestMilestoneIndex) {
+        data.latestMilestoneIndex = connection.nodeInfo.latestMilestoneIndex;
+      }
+      updateStatusBar(data);
     }
 
     if (!connection.seed) {
