@@ -87,7 +87,7 @@ var UI = (function(UI, $, undefined) {
         if (connection.seed.match(/^[9]+$/)) {
           throw i18n.t("invalid_seed");
         }
-        
+
         seedError = checkSeedStrength(seed);
       } catch (error) {
         console.log("UI.login: Error");
@@ -103,7 +103,12 @@ var UI = (function(UI, $, undefined) {
         UI.executeState(function(error) {
           if (error) {
             connection.seed = "";
-            $("#login-btn").loadingError("connection_refused");
+            console.log(error);
+            if (error.message.match(/This operations cannot be executed: The subtangle has not been updated yet/i)) {
+              $("#login-btn").loadingError("not_synced");
+            } else {
+              $("#login-btn").loadingError("connection_refused");
+            }
             UI.initialConnection = false;
             UI.createStateInterval(500, false);
           } else {
