@@ -75,6 +75,8 @@ var App = (function(App, undefined) {
   App.uiIsInitialized           = false;
   App.doNodeStarted             = false;
 
+  var minWeightMagnitudeMinimum = (isTestNet ? 9 : 15);
+
   App.initialize = function() {
     appDirectory = path.dirname(__dirname);
     resourcesDirectory = path.dirname(appDirectory);
@@ -174,20 +176,10 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("depth")) {
         settings.depth = 3;
       }
-      if (!settings.hasOwnProperty("lastOverride")) {
-        settings.lastOverride = null;
-      }
-      if (settings.lastOverride != 1) {
-        settings.minWeightMagnitude = (isTestNet ? 9 : 13);
-        settings.lastOverride = 1;
-      }
       if (!settings.hasOwnProperty("minWeightMagnitude")) {
-        settings.minWeightMagnitude = 13;
-      }
-      if (!isTestNet && settings.minWeightMagnitude < 13) {
-        settings.minWeightMagnitude = 13;
-      } else if (isTestNet && settings.minWeightMagnitude < 9) {
-        settings.minWeightMagnitude = 9;
+        settings.minWeightMagnitude = minWeightMagnitudeMinimum;
+      } else if (settings.minWeightMagnitude < minWeightMagnitudeMinimum) {
+        settings.minWeightMagnitude = minWeightMagnitudeMinimum;
       }
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
         settings.nodes = [];
@@ -850,6 +842,12 @@ var App = (function(App, undefined) {
 
   App.findDirectories = function() {
     try {
+      /*
+      if (process.platform == "win32" && process.env.LOCALAPPDATA) {
+        electron.app.setPath("appData", process.env.LOCALAPPDATA);
+        //electron.app.setPath("userData", path.join(process.env.LOCALAPPDATA, electron.app.getName()));
+      }*/
+
       appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
 
       databaseDirectory = (settings.dbLocation ? settings.dbLocation : path.join(appDataDirectory, "iri"));
@@ -1939,9 +1937,9 @@ var App = (function(App, undefined) {
         walletType = settings.lightWallet;
       }
       if (walletType == 1) {
-        var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet};
+        var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
       } else {
-        var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "sendLimit": settings.sendLimit, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "dbLocation": databaseDirectory};
+        var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "sendLimit": settings.sendLimit, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "dbLocation": databaseDirectory, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
       }
       win.webContents.send("editNodeConfiguration", config);
     }
@@ -2081,11 +2079,8 @@ var App = (function(App, undefined) {
 
       if (configuration.hasOwnProperty("minWeightMagnitude")) {
         settings.minWeightMagnitude = parseInt(configuration.minWeightMagnitude, 10);
-
-        if (!isTestNet && settings.minWeightMagnitude < 13) {
-          settings.minWeightMagnitude = 13;
-        } else if (isTestNet && settings.minWeightMagnitude < 9) {
-          settings.minWeightMagnitude = 9;
+        if (settings.minWeightMagnitude < minWeightMagnitudeMinimum) {
+          settings.minWeightMagnitude = minWeightMagnitudeMinimum;
         }
       }
 

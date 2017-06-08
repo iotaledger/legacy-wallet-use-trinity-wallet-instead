@@ -472,7 +472,7 @@ var UI = (function(UI, undefined) {
       "<div class='input-group'><label><span data-i18n='host' class='label'>" + i18n.t("host") + "</span> <span class='error' id='host-error'></span></label>" + 
       "<input type='text' id='server_config_host' placeholder='' value='" + (configuration.lightWalletHost ? String(configuration.lightWalletHost).escapeHTML() + (configuration.lightWalletPort ? ":" + String(configuration.lightWalletPort).escapeHTML() : "") : "") + "' /></div>" + 
       "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
-      "<input type='number' min='" + (configuration.testNet ? "9" : "13") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "9": "13")) + "' /></div>";
+      "<input type='number' min='" + configuration.minWeightMagnitudeMinimum + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + String(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum).escapeHTML() + "' /></div>";
     } else {
       content = "<h1 data-i18n='node_config'></h1>" + 
       "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("node_port") + "</label>" + 
@@ -486,7 +486,7 @@ var UI = (function(UI, undefined) {
       "<div class='input-group'><label data-i18n='depth'>" + i18n.t("depth") + "</label>" + 
       "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" +
       "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
-      "<input type='number' min='" + (configuration.testNet ? "9" : "13") + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + (configuration.minWeightMagnitude ? String(configuration.minWeightMagnitude).escapeHTML() : (configuration.testNet ? "9": "13")) + "' /></div>" + 
+      "<input type='number' min='" + configuration.minWeightMagnitudeMinimum + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + String(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum).escapeHTML() + "' /></div>" + 
       "<div class='input-group'><label><span data-i18n='db_location'>" + i18n.t("db_location") + "</span> <button id='db_location_select' class='small' style='display:inline-block;'>change</button></label>" + 
       "<div class='file-path' id='server_config_db_location_preview'>" + String(configuration.dbLocation).escapeHTML() + "</div>" + 
       "<input type='hidden' name='db_location' id='server_config_db_location' value='" + String(configuration.dbLocation).escapeHTML() + "' />";
