@@ -156,7 +156,7 @@ var App = (function(App, undefined) {
         settings.lastUpdateCheck = 0;
       }
       if (!settings.hasOwnProperty("showStatusBar")) {
-        settings.showStatusBar = 0;
+        settings.showStatusBar = 1;
       }
       if (!settings.hasOwnProperty("isFirstRun")) {
         settings.isFirstRun = 1;
