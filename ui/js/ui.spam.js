@@ -32,8 +32,9 @@ UI.handleNetworkSpamming = function() {
         if (isSpamming) {
             isSpamming = false;
             $("#spam-btn").loadingReset("spam_the_network");
-            iota.api.interruptAttachingToTangle();
-            console.log("OK loading reset was called");
+            iota.api.interruptAttachingToTangle(function() {
+              console.log("Attaching to tangle was interrupted.");
+            });
         }
     });
 
