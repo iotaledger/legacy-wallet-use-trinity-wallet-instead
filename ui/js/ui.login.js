@@ -83,6 +83,11 @@ var UI = (function(UI, $, undefined) {
         }
 
         connection.seed = getSeed(seed);
+
+        if (connection.seed.match(/^[9]+$/)) {
+          throw i18n.t("invalid_seed");
+        }
+        
         seedError = checkSeedStrength(seed);
       } catch (error) {
         console.log("UI.login: Error");

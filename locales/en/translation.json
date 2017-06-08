@@ -298,5 +298,6 @@
   "reattach_completed": "Reattach completed",
   "transfer_completed": "Transfer completed",
   "send_limit": "Send Limit (Mbit/s)",
-  "db_location": "Database Location"
+  "db_location": "Database Location",
+  "invalid_seed": "Invalid Seed"
 }
