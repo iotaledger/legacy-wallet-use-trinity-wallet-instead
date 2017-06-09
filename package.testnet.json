@@ -28,18 +28,17 @@
   "dependencies": {
     "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
-    "glob": "^7.1.1",
-    "i18next": "^8.3.0",
+    "glob": "^7.1.2",
+    "i18next": "^8.4.1",
     "i18next-sync-fs-backend": "^0.1.0",
-    "pidusage": "^1.1.0"
+    "pidusage": "^1.1.5"
   },
   "devDependencies": {
-    "electron": "^1.4.14",
-    "electron-builder": "^11.5.0",
-    "rimraf": "^2.5.4"
+    "electron": "^1.6.10",
+    "electron-builder": "^18.7.0",
+    "rimraf": "^2.6.1"
   },
   "build": {
-    "deleteDb": false,
     "directories": {
       "buildResources": "build",
       "output": "out"
@@ -48,7 +47,6 @@
       "github"
     ],
     "appId": "com.iotatoken.wallet-testnet",
-    "category": "public.app-category.developer-tools",
     "extraResources": [
       "iri/iri-testnet.jar",
       "ccurl/**/*",
@@ -88,8 +86,10 @@
         "deb",
         "rpm",
         "tar.gz"
-      ],
-      "packageUrl": "https://www.iota.org/"
+      ]
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools"
     }
   }
 }
