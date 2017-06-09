@@ -57,8 +57,6 @@ var App = (function(App, undefined) {
   var didKillNode               = false;
   var settings                  = {};
   var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
-  var deleteDb                  = require("../../package.json").build.deleteDb;
-  var deleteAnyways             = false;
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
@@ -76,14 +74,11 @@ var App = (function(App, undefined) {
   App.doNodeStarted             = false;
 
   var minWeightMagnitudeMinimum = (isTestNet ? 9 : 15);
+  var deleteDb                  = false;
+  var deleteAnyways             = false;
 
   App.initialize = function() {
-    appDirectory = path.dirname(__dirname);
-    resourcesDirectory = path.dirname(appDirectory);
-
-    if (!isDevelopment) {
-      resourcesDirectory = path.dirname(resourcesDirectory);
-    }
+    App.findDirectories();
  
     App.loadSettings();
 
@@ -108,8 +103,6 @@ var App = (function(App, undefined) {
 
     App.showDefaultWindow();
 
-    App.findDirectories();
-
     App.registerProtocol();
 
     if (process.platform == "win32" && !is64BitOS) {
@@ -126,7 +119,7 @@ var App = (function(App, undefined) {
 
   App.loadSettings = function() {
     try {
-      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : "") + path.sep + "settings.json");
+      var settingsFile = path.join(appDataDirectory, "settings.json");
 
       if (fs.existsSync(settingsFile)) {
         settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
@@ -184,7 +177,7 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
         settings.nodes = [];
       }
-      if (!settings.hasOwnProperty("dbLocation")) {
+      if (!settings.hasOwnProperty("dbLocation") || (settings.dbLocation && !fs.existsSync(settings.dbLocation))) {
         settings.dbLocation = "";
       }
     } catch (err) {
@@ -206,6 +199,10 @@ var App = (function(App, undefined) {
   }
 
   App.saveSettings = function() {
+    if (!appDataDirectory) {
+      return;
+    }
+
     try {
       if (App.windowIsReady() && !win.isFullScreen()) {
         settings.bounds = win.getBounds();
@@ -219,7 +216,7 @@ var App = (function(App, undefined) {
 
       settings.isFirstRun = 0;
 
-      var settingsFile = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : "") + path.sep + "settings.json");
+      var settingsFile = path.join(appDataDirectory, "settings.json");
 
       fs.writeFileSync(settingsFile, JSON.stringify(settings));
     } catch (err) {
@@ -841,18 +838,55 @@ var App = (function(App, undefined) {
   }
 
   App.findDirectories = function() {
-    try {
-      /*
-      if (process.platform == "win32" && process.env.LOCALAPPDATA) {
-        electron.app.setPath("appData", process.env.LOCALAPPDATA);
-        //electron.app.setPath("userData", path.join(process.env.LOCALAPPDATA, electron.app.getName()));
-      }*/
+    appDirectory = path.dirname(__dirname);
 
+    resourcesDirectory = path.dirname(appDirectory);
+
+    if (!isDevelopment) {
+      resourcesDirectory = path.dirname(resourcesDirectory);
+    }
+
+    try {
       appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
 
       databaseDirectory = (settings.dbLocation ? settings.dbLocation : path.join(appDataDirectory, "iri"));
 
       jarDirectory = path.join(resourcesDirectory, "iri");
+
+      if (process.platform == "win32" && process.env.LOCALAPPDATA) {
+        electron.app.setPath("appData", process.env.LOCALAPPDATA);
+        electron.app.setPath("userData", path.join(process.env.LOCALAPPDATA, "IOTA Wallet" + (isTestNet ? " Testnet" : "")));
+
+        newAppDataDirectory  = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
+
+        if (newAppDataDirectory != appDataDirectory && fs.existsSync(path.join(appDataDirectory, "settings.json"))) {
+          console.log("Moving to %localappdata%: " + newAppDataDirectory);
+          if (!fs.existsSync(newAppDataDirectory)) {
+            fs.mkdirSync(newAppDataDirectory);
+          }
+
+          var files = fs.readdirSync(appDataDirectory);
+
+          for (var i=0; i<files.length; i++) {
+            try {
+              var oldFile = path.join(appDataDirectory, path.basename(files[i]))
+              var newFile = path.join(newAppDataDirectory, path.basename(files[i]));
+
+              if (!fs.existsSync(newFile)) {
+                console.log("Renaming " + oldFile + " to " + newFile);
+                fs.renameSync(oldFile, newFile);
+              } else {
+                console.log(newFile + " already exists");
+              }
+            } catch (err) {
+              console.log(err);
+            }
+          }
+        }
+
+        appDataDirectory  = newAppDataDirectory;
+        databaseDirectory = (settings.dbLocation ? settings.dbLocation : path.join(appDataDirectory, "iri"));
+      }
 
       if (!fs.existsSync(appDataDirectory)) {
         fs.mkdirSync(appDataDirectory);
@@ -1046,7 +1080,7 @@ var App = (function(App, undefined) {
         console.log("Error during glob:");
         console.log(err);
       }
-      javaLocations.push(path.join(electron.app.getPath("appData"), "IOTA Wallet/java/bin/java" ));
+      javaLocations.push(path.join(appDataDirectory, "java/bin/java" ));
     }
 
     javaLocations.push("java");
