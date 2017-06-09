@@ -565,6 +565,14 @@ var App = (function(App, undefined) {
               },
               type: "checkbox",
               checked: settings.language == "es"
+            },
+            {
+              label: i18n.t("Turkish"),
+              click(item) {
+                App.changeLanguage("tr");
+              },
+              type: "checkbox",
+              checked: settings.language == "tr"
             }
           ]
         }
