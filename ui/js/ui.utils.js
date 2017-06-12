@@ -102,8 +102,11 @@ var UI = (function(UI, $, undefined) {
       options = {};
     }
 
-    message = i18n.t(message, options); //should be escaped!
-    //message = String(message).escapeHTML();
+    if (message.match(/^[a-z\_]+$/i)) {
+      message = i18n.t(message, options); //should be escaped!
+    } else {
+      message = String(message).escapeHTML();
+    }
 
     if (type == "error") {
       toastr.error(message, "", options);
@@ -213,12 +216,25 @@ var UI = (function(UI, $, undefined) {
     if (settings.hasOwnProperty("depth")) {
       connection.depth = parseInt(settings.depth, 10);
     }
+
+    var changeNode = false;
+
     if (settings.hasOwnProperty("host")) {
       connection.host = settings.host;
+      changeNode = true;
     }
     if (settings.hasOwnProperty("port")) {
       connection.port = settings.port;
+      changeNode = true;
     }
+
+    if (changeNode) {
+      iota = new IOTA({
+        "host": connection.host,
+        "port": connection.port
+      });
+    }
+
     if (settings.hasOwnProperty("addedNodes") && settings.addedNodes.length) {
       iota.api.addNeighbors(settings.addedNodes, function(error, addedNodes) {
         if (error || addedNodes === undefined) {
@@ -237,6 +253,10 @@ var UI = (function(UI, $, undefined) {
           UI.notify("success", "removed_neighbor", {count: removedNodes});
         }
       });
+    }
+
+    if (changeNode) {
+      UI.resetState();
     }
   }
 

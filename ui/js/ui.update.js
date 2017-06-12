@@ -29,6 +29,12 @@ var UI = (function(UI, $, undefined) {
     return stateExecution(callback);
   }
 
+  UI.resetState = function(timeout) {
+    UI.initialConnection = false;
+    isUpdatingState = false;
+    UI.updateState(timeout);
+  }
+
   UI.updateState = function(timeout) {
     if (timeout) {
       setTimeout(function() {

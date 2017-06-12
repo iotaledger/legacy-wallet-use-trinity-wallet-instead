@@ -1,8 +1,10 @@
 const ipcRenderer = require("electron").ipcRenderer;
 var ccurl = false;
 
+var isLightWallet = require("electron").remote.getGlobal("lightWallet");
+
 //only load for light wallets
-if (require("electron").remote.getGlobal("lightWallet")) {
+if (isLightWallet) {
   try {
     ccurl = require("./ccurl-interface");
   } catch (err) {
@@ -14,17 +16,13 @@ if (require("electron").remote.getGlobal("lightWallet")) {
 ipcRenderer.on("showNodeInfo", function() {
   if (typeof(UI) != "undefined") {
     if (!UI.initialConnection) {
-      $(document).one("initialConnection", function() {
-        UI.showNodeInfo(function(error, identifier, html) {
-          if (!error) {
-            ipcRenderer.send("showModal", identifier, html);
-          }
-        });
-      });
+      UI.notify("error", (isLightWallet ? "could_not_connect_to_remote_node" : "could_not_connect_to_node"));
     } else {
       UI.showNodeInfo(function(error, identifier, html) {
         if (!error) {
           ipcRenderer.send("showModal", identifier, html);
+        } else {
+          UI.notify("error", error);
         }
       });
     }
@@ -34,17 +32,13 @@ ipcRenderer.on("showNodeInfo", function() {
 ipcRenderer.on("showPeers", function() {
   if (typeof(UI) != "undefined") {
     if (!UI.initialConnection) {
-      $(document).one("initialConnection", function() {
-        UI.showPeers(function(error, identifier, html) {
-          if (!error) {
-            ipcRenderer.send("showModal", identifier, html);
-          }
-        })
-      })
+      UI.notify("error", (isLightWallet ? "could_not_connect_to_remote_node" : "could_not_connect_to_node"));
     } else {
       UI.showPeers(function(error, identifier, html) {
         if (!error) {
           ipcRenderer.send("showModal", identifier, html);
+        } else {
+          UI.notify("error", error);
         }
       });
     }
