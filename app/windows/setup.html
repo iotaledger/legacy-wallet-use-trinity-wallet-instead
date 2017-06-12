@@ -21,8 +21,9 @@
       </div>
       <div id="light-node-section">
         <p class="label"><span data-i18n="host"></span>: <span id="host-error" class="error"></span></p>
-        <p><input type="text" name="host" id="host" placeholder="" value="" style="width:100%;font-size:110%" /></p>
-        <p class="note" data-i18n="add_in_following_format_example"></p>
+        <p><select name="host_select" id="host-select" style="width:100%;font-size:110%"></select></p>
+        <p><input type="text" name="host" id="host" placeholder="" value="" style="width:100%;font-size:110%" data-i18n="[placeholder]custom_host" /></p>
+        <p class="note" id="host-format-example" data-i18n="add_in_following_format_example"></p>
       </div>
       <div id="full-node-section">
         <p class="label"><span data-i18n="server_port"></span>: <span id="port-error" class="error"></span></p>

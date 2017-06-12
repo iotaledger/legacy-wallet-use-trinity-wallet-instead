@@ -565,3 +565,14 @@ button.small {
   cursor: pointer;
   margin: 0;
 }
+
+#server_config_host_select {
+  width: 100%;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  color: #7e8688;
+  background-color: #7e8688;
+}

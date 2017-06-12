@@ -1,5 +1,6 @@
 const electron = require("electron");
 const path     = require("path");
+const http     = require("http");
 
 var __entityMap = {
   "&": "&amp;",
@@ -21,8 +22,42 @@ String.prototype.escapeHTML = function() {
 
 var UI = (function(UI, undefined) {
   var _updateNodeConfiguration = false;
+  var _lightWalletHosts = [];
 
   UI.initialize = function() {
+    var req = http.get('http://provider.iota.org/list.json');
+    req.on('response', function (res) {
+      var body = '';
+      res.on('data', function (chunk) {
+        body += chunk.toString();
+      });
+      res.on('end', function () {
+        try {
+          _lightWalletHosts = JSON.parse(body);
+        } catch (err) {
+          console.log(err);
+        }
+      });
+    });
+
+    req.on('error', function(err) {
+      console.log(err);
+    });
+
+    req.end();
+
+    document.getElementById("host-select").addEventListener("change", function(e) {
+      e.preventDefault();
+      if (this.value == "custom") {
+        document.getElementById("host").style.display = "block";
+        document.getElementById("host-format-example").style.display = "block";
+      } else {
+        document.getElementById("host").style.display = "none";
+        document.getElementById("host-format-example").style.display = "none";
+      }
+      UI.updateContentSize();
+    });
+
     document.getElementById("light-node-btn").addEventListener("click", UI.showLightNodeSection);
     document.getElementById("full-node-btn").addEventListener("click", UI.showFullNodeSection);
     document.getElementById("switch-btn").addEventListener("click", UI.showOtherNodeSection);
@@ -57,7 +92,20 @@ var UI = (function(UI, undefined) {
           return;
         }
       } else {
-        var res = String(document.getElementById("host").value).match(/^(https?:\/\/.*):([0-9]+)$/i);
+        var selectedHost;
+
+        var select = document.getElementById("host-select");
+        if (select && select.style.display == "block") {
+          var selectedHost = select.options[select.selectedIndex].value;
+          if (selectedHost == "custom") {
+            selectedHost = document.getElementById("host").value;
+          }
+        } else {
+          selectedHost = document.getElementById("host").value;
+        }
+
+        var res = selectedHost.match(/^(https?:\/\/.*):([0-9]+)$/i);
+
         if (!res) {
           if (!document.getElementById("host").value) {
             UI.changeElementLanguage("host-error", "required");
@@ -89,6 +137,28 @@ var UI = (function(UI, undefined) {
     document.getElementById("switch-btn").style.display = "block";
     UI.changeElementLanguage("switch-btn", "switch_to_full_node");
     document.getElementById("quit-btn").style.display = "none";
+
+    if (_lightWalletHosts && _lightWalletHosts.length) {
+      document.getElementById("host-select").style.display = "block";
+      document.getElementById("host").style.display = "none";
+      document.getElementById("host-format-example").style.display = "none";
+      document.getElementById("host-select").innerHTML = "";
+
+      var content = "<option value='' data-i18n='select_your_host'>" + i18n.t("select_your_host") + "</option>";
+
+      for (var i=0; i<_lightWalletHosts.length; i++) {
+        content += "<option value='" + String(_lightWalletHosts[i]).escapeHTML() + "'>" + String(_lightWalletHosts[i]).escapeHTML() + "</option>";
+      }
+      
+      content += "<option value='custom' data-i18n='custom'>" + i18n.t("custom") + "</option>";
+
+      console.log(content);
+      document.getElementById("host-select").innerHTML = content;
+    } else {
+      document.getElementById("host-select").style.display = "none";
+      document.getElementById("host").style.display = "block";
+      document.getElementById("host-format-example").style.display = "block";
+    }
 
     UI.updateContentSize();
   }

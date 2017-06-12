@@ -272,6 +272,7 @@
   "address_attached": "Address Attached",
   "are_you_sure": "Are you sure?",
   "could_not_connect_to_remote_node": "Could not connect to remote node.",
+  "could_not_connect_to_node": "Could not connect to node.",
   "change_language": "Change Language",
   "english": "English",
   "chinese": "Chinese",
@@ -281,6 +282,8 @@
   "italian": "Italian",
   "japanese": "Japanese",
   "spanish": "Spanish",
+  "turkish": "Turkish",
+  "dutch": "Dutch",
   "about": "About",
   "hide": "Hide",
   "electron": "Electron",
@@ -299,5 +302,9 @@
   "transfer_completed": "Transfer completed",
   "send_limit": "Send Limit (Mbit/s)",
   "db_location": "Database Location",
-  "invalid_seed": "Invalid Seed"
+  "invalid_seed": "Invalid Seed",
+  "amount": "Amount",
+  "select_your_host": "Select Your Host",
+  "custom": "Custom",
+  "custom_host": "Custom Host"
 }

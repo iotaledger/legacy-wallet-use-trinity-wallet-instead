@@ -456,12 +456,32 @@ var UI = (function(UI, undefined) {
         var modalContent = document.querySelector(".tingle-modal-box__content");
         modalContent.appendChild(close);
 
-        var el = document.getElementById(configuration.lightWallet ? "server_config_host" : "server_config_port");
+        var el;
 
-        var temp = el.value;
-        el.value = "";
-        el.value = temp;
-        el.focus();
+        if (configuration.lightWallet) {
+          var select = document.getElementById("server_config_host_select");
+          if (select) {
+            select.addEventListener("change", function(e) {
+              e.preventDefault();
+              if (this.value == "custom") {
+                document.getElementById("server_config_host").style.display = "block";
+              } else {
+                document.getElementById("server_config_host").style.display = "none";
+              }
+            });
+          } else {
+            el = document.getElementById("server_config_host");
+          }
+        } else {
+          el = document.getElementById("server_config_port");
+        }
+
+        if (el) {
+          var temp = el.value;
+          el.value = "";
+          el.value = temp;
+          el.focus();
+        }
       }
     });
 
@@ -469,9 +489,31 @@ var UI = (function(UI, undefined) {
 
     if (configuration.lightWallet) {
       content = "<h1 data-18n='node_config'></h1>" + 
-      "<div class='input-group'><label><span data-i18n='host' class='label'>" + i18n.t("host") + "</span> <span class='error' id='host-error'></span></label>" + 
-      "<input type='text' id='server_config_host' placeholder='' value='" + (configuration.lightWalletHost ? String(configuration.lightWalletHost).escapeHTML() + (configuration.lightWalletPort ? ":" + String(configuration.lightWalletPort).escapeHTML() : "") : "") + "' /></div>" + 
-      "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
+      "<div class='input-group'><label><span data-i18n='host' class='label'>" + i18n.t("host") + "</span> <span class='error' id='host-error'></span></label>";
+
+      if (configuration.lightWalletHosts && configuration.lightWalletHosts.length) {
+        content += "<select id='server_config_host_select'>";
+        content += "<option value='' data-i18n='select_your_host'>" + i18n.t("select_your_host") + "</option>";
+
+        var found = false;
+
+        for (var i=0; i<configuration.lightWalletHosts.length; i++) {
+          var lightWalletHost = configuration.lightWalletHosts[i];
+          if (!found && (configuration.lightWalletHost && (configuration.lightWalletHost + ":" + configuration.lightWalletPort) == lightWalletHost)) {
+            found = true;
+          }
+          content += "<option value='" + String(lightWalletHost).escapeHTML() + "'" + (configuration.lightWalletHost && (configuration.lightWalletHost + ":" + configuration.lightWalletPort) == lightWalletHost ? " selected='selected'" : "") + ">" + String(lightWalletHost).escapeHTML() + "</option>";
+        }
+
+        content += "<option value='custom'" + (!found ? " selected='selected'" : "") + " data-i18n='custom'>" + i18n.t("custom") + "</option>";
+        content += "</select>";
+        content += "<hr />";
+        content += "<input type='text' id='server_config_host' placeholder='" + i18n.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (!found && configuration.lightWalletHost ? String(configuration.lightWalletHost).escapeHTML() + (configuration.lightWalletPort ? ":" + String(configuration.lightWalletPort).escapeHTML() : "") : "") + "' /></div>";
+      } else {
+        content += "<input type='text' id='server_config_host' placeholder='" + i18n.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (configuration.lightWalletHost ? String(configuration.lightWalletHost).escapeHTML() + (configuration.lightWalletPort ? ":" + String(configuration.lightWalletPort).escapeHTML() : "") : "") + "' /></div>";
+      }
+
+      content += "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
       "<input type='number' min='" + configuration.minWeightMagnitudeMinimum + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + String(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum).escapeHTML() + "' /></div>";
     } else {
       content = "<h1 data-i18n='node_config'></h1>" + 
@@ -513,7 +555,19 @@ var UI = (function(UI, undefined) {
       config.lightWallet = configuration.lightWallet;
       
       if (configuration.lightWallet) {
-        var res = String(document.getElementById("server_config_host").value).match(/^(https?:\/\/.*):([0-9]+)$/i);
+        var selectedHost;
+
+        var select = document.getElementById("server_config_host_select");
+        if (select) {
+          var selectedHost = select.options[select.selectedIndex].value;
+          if (selectedHost == "custom") {
+            selectedHost = document.getElementById("server_config_host").value;
+          }
+        } else {
+          selectedHost = document.getElementById("server_config_host").value;
+        }
+
+        var res = selectedHost.match(/^(https?:\/\/.*):([0-9]+)$/i);
 
         if (!res) {
           document.getElementById("host-error").style.display = "inline";

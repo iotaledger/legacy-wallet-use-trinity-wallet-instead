@@ -9,6 +9,7 @@ const clipboard        = electron.clipboard;
 const pusage           = require("pidusage");
 const i18n             = require("i18next");
 const i18nBackend      = require("i18next-sync-fs-backend");
+const http             = require("http");
 
 global.i18n            = i18n;
 
@@ -1972,10 +1973,34 @@ var App = (function(App, undefined) {
       }
       if (walletType == 1) {
         var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
+
+        var req = http.get('http://provider.iota.org/list.json');
+        req.on('response', function (res) {
+          var body = '';
+          res.on('data', function (chunk) {
+            body += chunk.toString();
+          });
+          res.on('end', function () {
+            try {
+              config.lightWalletHosts = JSON.parse(body);
+            } catch (err) {
+              console.log(err);
+            } finally {
+              win.webContents.send("editNodeConfiguration", config);
+            }
+          });
+        });
+
+        req.on('error', function(err) {
+          console.log(err);
+          win.webContents.send("editNodeConfiguration", config);
+        });
+
+        req.end();
       } else {
         var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "sendLimit": settings.sendLimit, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "dbLocation": databaseDirectory, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
+        win.webContents.send("editNodeConfiguration", config);
       }
-      win.webContents.send("editNodeConfiguration", config);
     }
   }
 
