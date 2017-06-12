@@ -573,14 +573,6 @@ var App = (function(App, undefined) {
               checked: settings.language == "jp"
             },
             {
-              label: i18n.t("russian"),
-              click(item) {
-                App.changeLanguage("ru");
-              },
-              type: "checkbox",
-              checked: settings.language == "ru"
-            },
-            {
               label: i18n.t("spanish"),
               click(item) {
                 App.changeLanguage("es");
