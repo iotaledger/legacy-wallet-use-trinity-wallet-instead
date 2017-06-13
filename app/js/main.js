@@ -1978,7 +1978,7 @@ var App = (function(App, undefined) {
       if (walletType == 1) {
         var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
 
-        var req = http.get('http://provider.iota.org/list.json');
+        var req = http.get('http://provider.iota.org/list.json?' + (new Date().getTime()));
         req.on('response', function (res) {
           var body = '';
           res.on('data', function (chunk) {

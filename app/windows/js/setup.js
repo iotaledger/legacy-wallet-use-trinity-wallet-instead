@@ -25,7 +25,7 @@ var UI = (function(UI, undefined) {
   var _lightWalletHosts = [];
 
   UI.initialize = function() {
-    var req = http.get('http://provider.iota.org/list.json');
+    var req = http.get('http://provider.iota.org/list.json?' + (new Date().getTime()));
     req.on('response', function (res) {
       var body = '';
       res.on('data', function (chunk) {
