@@ -79,12 +79,8 @@ var App = (function(App, undefined) {
   var deleteAnyways             = false;
 
   App.initialize = function() {
-    App.findDirectories();
+    App.loadEnvironment();
  
-    App.loadSettings();
-
-    App.makeMultilingual(settings.language);
-
     if (process.platform == "darwin") {
       var appPath = electron.app.getPath("exe");
       if (process.execPath.match(/\/Volumes\/IOTA Wallet/i)) {
@@ -838,7 +834,7 @@ var App = (function(App, undefined) {
     electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate(template));
   }
 
-  App.findDirectories = function() {
+  App.loadEnvironment = function() {
     appDirectory = path.dirname(__dirname);
 
     resourcesDirectory = path.dirname(appDirectory);
@@ -847,13 +843,15 @@ var App = (function(App, undefined) {
       resourcesDirectory = path.dirname(resourcesDirectory);
     }
 
+    appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
+
+    App.loadSettings();
+
+    databaseDirectory = (settings.dbLocation ? settings.dbLocation : path.join(appDataDirectory, "iri"));
+
+    jarDirectory = path.join(resourcesDirectory, "iri");
+
     try {
-      appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
-
-      databaseDirectory = (settings.dbLocation ? settings.dbLocation : path.join(appDataDirectory, "iri"));
-
-      jarDirectory = path.join(resourcesDirectory, "iri");
-
       if (process.platform == "win32" && process.env.LOCALAPPDATA) {
         electron.app.setPath("appData", process.env.LOCALAPPDATA);
         electron.app.setPath("userData", path.join(process.env.LOCALAPPDATA, "IOTA Wallet" + (isTestNet ? " Testnet" : "")));
@@ -909,6 +907,8 @@ var App = (function(App, undefined) {
       console.log("Error:");
       console.log(err);
     }
+
+    App.makeMultilingual(settings.language);
   }
 
   App.moveDatabase = function(newDatabaseDirectory) {
