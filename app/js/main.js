@@ -519,6 +519,14 @@ var App = (function(App, undefined) {
               checked: settings.language == "ch"
             },
             {
+              label: i18n.t("dutch"),
+              click(item) {
+                App.changeLanguage("nl");
+              },
+              type: "checkbox",
+              checked: settings.language == "nl"
+            },
+            {
               label: i18n.t("french"),
               click(item) {
                 App.changeLanguage("fr");
@@ -565,6 +573,14 @@ var App = (function(App, undefined) {
               },
               type: "checkbox",
               checked: settings.language == "es"
+            },
+            {
+              label: i18n.t("turkish"),
+               click(item) {
+                 App.changeLanguage("tr");
+               },
+               type: "checkbox",
+               checked: settings.language == "tr" 
             }
           ]
         }
