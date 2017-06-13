@@ -306,5 +306,6 @@
   "amount": "Amount",
   "select_your_host": "Select Your Host",
   "custom": "Custom",
-  "custom_host": "Custom Host"
+  "custom_host": "Custom Host",
+  "verify_trytes": "Verify Trytes"
 }
