@@ -255,6 +255,10 @@ var UI = (function(UI, $, undefined) {
       });
     }
 
+    if (settings.hasOwnProperty("allowShortSeedLogin")) {
+      connection.allowShortSeedLogin = settings.allowShortSeedLogin;
+    }
+
     if (changeNode) {
       UI.resetState();
     }

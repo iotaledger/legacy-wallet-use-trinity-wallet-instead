@@ -177,10 +177,13 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("dbLocation") || (settings.dbLocation && !fs.existsSync(settings.dbLocation))) {
         settings.dbLocation = "";
       }
+      if (!settings.hasOwnProperty("allowShortSeedLogin")) {
+        settings.allowShortSeedLogin = false;
+      }
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: ""};
+      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: "", allowShortSeedLogin: false};
     }
 
     try {
@@ -1540,7 +1543,8 @@ var App = (function(App, undefined) {
           "depth": settings.depth,
           "minWeightMagnitude": settings.minWeightMagnitude,
           "ccurlPath": ccurlPath,
-          "language": settings.language
+          "language": settings.language,
+          "allowShortSeedLogin": settings.allowShortSeedLogin
       });
     } catch (err) {
       console.log("Error:");
@@ -2151,7 +2155,7 @@ var App = (function(App, undefined) {
         win.webContents.send("updateSettings", {
           "host": settings.lightWalletHost,
           "port": settings.lightWalletPort
-        })
+        });
       } else {
         win.webContents.send("updateSettings", {
           "depth": settings.depth,
@@ -2219,7 +2223,7 @@ var App = (function(App, undefined) {
         var loginSettings = {"openAtLogin": false};
       }
 
-      win.webContents.send("showPreferences", {"openAtLogin": loginSettings.openAtLogin});
+      win.webContents.send("showPreferences", {"openAtLogin": loginSettings.openAtLogin, "allowShortSeedLogin": settings.allowShortSeedLogin});
     }
   }
 
@@ -2230,6 +2234,11 @@ var App = (function(App, undefined) {
       if (updatedSettings.openAtLogin != loginSettings.openAtLogin) {
         electron.app.setLoginItemSettings({"openAtLogin": updatedSettings.openAtLogin, "openAsHidden": true});
       }
+    }
+
+    if (updatedSettings.allowShortSeedLogin != settings.allowShortSeedLogin) {
+      settings.allowShortSeedLogin = updatedSettings.allowShortSeedLogin;
+      win.webContents.send("updateSettings", {"allowShortSeedLogin": settings.allowShortSeedLogin});
     }
   }
 

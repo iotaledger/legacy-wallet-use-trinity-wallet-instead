@@ -348,6 +348,7 @@ var UI = (function(UI, undefined) {
     */
 
     modal.setContent("<h1 data-i18n='preferences'>" + i18n.t("preferences") + "</h1>" + 
+                     "<div class='input-group'><label class='label--checkbox'><input type='checkbox' name='allow_short_seed_login' id='preferences_allow_short_seed_login' class='checkbox' value='1'" + (settings.allowShortSeedLogin ? " checked='checked'" : "") + " />" + i18n.t("allow_short_seed_login") + "</label>" + 
                      (process.platform != "linux" ? "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='open_at_login' id='preferences_open_at_login' class='checkbox' value='1'" + (settings.openAtLogin ? " checked='checked'" : "") + " />" + i18n.t("open_at_login") + "</label>" : ""));
     
     modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {
@@ -356,6 +357,8 @@ var UI = (function(UI, undefined) {
       if (process.platform != "linux") {
         settings.openAtLogin = document.getElementById("preferences_open_at_login").checked;
       }
+
+      settings.allowShortSeedLogin = document.getElementById("preferences_allow_short_seed_login").checked;
       
       /*
       var autoUpdateTimeSelect = document.getElementById("auto_update_time");

@@ -6,46 +6,7 @@ var UI = (function(UI, $, undefined) {
   UI.isShuttingDown     = false;
 
   var loginGradientInterval;
-  var seedError;
-
-  function getSeed(value) {
-    value = value.toUpperCase();
-
-    var seed = "";
-
-    for (var i = 0; i < 81; i++) {
-      var char = value.charAt(i);
-
-      if (!char || ("9ABCDEFGHIJKLMNOPQRSTUVWXYZ").indexOf(char) < 0) {
-        seed += "9";
-      } else {
-        seed += char;
-      }
-    }
-
-    return seed;
-  }
-
-  function checkSeedStrength(value) {
-    value = String(value);
-
-    var invalidCharacters = value.match(/[^A-Z9]/i);
-
-    //don't care if the user has all his characters lowercased, but we do care if he uses mixed case.
-    var mixedCase = value.match(/[a-z]/) && value.match(/[A-Z]/);
-
-    if (invalidCharacters) {
-      return i18n.t("seed_invalid_characters") + (value.length > 81 ? " " + i18n.t("seed_too_long") : (value.length < 41 ? " " + i18n.t("seed_too_short") : ""));
-    } else if (mixedCase) {
-      return i18n.t("seed_mixed_characters") + (value.length > 81 ? " " + i18n.t("seed_too_long") : (value.length < 41 ? " " + i18n.t("seed_too_short") : ""));
-    } else if (value.length > 81) {
-      return i18n.t("seed_extra_characters_ignored");
-    } else if (value.length < 41) {
-      return i18n.t("seed_not_secure");
-    } else {
-      return "";
-    }
-  }
+  var _seedError;
 
   UI.showLoginScreen = function() {
     console.log("UI.showLoginScreen");
@@ -76,19 +37,27 @@ var UI = (function(UI, $, undefined) {
 
     $("#login-btn").on("click", function(e) {
       try {
-        var seed = $("#login-password").val();
+        var seed = String($("#login-password").val());
 
         if (!seed) {
           throw i18n.t("seed_is_required");
-        }
-
-        connection.seed = getSeed(seed);
-
-        if (connection.seed.match(/^[9]+$/)) {
+        } else if (seed.match(/[^A-Z9]/) || seed.match(/^[9]+$/)) {
+          throw i18n.t("invalid_seed");
+        } else if (seed.length < 60) {
+          if (connection.allowShortSeedLogin) {
+            _seedError = i18n.t("seed_not_secure");
+          } else {
+            throw i18n.t("invalid_seed");
+          }
+        } else if (seed.length > 81) {
           throw i18n.t("invalid_seed");
         }
 
-        seedError = checkSeedStrength(seed);
+        while (seed.length < 81) {
+          seed += "9";
+        }
+
+        connection.seed = seed;
       } catch (error) {
         console.log("UI.login: Error");
         console.log(error);
@@ -142,11 +111,11 @@ var UI = (function(UI, $, undefined) {
 
     UI.animateStacks(0);
 
-    if (seedError) {
+    if (_seedError) {
       var options = {timeOut: 10000, 
                      extendedTimeOut: 10000};
 
-      UI.notify("error", seedError, options);
+      UI.notify("error", _seedError, options);
     }
 
     $(window).on("resize", function() {

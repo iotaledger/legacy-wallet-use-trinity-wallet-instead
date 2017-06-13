@@ -14,6 +14,7 @@ var connection = {"accountData"         : false,
                   "minWeightMagnitude"  : 15,
                   "ccurlPath"           : null,
                   "lightWallet"         : false,
+                  "allowShortSeedLogin" : false,
                   "language"            : "en"};
 
 var i18n = {t: function(msg) { return msg; }}
@@ -75,6 +76,9 @@ var UI = (function(UI, $, undefined) {
       }
       if (params.has("language")) {
         connection.language = params.get("language");
+      }
+      if (params.has("allowShortSeedLogin")) {
+        connection.allowShortSeedLogin = params.get("allowShortSeedLogin");
       }
     }
 
