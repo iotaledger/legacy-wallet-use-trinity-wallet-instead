@@ -73,11 +73,6 @@
   "google_chrome": "Google Chrome",
   "mozilla_firefox": "Mozilla Firefox",
   "opera": "Opera",
-  "seed_invalid_characters": "Your seed contains invalid characters. Only A-Z and the number 9 are accepted.",
-  "seed_too_long": "Your seed is also too long.",
-  "seed_too_short": "Your seed is also too short.",
-  "seed_mixed_characters": "Your seed contains mixed case characters. Lowercase is converted to uppercase.",
-  "seed_extra_characters_ignored": "Your seed should not contain more than 81 characters. Extra characters are ignored.",
   "seed_not_secure": "Your seed does not contain enough characters. This is not secure.",
   "seed_is_required": "Seed is required",
   "connection_refused": "Connection refused",
@@ -307,5 +302,6 @@
   "select_your_host": "Select Your Host",
   "custom": "Custom",
   "custom_host": "Custom Host",
-  "verify_trytes": "Verify Trytes"
+  "verify_trytes": "Verify Trytes",
+  "allow_short_seed_login": "Allow Short Seed Login"
 }
