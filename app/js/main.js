@@ -976,8 +976,6 @@ var App = (function(App, undefined) {
         params.push(settings.nodes.join(" "));
       }
 
-      params.push("--headless");
-
       console.log(params.join(" "));
 
       serverOutput = [];
