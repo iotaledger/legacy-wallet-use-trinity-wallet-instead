@@ -503,31 +503,7 @@ var App = (function(App, undefined) {
           //Todo: glob from dir and build dynamically
           submenu: [
             {
-              label: i18n.t("english"),
-              click(item) {
-                App.changeLanguage("en");
-              },
-              type: "checkbox",
-              checked: settings.language == "en"
-            },
-            {
-              label: i18n.t("chinese"),
-              click(item) {
-                App.changeLanguage("ch");
-              },
-              type: "checkbox",
-              checked: settings.language == "ch"
-            },
-            {
-              label: i18n.t("french"),
-              click(item) {
-                App.changeLanguage("fr");
-              },
-              type: "checkbox",
-              checked: settings.language == "fr"
-            },
-            {
-              label: i18n.t("german"),
+              label: "Deutsch",
               click(item) {
                 App.changeLanguage("de");
               },
@@ -535,7 +511,7 @@ var App = (function(App, undefined) {
               checked: settings.language == "de"
             },
             {
-              label: i18n.t("greek"),
+              label: "Ελληνικά",
               click(item) {
                 App.changeLanguage("el");
               },
@@ -543,7 +519,31 @@ var App = (function(App, undefined) {
               checked: settings.language == "el"
             },
             {
-              label: i18n.t("italian"),
+              label: "English",
+              click(item) {
+                App.changeLanguage("en");
+              },
+              type: "checkbox",
+              checked: settings.language == "en"
+            },
+            {
+              label: "Español (España)",
+              click(item) {
+                App.changeLanguage("es-ES");
+              },
+              type: "checkbox",
+              checked: settings.language == "es-ES"
+            },
+            {
+              label: "Français",
+              click(item) {
+                App.changeLanguage("fr");
+              },
+              type: "checkbox",
+              checked: settings.language == "fr"
+            },
+            {
+              label: "Italiano",
               click(item) {
                 App.changeLanguage("it");
               },
@@ -551,20 +551,68 @@ var App = (function(App, undefined) {
               checked: settings.language == "it"
             },
             {
-              label: i18n.t("japanese"),
+              label: "日本語",
               click(item) {
-                App.changeLanguage("jp");
+                App.changeLanguage("ja");
               },
               type: "checkbox",
-              checked: settings.language == "jp"
+              checked: settings.language == "ja"
             },
             {
-              label: i18n.t("spanish"),
+              label: "한국어",
               click(item) {
-                App.changeLanguage("es");
+                App.changeLanguage("ko");
               },
               type: "checkbox",
-              checked: settings.language == "es"
+              checked: settings.language == "ko"
+            },
+            {
+              label: "Português (Portugal)",
+              click(item) {
+                App.changeLanguage("pt-PT");
+              },
+              type: "checkbox",
+              checked: settings.language == "pt-PT"
+            },
+            {
+              label: "Русский"
+              click(item) {
+                App.changeLanguage("ru");
+              },
+              type: "checkbox",
+              checked: settings.language == "ru"
+            },
+            {
+              label: "Svenska",
+              click(item) {
+                App.changeLanguage("sv-SE");
+              },
+              type: "checkbox",
+              checked: settings.language == "sv-SE"
+            },
+            {
+              label: "Türkçe",
+              click(item) {
+                App.changeLanguage("tr");
+              },
+              type: "checkbox",
+              checked: settings.language == "tr"
+            },
+            {
+              label: "中文 （简体）",
+              click(item) {
+                App.changeLanguage("zh-CN");
+              },
+              type: "checkbox",
+              checked: settings.language == "zh-CN"
+            },
+            {
+              label: "中文（繁體）",
+              click(item) {
+                App.changeLanguage("zh-TW");
+              },
+              type: "checkbox",
+              checked: settings.language == "zh-TW"
             }
           ]
         }
