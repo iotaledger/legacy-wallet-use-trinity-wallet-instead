@@ -340,7 +340,7 @@ var UI = (function(UI, undefined) {
                                 if (error != null) {
                                   console.log("Error");
                                   console.log(error);
-                                  UI.showMessageAndQuit("installation_failed", "installation_failed_install_manually", UI.localDownloadLocation);
+                                  UI.showMessageAndQuit("installation_failed", "installation_failed_install_manually", {"location": UI.localDownloadLocation});
                                 } else {
                                   console.log("Installed OK.");
                                   //ok, it's installed
@@ -356,7 +356,7 @@ var UI = (function(UI, undefined) {
                             } catch (err) {
                               console.log("Error");
                               console.log(err);
-                              UI.showMessageAndQuit("installation_failed", "installation_failed_install_manually", UI.localDownloadLocation);
+                              UI.showMessageAndQuit("installation_failed", "installation_failed_install_manually", {"location": UI.localDownloadLocation});
                             }
                           }, 2500);
                         } else if (process.platform == "darwin") {
@@ -393,7 +393,7 @@ var UI = (function(UI, undefined) {
                               }
                             }, 500);
                           } else {
-                            UI.showMessageAndQuit("java_downloaded", "java_downloaded_please_install", UI.localDownloadLocation);
+                            UI.showMessageAndQuit("java_downloaded", "java_downloaded_please_install", {"location": UI.localDownloadLocation});
                             UI.onQuit = function() {
                               electron.remote.shell.showItemInFolder(UI.localDownloadLocation);
                             };
@@ -537,7 +537,7 @@ var UI = (function(UI, undefined) {
         }
       }
     } else {
-      document.getElementById(el).innerHTML = i18n.t(key);
+      document.getElementById(el).innerHTML = i18n.t(key, options);
       document.getElementById(el).setAttribute("data-i18n", key);
     }
   }
