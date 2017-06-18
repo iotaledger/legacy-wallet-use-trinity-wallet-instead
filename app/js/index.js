@@ -358,7 +358,7 @@ var UI = (function(UI, undefined) {
         settings.openAtLogin = document.getElementById("preferences_open_at_login").checked;
       }
 
-      settings.allowShortSeedLogin = document.getElementById("preferences_allow_short_seed_login").checked;
+      settings.allowShortSeedLogin = document.getElementById("preferences_allow_short_seed_login").checked == true ? 1 : 0;
       
       /*
       var autoUpdateTimeSelect = document.getElementById("auto_update_time");

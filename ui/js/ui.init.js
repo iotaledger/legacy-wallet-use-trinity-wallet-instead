@@ -78,7 +78,7 @@ var UI = (function(UI, $, undefined) {
         connection.language = params.get("language");
       }
       if (params.has("allowShortSeedLogin")) {
-        connection.allowShortSeedLogin = params.get("allowShortSeedLogin");
+        connection.allowShortSeedLogin = params.get("allowShortSeedLogin") == 1;
       }
     }
 
