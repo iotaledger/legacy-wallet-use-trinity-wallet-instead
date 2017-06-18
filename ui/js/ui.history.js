@@ -208,6 +208,14 @@ var UI = (function(UI, $, undefined) {
           }
         });
 
+        var totalValue = 0;
+
+        $.each(bundle, function(item) {
+          if (item.value !== 0 && connection.accountData.addresses.indexOf(item.address) != -1) {
+            totalValue += item.value;
+          }
+        });
+
         transfersHtml += "<li data-hash='" + String(bundle[0].hash).escapeHTML() + "' data-type='" + (isSent ? "spending" : "receiving") + "' data-persistence='" + persistence*1 + "'>";
         transfersHtml += "<div class='type'><i class='fa fa-arrow-circle-" + (isSent ? "left" : "right") + "'></i></div>";
         transfersHtml += "<div class='details'>";
@@ -215,7 +223,7 @@ var UI = (function(UI, $, undefined) {
         transfersHtml += "<div class='address'>" + (bundle[0].address ? UI.formatForClipboard(iota.utils.addChecksum(bundle[0].address)) : "/") + "</div>";
         transfersHtml += "<div class='action'>" + (bundle[0].hash ? "<a href='#' class='show-bundle' data-i18n='show_bundle'>" + i18n.t("show_bundle") + "</a> " : "") + "<span data-i18n='" + (persistence ? "confirmed" : "pending") + "'>" + i18n.t(persistence ? "confirmed" : "pending") + "</span></div>";
         transfersHtml += "</div>";
-        transfersHtml += "<div class='value'>" + UI.formatAmount(bundle[0].value) + "</div>";
+        transfersHtml += "<div class='value'>" + UI.formatAmount(totalValue) + "</div>";
         transfersHtml += "</li>";
       });
     }
