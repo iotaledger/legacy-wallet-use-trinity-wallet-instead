@@ -500,76 +500,50 @@ var App = (function(App, undefined) {
         },
         {
           label: i18n.t("change_language"),
-          //Todo: glob from dir and build dynamically
-          submenu: [
-            {
-              label: i18n.t("english"),
-              click(item) {
-                App.changeLanguage("en");
-              },
-              type: "checkbox",
-              checked: settings.language == "en"
-            },
-            {
-              label: i18n.t("chinese"),
-              click(item) {
-                App.changeLanguage("ch");
-              },
-              type: "checkbox",
-              checked: settings.language == "ch"
-            },
-            {
-              label: i18n.t("french"),
-              click(item) {
-                App.changeLanguage("fr");
-              },
-              type: "checkbox",
-              checked: settings.language == "fr"
-            },
-            {
-              label: i18n.t("german"),
-              click(item) {
-                App.changeLanguage("de");
-              },
-              type: "checkbox",
-              checked: settings.language == "de"
-            },
-            {
-              label: i18n.t("greek"),
-              click(item) {
-                App.changeLanguage("el");
-              },
-              type: "checkbox",
-              checked: settings.language == "el"
-            },
-            {
-              label: i18n.t("italian"),
-              click(item) {
-                App.changeLanguage("it");
-              },
-              type: "checkbox",
-              checked: settings.language == "it"
-            },
-            {
-              label: i18n.t("japanese"),
-              click(item) {
-                App.changeLanguage("jp");
-              },
-              type: "checkbox",
-              checked: settings.language == "jp"
-            },
-            {
-              label: i18n.t("spanish"),
-              click(item) {
-                App.changeLanguage("es");
-              },
-              type: "checkbox",
-              checked: settings.language == "es"
-            }
-          ]
+          submenu: []
         }
       ]
     });
+
+    var languages = [["de", i18n.t("german")], 
+                     ["el", i18n.t("greek")], 
+                     ["en", i18n.t("english")], 
+                     ["es-ES", i18n.t("spanish")], 
+                     ["fr", i18n.t("french")], 
+                     ["it", i18n.t("italian")], 
+                     ["ja", i18n.t("japanese")],
+                     ["ko", i18n.t("korean")],
+                     ["nl", i18n.t("dutch")], 
+                     ["pt-PT", i18n.t("portugese")], 
+                     ["ru", i18n.t("russian")], 
+                     ["sv-SE", i18n.t("swedish")], 
+                     ["tr", i18n.t("turkish")], 
+                     ["zh-CN", i18n.t("chinese_simplified")],
+                     ["zh-TW", i18n.t("chinese_traditional")]];
+
+    languages.sort(function(a, b) {
+      if (a[0] == settings.language) {
+        return -1;
+      } else if (b[0] == settings.language) {
+        return 1;
+      } else {
+        return a[1].localeCompare(b[1], settings.language);
+      }
+    });
+    
+    for (var i=0; i<languages.length; i++) {
+      var shortCode = languages[i][0];
+      var language  = languages[i][1];
+      template[1].submenu[3].submenu.push({
+        label: language,
+        click(item) {
+          App.changeLanguage(item.id.replace("language-", ""));
+        },
+        id: "language-" + shortCode,
+        type: "checkbox",
+        checked: settings.language == shortCode
+      });
+    }
 
     if (simple) {
       template[1].submenu.splice(0, 1);
