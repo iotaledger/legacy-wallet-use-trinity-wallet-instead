@@ -261,7 +261,7 @@ var UI = (function(UI, undefined) {
     }
     
     if (data.hasOwnProperty("hoverAmount")) {
-      if (data.hoverAmount == -1) {
+      if (data.hoverAmount === false) {
         document.getElementById("status-bar-giota").style.display = "none";
       } else {
         document.getElementById("status-bar-giota").style.display = "inline";
@@ -986,7 +986,7 @@ electron.ipcRenderer.on("hoverAmountStart", function(event, amount) {
 });
 
 electron.ipcRenderer.on("hoverAmountStop", function() {
-  UI.updateStatusBar({"hoverAmount": -1});
+  UI.updateStatusBar({"hoverAmount": false});
 });
 
 electron.ipcRenderer.on("notify", function(event, type, message, options) {
