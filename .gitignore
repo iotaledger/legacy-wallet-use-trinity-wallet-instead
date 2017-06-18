@@ -4,3 +4,4 @@ ui/bower_components
 npm-debug.log
 iri/*
 out/*
+ccurl/*
