@@ -210,7 +210,7 @@ var UI = (function(UI, $, undefined) {
 
         var totalValue = 0;
 
-        $.each(bundle, function(item) {
+         $.each(bundle, function(i, item) {
           if (item.value !== 0 && connection.accountData.addresses.indexOf(item.address) != -1) {
             totalValue += item.value;
           }
