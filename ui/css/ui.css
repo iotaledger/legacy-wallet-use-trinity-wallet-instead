@@ -317,7 +317,7 @@ hr {
   position: absolute;
   top: 120px;
   left: 50%;
-  margin-left: -110px;
+  margin-left: -115px;
   width: 230px;
   height: 300px;
   text-align: center;
@@ -1586,6 +1586,7 @@ input[type="number"] {
     background-size: 200px 191.3px;
     width: 200px;
     height: 191.3px;
+    margin-left: -100px;
   }
 
   #login .logo span {
