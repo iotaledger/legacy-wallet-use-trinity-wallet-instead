@@ -188,14 +188,23 @@ var App = (function(App, undefined) {
 
     try {
       if (electron.screen) {
-        var displaySize = electron.screen.getPrimaryDisplay().workAreaSize;
+        var displaySize = electron.screen.getDisplayNearestPoint(electron.screen.getCursorScreenPoint()).workAreaSize;
 
         if (displaySize.width < settings.bounds.width + 100 || displaySize.height < settings.bounds.height+100) {
           settings.bounds.height = displaySize.height - 100;
           settings.bounds.width = Math.round(settings.bounds.height / 16 * 11);
         }
+
+        if (settings.bounds.hasOwnProperty("x") && settings.bounds.hasOwnProperty("y")) {
+          if (settings.bounds.x > displaySize.width || settings.bounds.y > displaySize.height) {
+            delete settings.bounds.x;
+            delete settings.bounds.y;
+          }
+        }
       }
-    } catch (err) {}
+    } catch (err) {
+      settings.bounds = {width: 520, height: 736};
+    }
   }
 
   App.saveSettings = function() {
