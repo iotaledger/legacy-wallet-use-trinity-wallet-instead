@@ -5,6 +5,14 @@ const path  = require("path");
 
 console.log("Fetching ccurl dependencies...");;
 
+var paths = ["ccurl", "ccurl/win64", "ccurl/lin64", "ccurl/mac"];
+
+for (var i=0; i<paths.length; i++) {
+  if (!fs.existsSync(paths[i])) {
+    fs.mkdirSync(paths[i]);
+  }
+}
+
 var req = https.get({"host"    : "api.github.com", 
                      "path"    : "/repos/iotaledger/ccurl/releases/latest",
                      "headers" : {"User-Agent": "IOTA Wallet"}}, function(res) {
