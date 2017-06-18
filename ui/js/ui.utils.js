@@ -102,44 +102,64 @@ var UI = (function(UI, $, undefined) {
       options = {};
     }
 
+    var parsedMessage;
+
     if (message.match(/^[a-z\_]+$/i)) {
-      message = i18n.t(message, options); //should be escaped!
+      parsedMessage = i18n.t(message, options);
     } else {
-      message = String(message).escapeHTML();
+      parsedMessage = String(message).escapeHTML();
     }
 
     if (type == "error") {
-      toastr.error(message, "", options);
+      toastr.error(parsedMessage, "", options);
     } else if (type == "success") {
-      toastr.success(message, "", options);
+      toastr.success(parsedMessage, "", options);
     } else if (type == "warning") {
-      toastr.warning(message, "", options);
+      toastr.warning(parsedMessage, "", options);
     } else {
-      toastr.info(message, "", options);
+      toastr.info(parsedMessage, "", options);
     }
 
-    UI.notifyDesktop(message, true);
+    UI.notifyDesktop(message, options, true);
   }
 
   UI.isFocused = function() {
     return ((connection.inApp && UI.hasFocus) || (!connection.inApp && document.hasFocus()));
   }
 
-  UI.notifyDesktop = function(message, ifNotFocused) {
+  UI.notifyDesktop = function(message, options, ifNotFocused) {
     console.log("UI.notifyDesktop: " + message);
+
+    if (arguments.length == 1) {
+      options = {};
+      ifNotFocused = false;
+    } else if (arguments.length == 2) {
+      if (typeof(options) == "boolean") {
+        ifNotFocused = options;
+        options = {};
+      }
+    }
 
     if (ifNotFocused && UI.isFocused()) {
       return;
     }
 
+    var parsedMessage;
+
+    if (message.match(/^[a-z\_]+$/i)) {
+      parsedMessage = i18n.t(message, options);
+    } else {
+      parsedMessage = String(message).escapeHTML();
+    }
+
     if (!("Notification" in window)) {
       return;
     } else if (Notification.permission === "granted") {
-      var notification = new Notification(i18n.t("iota_wallet"), {"body": message});
+      var notification = new Notification(i18n.t("iota_wallet"), {"body": parsedMessage});
     } else if (Notification.permission !== "denied") {
       Notification.requestPermission(function (permission) {
         if (permission === "granted") {
-          var notification = new Notification(i18n.t("iota_wallet"), {"body": message});
+          var notification = new Notification(i18n.t("iota_wallet"), {"body": parsedMessage});
         }
       });
     }
