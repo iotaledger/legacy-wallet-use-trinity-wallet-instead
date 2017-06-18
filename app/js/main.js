@@ -505,21 +505,21 @@ var App = (function(App, undefined) {
       ]
     });
 
-    var languages = [["de", i18n.t("german")], 
-                     ["el", i18n.t("greek")], 
-                     ["en", i18n.t("english")], 
-                     ["es-ES", i18n.t("spanish")], 
-                     ["fr", i18n.t("french")], 
-                     ["it", i18n.t("italian")], 
-                     ["ja", i18n.t("japanese")],
-                     ["ko", i18n.t("korean")],
-                     ["nl", i18n.t("dutch")], 
-                     ["pt-PT", i18n.t("portugese")], 
-                     ["ru", i18n.t("russian")], 
-                     ["sv-SE", i18n.t("swedish")], 
-                     ["tr", i18n.t("turkish")], 
-                     ["zh-CN", i18n.t("chinese_simplified")],
-                     ["zh-TW", i18n.t("chinese_traditional")]];
+    var languages = [["de", i18n.t("german"), "Deutsch"], 
+                     ["el", i18n.t("greek"), "Ελληνικά"], 
+                     ["en", i18n.t("english"), "English"], 
+                     ["es-ES", i18n.t("spanish"), "Español"], 
+                     ["fr", i18n.t("french"), "Français"], 
+                     ["it", i18n.t("italian"), "Italiano"], 
+                     ["ja", i18n.t("japanese"), "日本語"],
+                     ["ko", i18n.t("korean"), "한국어"],
+                     ["nl", i18n.t("dutch"), "Nederlands"], 
+                     ["pt-PT", i18n.t("portugese"), "Português"], 
+                     ["ru", i18n.t("russian"), "Русский"], 
+                     ["sv-SE", i18n.t("swedish"), "Svenska"], 
+                     ["tr", i18n.t("turkish"), "Türkçe"], 
+                     ["zh-CN", i18n.t("chinese_simplified"), "中文（简体)"],
+                     ["zh-TW", i18n.t("chinese_traditional"), "中文 (繁體)"]];
 
     languages.sort(function(a, b) {
       if (a[0] == settings.language) {
@@ -530,12 +530,14 @@ var App = (function(App, undefined) {
         return a[1].localeCompare(b[1], settings.language);
       }
     });
-    
+
     for (var i=0; i<languages.length; i++) {
-      var shortCode = languages[i][0];
-      var language  = languages[i][1];
+      var shortCode          = languages[i][0];
+      var translatedLanguage = languages[i][1].trim();
+      var originalLanguage   = languages[i][2].trim();
+
       template[1].submenu[3].submenu.push({
-        label: language,
+        label: (translatedLanguage != originalLanguage ? translatedLanguage + " - " + originalLanguage : translatedLanguage),
         click(item) {
           App.changeLanguage(item.id.replace("language-", ""));
         },
