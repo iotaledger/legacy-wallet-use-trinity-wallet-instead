@@ -232,7 +232,7 @@
   "installing_java":"Installing Java...",
   "java_being_installed":"Java is being installed, please wait...",
   "installation_failed":"Installation Failed",
-  "installation_failed_install_manually":"The installation has failed, please install manually. The setup filed is located at __.",
+  "installation_failed_install_manually":"The installation has failed, please install manually. The setup file is located at __.",
   "java_downloaded":"Java viene scaricato",
   "java_downloaded_please_install":"Java has been downloaded to __ - please install it and reopen this app after installation.",
   "incorrect_status_code":"Incorrect status code.",
@@ -287,5 +287,7 @@
   "chinese_traditional":"Chinese (Traditional)",
   "portugese":"Portugese",
   "russian":"Russian",
-  "swedish":"Swedish"
+  "swedish":"Swedish",
+  "korean":"Korean",
+  "seed":"Seed"
 }
