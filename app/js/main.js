@@ -58,6 +58,7 @@ var App = (function(App, undefined) {
   var didKillNode               = false;
   var settings                  = {};
   var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
+  var isDebug                   = process.argv.indexOf("debug") !== -1;
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
@@ -381,7 +382,9 @@ var App = (function(App, undefined) {
       }
 
       win = new electron.BrowserWindow(windowOptions);
-      //win.toggleDevTools({mode: "undocked"});
+      if (isDebug) {
+        win.toggleDevTools({mode: "undocked"});
+      }
       win.setAspectRatio(11 / 16);
 
       win.on("close", function(e) {
@@ -428,7 +431,7 @@ var App = (function(App, undefined) {
       win.webContents.on("will-navigate", handleRedirect);
     }
 
-    win.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/index.html?showStatus=" + settings.showStatusBar + "&isFirstRun=" + settings.isFirstRun + "&lightWallet=" + settings.lightWallet);
+    win.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/index.html?showStatus=" + settings.showStatusBar + "&isFirstRun=" + settings.isFirstRun + "&lightWallet=" + settings.lightWallet + "&isDebug=" + (isDebug ? "1" : "0"));
 
     win.webContents.once("did-finish-load", function() {
       App.updateTitle(true);

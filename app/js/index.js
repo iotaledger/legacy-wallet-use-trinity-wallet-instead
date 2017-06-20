@@ -23,6 +23,7 @@ var UI = (function(UI, undefined) {
   var serverLogLines     = 0;
   var webviewIsLoaded    = false;
   var lightWallet        = false;
+  var isDebug            = false;
   var webview;
 
   UI.initialize = function() {
@@ -37,6 +38,7 @@ var UI = (function(UI, undefined) {
       showStatusBar = params.get("showStatus") == 1;
       isFirstRun = params.get("isFirstRun") == 1;
       lightWallet = parseInt(params.get("lightWallet"), 10) == 1;
+      isDebug = params.get("isDebug") == 1;
       lang = params.get("lang");
     }
 
@@ -116,6 +118,10 @@ var UI = (function(UI, undefined) {
     webview = document.getElementById("server");
     webviewIsLoaded = false;
     
+    if (isDebug) {
+      webview.openDevTools({"mode": "undocked"});
+    }
+
     webview.loadURL(url);
 
     // Prevent window from redirecting to dragged link location (mac)
