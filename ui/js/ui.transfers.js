@@ -32,10 +32,14 @@ var UI = (function(UI, $, undefined) {
           throw i18n.t("amount_cannot_be_zero");
         }
 
-        var tag = $.trim($("#transfer-tag").val().toUpperCase());
+        var tag = "";
 
-        if (tag && /[^A-Z9]/.test(tag)) {
-          throw i18n.t("tag_is_invalid");
+        if ($("#transfer-tag-container").is(":visible")) {
+          tag = $.trim($("#transfer-tag").val().toUpperCase());
+
+          if (tag && /[^A-Z9]/.test(tag)) {
+            throw i18n.t("tag_is_invalid");
+          }
         }
       } catch (error) {
         $stack.removeClass("loading");
