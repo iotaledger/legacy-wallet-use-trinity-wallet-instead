@@ -53,6 +53,10 @@ var UI = (function(UI, $, undefined) {
           throw i18n.t("invalid_seed");
         }
 
+        if (connection.inApp) {
+          clearSeedFromClipboard(seed);
+        }
+
         while (seed.length < 81) {
           seed += "9";
         }
@@ -67,10 +71,6 @@ var UI = (function(UI, $, undefined) {
       }
 
       UI.isLoggingIn = true;
-
-      if (connection.inApp) {
-        clearClipboard();
-      }
 
       setTimeout(function() {
         UI.executeState(function(error) {

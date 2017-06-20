@@ -166,9 +166,12 @@ function _updateAppInfo(data) {
   ipcRenderer.send("updateAppInfo", data);
 }
 
-function _clearClipboard() {
-  clipboard.clear();
+function _clearSeedFromClipboard(seed) {
+  if (clipboard.readText() == seed) {
+    clipboard.clear();
+  }
 }
+
 /*
 function _logUINotification(type, message) {
   ipcRenderer.send("logUINotification", type, message);
@@ -184,8 +187,8 @@ process.once("loaded", function() {
   global.rendererIsReady = _rendererIsReady;
   global.relaunchApplication = _relaunchApplication;
   global.updateAppInfo = _updateAppInfo;
-  global.clearClipboard = _clearClipboard;
-  
+  global.clearSeedFromClipboard = _clearSeedFromClipboard;
+
   if (typeof(ccurl) != "undefined") {
     global.ccurl = ccurl;
   }
