@@ -420,6 +420,14 @@ var App = (function(App, undefined) {
         win = null;
       });
 
+      win.on("enter-full-screen", function() {
+        App.createMenuBar();
+      });
+
+      win.on("leave-full-screen", function() {
+        App.createMenuBar();
+      });
+
       var handleRedirect = function(e, url) {
         if (url != win.webContents.getURL()) {
           e.preventDefault();
@@ -1513,6 +1521,7 @@ var App = (function(App, undefined) {
         loadingWin.destroy();
         loadingWin = null;
       }
+
       App.updateTitle(true);
 
       var ccurlPath;
@@ -1626,7 +1635,6 @@ var App = (function(App, undefined) {
   App.toggleFullScreen = function() {
     if (win) {
       win.setFullScreen(!win.isFullScreen());
-      App.createMenuBar();
     }
   }
 
