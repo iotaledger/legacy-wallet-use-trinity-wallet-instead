@@ -164,6 +164,15 @@ var UI = (function(UI, $, undefined) {
         $(this).parent().addClass("detailed");
         $(this).addClass("detailed").html($(this).data("long")).hide().fadeIn();
       }
+
+      $(this).css("font-size", "");
+
+      var currentFontSize = parseInt($(this).css("font-size"));
+      var parentWidth = $(this).parent().width();
+
+      while ($(this).width() > parentWidth) {
+        $(this).css("font-size", --currentFontSize);
+      }
     });
 
     UI.showLoginScreen();

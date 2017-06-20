@@ -252,8 +252,9 @@ var UI = (function(UI, $, undefined) {
     }
   }
 
-  UI.updateBalance = function() {
+  UI.updateBalance = function() {    
     $("#available-balance, #available-balance-always").html(UI.formatAmount(connection.accountData.balance));
+    $("#available-balance span").css("font-size", "");
   }
 
   return UI;

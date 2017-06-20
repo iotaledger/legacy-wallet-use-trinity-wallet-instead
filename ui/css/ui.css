@@ -409,6 +409,10 @@ hr {
   top: 81px;
 }
 
+#available-balance {
+  white-space: nowrap;
+}
+
 #available-balance-always {
   position: absolute;
   top: 50px;
@@ -1542,6 +1546,9 @@ input[type="number"] {
 @media only screen and (max-height: 504px), only screen and (max-width: 360px) { /* 360px */
   .hide-360 {
     display: none !important;
+  }
+  #transfer-tag-container {
+    display: none;
   }
 }
 
