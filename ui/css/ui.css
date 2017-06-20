@@ -314,26 +314,12 @@ hr {
 }
 
 #login .logo {
-  position: absolute;
-  top: 120px;
-  left: 50%;
-  margin-left: -115px;
-  width: 230px;
-  height: 300px;
-  text-align: center;
-  font-size: 48px;
-  display: block;
-  background-image: url("../img/iota-logo.png");
-  background-repeat: no-repeat;
+  margin: 10vh auto;
+  max-width: 45vw;
 }
 
-#login .logo span {
-  display: block;
-  text-align: center;
-  text-transform: uppercase;
-  padding-top: 265px;
-  font-size: 38px;
-  color: #fff;
+#login .logo img {
+  width: 100%;
 }
 
 #login-password {
@@ -1182,6 +1168,11 @@ input[type="number"] {
     right: 30px;
   }
 
+  #login .logo {
+    max-width: 55vw;
+    margin: 5vh auto;
+  }
+
   #login-password {
     margin-bottom: 30px;
   }
@@ -1269,9 +1260,6 @@ input[type="number"] {
 }
 
 @media only screen and (max-height: 649px), only screen and (max-width: 460px) { /* 460px */
-  #login .logo span {
-    padding-top: 250px;
-  }
   .remodal {
     padding: 20px;
   }
@@ -1282,6 +1270,10 @@ input[type="number"] {
     bottom: 15px;
     left: 15px;
     right: 15px;
+  }
+
+  #login .logo {
+    max-width: 60vw;
   }
 
   #login-password {
@@ -1427,14 +1419,6 @@ input[type="number"] {
 }
 
 @media only screen and (max-height: 582px), only screen and (max-width: 414px) { /* 414px */
-  #login .logo {
-    top: 10%;
-  }
-
-  #login .logo span {
-    padding-top: 250px;
-  }
-
   #app .header {
     height: 50px;
   }
@@ -1562,13 +1546,6 @@ input[type="number"] {
 }
 
 @media only screen and (max-height: 489px), only screen and (max-width: 350px) { /* 350px */
-  #login .logo {
-    top: 25px;
-  }
-
-  #login .logo span {
-    font-size: 30px;
-  }
 }
 
 @media only screen and (max-height: 475px), only screen and (max-width: 340px) { /* 340px */
@@ -1580,17 +1557,6 @@ input[type="number"] {
 @media only screen and (max-height: 445px), only screen and (max-width: 320px) { /* 320px */
   #history-stack .list {
     max-height: 180px;
-  }
-
-  #login .logo {
-    background-size: 200px 191.3px;
-    width: 200px;
-    height: 191.3px;
-    margin-left: -100px;
-  }
-
-  #login .logo span {
-    padding-top: 220px;
   }
 }
 
