@@ -367,8 +367,10 @@ var App = (function(App, undefined) {
     if (!win) {
       var windowOptions = {"width"           : settings.bounds.width,
                            "height"          : settings.bounds.height,
-                           "minWidth"        : 305,
-                           "minHeight"       : 424,
+                           "minWidth"        : 360,
+                           "minHeight"       : 504,
+                           "maxWidth"        : 825,
+                           "maxHeight"       : 1200,
                            "backgroundColor" : "#4DC1B5",
                            "center"          : true,
                            "show"            : false};
