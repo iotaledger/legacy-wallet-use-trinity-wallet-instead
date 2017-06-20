@@ -1,4 +1,6 @@
 const ipcRenderer = require("electron").ipcRenderer;
+const clipboard   = require("electron").clipboard;
+
 var ccurl = false;
 
 var isLightWallet = require("electron").remote.getGlobal("lightWallet");
@@ -163,6 +165,10 @@ function _updateStatusBar(data) {
 function _updateAppInfo(data) {
   ipcRenderer.send("updateAppInfo", data);
 }
+
+function _clearClipboard() {
+  clipboard.clear();
+}
 /*
 function _logUINotification(type, message) {
   ipcRenderer.send("logUINotification", type, message);
@@ -178,6 +184,8 @@ process.once("loaded", function() {
   global.rendererIsReady = _rendererIsReady;
   global.relaunchApplication = _relaunchApplication;
   global.updateAppInfo = _updateAppInfo;
+  global.clearClipboard = _clearClipboard;
+  
   if (typeof(ccurl) != "undefined") {
     global.ccurl = ccurl;
   }

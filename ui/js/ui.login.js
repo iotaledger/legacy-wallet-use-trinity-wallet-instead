@@ -68,6 +68,10 @@ var UI = (function(UI, $, undefined) {
 
       UI.isLoggingIn = true;
 
+      if (connection.inApp) {
+        clearClipboard();
+      }
+
       setTimeout(function() {
         UI.executeState(function(error) {
           if (error) {
