@@ -334,6 +334,18 @@ hr {
   background: #000;
 }
 
+#login-password-wrapper { 
+  position: relative; 
+}
+
+#login-help {
+  position: absolute; 
+  top: 25px; 
+  right: 15px;
+  color: #fff;
+  font-size:24px;
+  cursor:pointer;
+}
 
 #error-btn {
   background: red;
@@ -1255,6 +1267,10 @@ input[type="number"] {
 
   input {
     padding: 15px;
+  }
+
+  #login-help {
+    top: 15px; 
   }
 
   .btn {

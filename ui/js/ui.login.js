@@ -33,6 +33,16 @@ var UI = (function(UI, $, undefined) {
       if (e.keyCode == 13 && !$("#login-btn").is(":disabled")) {
         $("#login-btn").trigger("click");
       }
+    }).on("keyup", function(e) {
+      if ($(this).val() == "") {
+        $("#login-help").show();
+      } else {
+        $("#login-help").hide();
+      }
+    });
+
+    $("#login-help").on("click", function(e) {
+      UI.openHelpMenu();
     });
 
     $("#login-btn").on("click", function(e) {
