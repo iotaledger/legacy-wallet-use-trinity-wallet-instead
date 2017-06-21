@@ -1617,3 +1617,7 @@ input[type="number"] {
 #claim-modal .input-group-last {
   margin-bottom: 0 !important;
 }
+
+#preload {
+  display: none;
+}
