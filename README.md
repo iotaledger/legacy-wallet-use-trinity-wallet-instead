@@ -7,7 +7,7 @@
 2. Install [Electron](http://electron.atom.io):
 
   ```
-  npm install -g electron-prebuilt
+  npm install -g electron
   ```
 
 3. Install [Bower](https://bower.io/):

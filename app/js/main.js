@@ -301,9 +301,9 @@ var App = (function(App, undefined) {
     });
 
     if (process.platform == "darwin") {
-      var feedURL = "https://iotatoken.com/latest-osx.php?v=" + appVersion;
+      var feedURL = "https://iota.org/latest-osx.php?v=" + appVersion;
     } else {
-      var feedURL = "https://iotatoken.com/latest-win.php?v=" + appVersion + "&arch=" + (is64BitOS ? "64" : "32");
+      var feedURL = "https://iota.org/latest-win.php?v=" + appVersion + "&arch=" + (is64BitOS ? "64" : "32");
     }
 
     autoUpdater.setFeedURL(feedURL);

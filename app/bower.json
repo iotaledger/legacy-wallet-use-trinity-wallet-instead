@@ -1,9 +1,9 @@
 {
   "name": "iota-app",
   "authors": [
-    "Iota Foundation <info@iotatoken.com>"
+    "Iota Foundation <info@iota.org>"
   ],
-  "homepage": "https://www.iotatoken.com/",
+  "homepage": "https://www.iota.org/",
   "dependencies": {
     "tingle": "^0.7.0",
     "i18next": "^8.3.0",
