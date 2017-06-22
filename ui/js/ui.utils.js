@@ -239,20 +239,17 @@ var UI = (function(UI, $, undefined) {
 
     var changeNode = false;
 
-    if (settings.hasOwnProperty("host")) {
+    if (settings.hasOwnProperty("host") && settings.host != connection.host) {
       connection.host = settings.host;
       changeNode = true;
     }
-    if (settings.hasOwnProperty("port")) {
+    if (settings.hasOwnProperty("port") && settings.port != connection.port) {
       connection.port = settings.port;
       changeNode = true;
     }
 
     if (changeNode) {
-      iota = new IOTA({
-        "host": connection.host,
-        "port": connection.port
-      });
+      iota.changeNode({"host": connection.host, "port": connection.port});
     }
 
     if (settings.hasOwnProperty("addedNodes") && settings.addedNodes.length) {
