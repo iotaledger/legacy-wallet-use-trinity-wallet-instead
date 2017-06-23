@@ -6,13 +6,15 @@
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
-    "postinstall": "install-app-deps && node install-deps.js && cd app && bower install && cd ../ui && bower install",
+    "postinstall": "electron-builder install-app-deps && node install-deps.js && cd app && bower install && cd ../ui && bower install",
     "start": "export NODE_ENV=development || set NODE_ENV=development && electron app/js/main.js",
     "precompile": "rimraf out/* && node install-deps.js",
     "compile": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --win --mac --linux --x64 --ia32",
     "compile:lin": "build --linux --x64 --ia32",
     "compile:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --mac --x64",
     "compile:win": "build --win --x64 --ia32",
+    "compile:win64": "build --win --x64",
+    "compile:win32": "build --win --x32",
     "prepublish": "rimraf out/*",
     "publish": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --win --mac --linux --x64 --ia32 --publish always",
     "publish:lin": "build --linux --x64 --ia32 --publish always",
@@ -35,7 +37,7 @@
   },
   "devDependencies": {
     "electron": "^1.6.10",
-    "electron-builder": "^18.7.0",
+    "electron-builder": "^19.7.3",
     "rimraf": "^2.6.1",
     "follow-redirects": "^1.2.3"
   },
