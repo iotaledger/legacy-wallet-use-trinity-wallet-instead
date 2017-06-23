@@ -45,6 +45,14 @@ var UI = (function(UI, $, undefined) {
       UI.openHelpMenu();
     });
 
+    $("#error-btn").on("click", function(e) {
+      e.preventDefault();
+
+      if (connection.inApp) {
+        editNodeConfiguration();
+      }
+    });
+
     $("#login-btn").on("click", function(e) {
       try {
         var seed = String($("#login-password").val());
@@ -109,7 +117,7 @@ var UI = (function(UI, $, undefined) {
     UI.handlePastingTrytes();
   }
 
-   UI.showAppScreen = function() {
+  UI.showAppScreen = function() {
     console.log("UI.showAppScreen");
 
     clearInterval(loginGradientInterval);

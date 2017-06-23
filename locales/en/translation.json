@@ -289,5 +289,9 @@
   "russian":"Russian",
   "swedish":"Swedish",
   "korean":"Korean",
-  "seed":"Seed"
+  "seed":"Seed",
+  "seed_too_short": "Seed too Short",
+  "seed_too_long": "Seed too Long",
+  "could_not_connect": "Could Not Connect",
+  "no_connection": "No Connection"
 }

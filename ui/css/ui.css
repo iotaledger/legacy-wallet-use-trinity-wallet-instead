@@ -348,17 +348,7 @@ hr {
 }
 
 #error-btn {
-  background: red;
-}
-
-#error-btn {
-  cursor: auto;
-}
-
-#error-btn.no-connection {
-  background: transparent;
-  color: #fff;
-  text-transform: initial;
+  background: #b43012;
 }
 
 /* APP SECTION */

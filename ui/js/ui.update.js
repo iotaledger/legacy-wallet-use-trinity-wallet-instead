@@ -30,6 +30,10 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.resetState = function(timeout) {
+    if (!connection.seed) {
+      UI.loginFormShown = false;
+    }
+    UI.initializationTime = new Date().getTime();
     UI.initialConnection = false;
     isUpdatingState = false;
     UI.updateState(timeout);
@@ -81,6 +85,11 @@ var UI = (function(UI, $, undefined) {
           } else if (!connection.seed && connection.lightWallet) {
             //Show error specifically for light nodes...
             UI.notify("error", "could_not_connect_to_remote_node");
+            $("#error-btn").addClass("no-connection");
+            if (!connection.seed) {
+              UI.showLoginForm = true;
+            }
+            UI.update();
           }
           isUpdatingState = false;
         });

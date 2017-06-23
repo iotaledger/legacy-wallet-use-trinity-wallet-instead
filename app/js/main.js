@@ -2458,7 +2458,9 @@ electron.ipcMain.on("showSetupWindow", function(event, params) {
   App.showSetupWindow(params);
 });
 
-electron.ipcMain.on("editNodeConfiguration", App.editNodeConfiguration);
+electron.ipcMain.on("editNodeConfiguration", function(event) {
+  App.editNodeConfiguration();
+});
 
 electron.ipcMain.on("addNeighborNode", function(event, node) {
   App.addNeighborNode(node);
