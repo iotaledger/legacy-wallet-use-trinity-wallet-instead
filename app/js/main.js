@@ -844,7 +844,45 @@ var App = (function(App, undefined) {
       resourcesDirectory = path.dirname(resourcesDirectory);
     }
 
-    appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
+    if (process.platform == "win32" && process.env.LOCALAPPDATA) {
+      var oldAppDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
+
+      electron.app.setPath("appData", process.env.LOCALAPPDATA);
+      electron.app.setPath("userData", path.join(process.env.LOCALAPPDATA, "IOTA Wallet" + (isTestNet ? " Testnet" : "")));
+
+      var newAppDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
+
+      if (fs.existsSync(path.join(oldAppDataDirectory, "settings.json"))) {
+        if (!fs.existsSync(newAppDataDirectory)) {
+          fs.mkdirSync(newAppDataDirectory);
+        }
+
+        var files = fs.readdirSync(oldAppDataDirectory);
+
+        console.log("Files to move:");
+        console.log(files);
+
+        for (var i=0; i<files.length; i++) {
+          try {
+            var oldFile = path.join(oldAppDataDirectory, path.basename(files[i]))
+            var newFile = path.join(newAppDataDirectory, path.basename(files[i]));
+
+            if (!fs.existsSync(newFile)) {
+              console.log("Renaming " + oldFile + " to " + newFile);
+              fs.renameSync(oldFile, newFile);
+            } else {
+              console.log(newFile + " already exists");
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        }
+      }
+
+      appDataDirectory = newAppDataDirectory;
+    } else {
+      appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
+    }
 
     App.loadSettings();
 
@@ -852,61 +890,21 @@ var App = (function(App, undefined) {
 
     jarDirectory = path.join(resourcesDirectory, "iri");
 
-    try {
-      if (process.platform == "win32" && process.env.LOCALAPPDATA) {
-        electron.app.setPath("appData", process.env.LOCALAPPDATA);
-        electron.app.setPath("userData", path.join(process.env.LOCALAPPDATA, "IOTA Wallet" + (isTestNet ? " Testnet" : "")));
+    if (!fs.existsSync(appDataDirectory)) {
+      fs.mkdirSync(appDataDirectory);
+    }
 
-        newAppDataDirectory  = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
+    if (!fs.existsSync(databaseDirectory)) {
+      fs.mkdirSync(databaseDirectory);
+    }
 
-        if (newAppDataDirectory != appDataDirectory && fs.existsSync(path.join(appDataDirectory, "settings.json"))) {
-          console.log("Moving to %localappdata%: " + newAppDataDirectory);
-          if (!fs.existsSync(newAppDataDirectory)) {
-            fs.mkdirSync(newAppDataDirectory);
-          }
-
-          var files = fs.readdirSync(appDataDirectory);
-
-          for (var i=0; i<files.length; i++) {
-            try {
-              var oldFile = path.join(appDataDirectory, path.basename(files[i]))
-              var newFile = path.join(newAppDataDirectory, path.basename(files[i]));
-
-              if (!fs.existsSync(newFile)) {
-                console.log("Renaming " + oldFile + " to " + newFile);
-                fs.renameSync(oldFile, newFile);
-              } else {
-                console.log(newFile + " already exists");
-              }
-            } catch (err) {
-              console.log(err);
-            }
-          }
-        }
-
-        appDataDirectory  = newAppDataDirectory;
-        databaseDirectory = (settings.dbLocation ? settings.dbLocation : path.join(appDataDirectory, "iri"));
-      }
-
-      if (!fs.existsSync(appDataDirectory)) {
-        fs.mkdirSync(appDataDirectory);
-      }
-
-      if (!fs.existsSync(databaseDirectory)) {
-        fs.mkdirSync(databaseDirectory);
-      }
-
-      // Delete the database if the deleteDb flag is set
-      // Also if it's the first run and settings.version is not set, deleteAnyways
-      // Else only delete if the new appVersion > previous app version
-      if (deleteDb && (deleteAnyways || appVersion > settings.version) && fs.existsSync(databaseDirectory)) {
-        console.log("Deleting Database Directory " + databaseDirectory);
-        settings.version = appVersion;
-        App.deleteDatabase();
-      }
-    } catch (err) {
-      console.log("Error:");
-      console.log(err);
+    // Delete the database if the deleteDb flag is set
+    // Also if it's the first run and settings.version is not set, deleteAnyways
+    // Else only delete if the new appVersion > previous app version
+    if (deleteDb && (deleteAnyways || appVersion > settings.version) && fs.existsSync(databaseDirectory)) {
+      console.log("Deleting Database Directory " + databaseDirectory);
+      settings.version = appVersion;
+      App.deleteDatabase();
     }
 
     App.makeMultilingual(settings.language);
@@ -914,11 +912,12 @@ var App = (function(App, undefined) {
 
   App.moveDatabase = function(newDatabaseDirectory) {
     //Doing it synchronous for now, easier..
-    console.log("Moving database to " + newDatabaseDirectory);
 
     if (!databaseDirectory || !newDatabaseDirectory) {
       return -1;
     }
+
+    console.log("Moving database to " + newDatabaseDirectory);
 
     if (!fs.existsSync(newDatabaseDirectory)) {
       fs.mkdirSync(newDatabaseDirectory);
@@ -1419,7 +1418,7 @@ var App = (function(App, undefined) {
         iriVersion = "";
         serverOutput = [];
 
-        if (settings.dbLocation != databaseDirectory) {
+        if (settings.dbLocation && settings.dbLocation != databaseDirectory) {
           //Todo: During db move, user should not close the app? How to prevent..
           App.moveDatabase(settings.dbLocation);
           databaseDirectory = settings.dbLocation; //because this is not reloaded during relaunch.. 
