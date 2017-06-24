@@ -39,7 +39,7 @@ If you wish to compile the app, install the following also:
 1. Clone this repository:
 
   ```
-  git clone https://github.com/iotaledger/wallet
+  git clone https://github.com/iotaledger/wallet -b dev
   ```
 
 2. Go to the `wallet` directory:
