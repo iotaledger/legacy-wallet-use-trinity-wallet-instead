@@ -603,11 +603,11 @@ var App = (function(App, undefined) {
         },
         {
           label: "Forum",
-          click() { shell.openExternal("https://forum.iotatoken.com/"); }
+          click() { shell.openExternal("https://forum.iota.org"); }
         },
         {
           label: "Chat",
-          click() { shell.openExternal("https://slack.iotatoken.com/"); }
+          click() { shell.openExternal("https://slack.iota.org"); }
         },
         {
           label: "Documentation",
