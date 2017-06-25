@@ -366,10 +366,11 @@ var App = (function(App, undefined) {
     App.uiIsReady = false;
 
     if (!win) {
-      var windowOptions = {"width"           : settings.bounds.width,
-                           "height"          : settings.bounds.height,
-                           "minWidth"        : 360,
-                           "minHeight"       : 504,
+      var windowOptions = {"width"           : settings.bounds.width < 375 ? 375 : settings.bounds.width,
+                           "height"          : settings.bounds.height < 524 ? 524 : settings.bounds.height,
+                           "useContentSize"  : true,
+                           "minWidth"        : 375, //this is 360 on mac..
+                           "minHeight"       : 524,
                            "maxWidth"        : 825,
                            "maxHeight"       : 1200,
                            "backgroundColor" : "#4DC1B5",
@@ -1856,6 +1857,10 @@ var App = (function(App, undefined) {
                                              "backgroundColor" : "#4DC1B5",
                                              "frame"           : false,
                                              "center"          : true,
+                                             "alwaysOnTop"     : true,
+                                             "minimizable"     : false,
+                                             "maximizable"     : false,
+                                             "fullscreenable"  : false,
                                              "resizable"       : false});
 
     loadingWin.loadURL("file://" + appDirectory.replace(path.sep, "/") + "/windows/loading.html");
