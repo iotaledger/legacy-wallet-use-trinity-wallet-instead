@@ -293,5 +293,15 @@
   "seed_too_short": "Seed too Short",
   "seed_too_long": "Seed too Long",
   "could_not_connect": "Could Not Connect",
-  "no_connection": "No Connection"
+  "no_connection": "No Connection",
+  "submit_bug_report": "Submit Bug Report",
+  "bug_report": "Bug Report",
+  "issue": "Issue",
+  "title": "Title",
+  "description": "Description",
+  "username": "Username",
+  "password": "Password",
+  "send_using_github_account": "Send Using GitHub Account",
+  "send_using_email": "Send Using Email",
+  "describe_issue": "Describe the Issue in Detail"
 }

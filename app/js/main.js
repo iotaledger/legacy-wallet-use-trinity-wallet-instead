@@ -726,6 +726,10 @@ var App = (function(App, undefined) {
         {
           label: i18n.t("documentation"),
           click() { shell.openExternal("https://iota.readme.io/docs"); }
+        },
+        {
+          label: i18n.t("submit_bug_report"),
+          click() { shell.openExternal("https://github.com/iotaledger/wallet/issues"); }
         }
       ]
     });
