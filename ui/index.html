@@ -89,10 +89,11 @@
         </div>
       </div>
     </div>
-    <div id="generate-address-stack" class="stack closed" data-higher="open" data-lower="closed">
+    <div id="generate-address-stack" class="stack closed" data-higher="open" data-lower="closed" data-onopen="onOpenAddressStack" data-onopencompleted="onOpenAddressStackCompleted">
       <div class="inner">
         <h1 data-i18n="receive"></h1>
         <div class="content">
+          <div class="loading-ring"><div></div></div>
           <div class="padded">
             <p id="generate-address-result" class="address clipboard">OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMQQQQQQQQQQQQQQQQQQQQQ</p>
             <div id="generate-address-qr-code" class="address-qr clipboard"></div>

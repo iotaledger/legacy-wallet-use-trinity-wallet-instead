@@ -167,7 +167,9 @@ var UI = (function(UI, $, undefined) {
 
       UI.animateStacks(200);
 
-      var onOpen = $(this).data("onopen");
+      var $stack = $(this);
+
+      var onOpen = $stack.data("onopen");
       
       if (onOpen && UI[onOpen]) {
         UI[onOpen]();
@@ -178,6 +180,14 @@ var UI = (function(UI, $, undefined) {
         $(".stack.closing").removeClass("closing");
         $(".stack:not(.open)").addClass("closed");
         $(".stack.open").removeClass("opening");
+
+        var onOpenCompleted = $stack.data("onopencompleted");
+
+        if (onOpenCompleted && UI[onOpenCompleted]) {
+          setTimeout(function() {
+            UI[onOpenCompleted]();
+          }, 25);
+        }
       }, 205);
     });
 
