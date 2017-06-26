@@ -29,20 +29,52 @@ var UI = (function(UI, $, undefined) {
       }
     });
 
-    $("#login-password").on("keydown", function(e) {
+    $("#login-password").on("keydown keyup", function(e) {
       if (e.keyCode == 13 && !$("#login-btn").is(":disabled")) {
         $("#login-btn").trigger("click");
       }
-    }).on("keyup", function(e) {
-      if ($(this).val() == "") {
-        $("#login-help").show();
+
+      var seed = $(this).val();
+
+      $checksum = $("#login-checksum");
+
+      $checksum.removeClass();
+
+      if (!seed) {
+        $checksum.html("<i class='fa fa-question-circle'></i>").addClass("help icon");
+      } else if (seed.match(/[^A-Z9]/) || seed.match(/^[9]+$/)) {
+        $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon");
+      } else if (seed.length < 60 && !connection.allowShortSeedLogin) {
+        $checksum.html("&lt;60").addClass("invalid").show();
+      } else if (seed.length > 81) {
+        $checksum.html("&gt;81").addClass("invalid").show();
+      } else if (window.Curl && window.Converter) {
+        try {
+          var curl = new Curl();
+          curl.initialize();
+          curl.state = Converter.trits(seed, curl.state);
+          curl.transform();
+          var checksum = Converter.trytes(curl.state).substring(0, 3);
+          if (checksum != "999") {
+            $checksum.html(String(checksum).escapeHTML());
+          } else {
+            $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon");
+          }
+        } catch (err) {
+          console.log(err);
+          $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon");
+        }
       } else {
-        $("#login-help").hide();
+        $checksum.hide();
       }
+
+      seed = "";
     });
 
-    $("#login-help").on("click", function(e) {
-      UI.openHelpMenu();
+    $("#login-checksum").on("click", function(e) {
+      if ($(this).hasClass("icon")) {
+        UI.openHelpMenu();
+      }
     });
 
     $("#error-btn").on("click", function(e) {
@@ -87,6 +119,8 @@ var UI = (function(UI, $, undefined) {
         $("#login-password").focus();
         return;
       }
+
+      seed = "";
 
       UI.isLoggingIn = true;
 

@@ -324,6 +324,7 @@ hr {
 
 #login-password {
   margin-bottom: 50px;
+  padding-right: 85px;
 }
 
 #login-btn {
@@ -338,13 +339,35 @@ hr {
   position: relative; 
 }
 
-#login-help {
+#login-checksum {
   position: absolute; 
   top: 25px; 
   right: 15px;
+  color: gray;
+  background: #fff;
+  border-radius: 10px;
+  padding: 5px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+#login-checksum.icon {
+  background: none;
   color: #fff;
-  font-size:24px;
-  cursor:pointer;
+  font-size: 28px;
+  line-height: 28px;
+  cursor: pointer;
+  top: 22px;
+}
+
+#login-checksum.invalid {
+  background: #fff;
+  color: gray;
+}
+
+#login-checksum.invalid.icon {
+  background: none;
+  color: #fff;
 }
 
 #error-btn {
@@ -1264,8 +1287,12 @@ input[type="number"] {
     padding: 15px;
   }
 
-  #login-help {
-    top: 15px; 
+  #login-checksum {
+    top: 15px;
+  }
+
+  #login-checksum.icon {
+    top: 10px;
   }
 
   .btn {
@@ -1528,6 +1555,14 @@ input[type="number"] {
 
   .remodal {
     padding: 15px;
+  }
+
+  #login-password {
+    padding-right: 65px;
+  }
+
+  #login-checksum {
+    right: 5px;
   }
 }
 
