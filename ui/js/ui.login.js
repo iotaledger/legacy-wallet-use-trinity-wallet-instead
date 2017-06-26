@@ -128,7 +128,7 @@ var UI = (function(UI, $, undefined) {
     UI.update();
 
     $("#app").css("z-index", 1000).fadeIn(400, function() {
-      $("#login").hide();
+      $("#login").remove();
     });
 
     UI.animateStacks(0);
