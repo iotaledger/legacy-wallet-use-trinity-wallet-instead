@@ -1,8 +1,9 @@
 var UI = (function(UI, $, undefined) {
-  var didClickGenerateAddress = false;
+  var isBusy = false;
+  var hasGenerated = false;
 
   UI.onOpenAddressStack = function() {
-    if (didClickGenerateAddress) {
+    if (isBusy || hasGenerated) {
       return;
     }
 
@@ -18,9 +19,11 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.onOpenAddressStackCompleted = function() {
-    if (didClickGenerateAddress) {
+    if (isBusy || hasGenerated) {
       return;
     }
+
+    isBusy = true;
 
     var $stack  = $("#generate-address-stack");
 
@@ -29,6 +32,10 @@ var UI = (function(UI, $, undefined) {
     var $btn    = $stack.find(".btn").first();
 
     iota.api.getNewAddress(connection.seed, {"checksum": true}, function(error, newAddress) {
+      setTimeout(function() {
+        isBusy = false;
+      }, 3000);
+
       $loader.fadeOut();
 
       if (error) {
@@ -55,7 +62,7 @@ var UI = (function(UI, $, undefined) {
       e.preventDefault();
       e.stopPropagation();
 
-      didClickGenerateAddress = true;
+      hasGenerated = true;
       
       var $stack = $("#generate-address-stack");
       
