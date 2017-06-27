@@ -192,7 +192,8 @@ var App = (function(App, undefined) {
         var displaySize = electron.screen.getDisplayNearestPoint(electron.screen.getCursorScreenPoint()).workAreaSize;
 
         if (displaySize.width < settings.bounds.width + 100 || displaySize.height < settings.bounds.height+100) {
-          settings.bounds = {width: 520, height: 780};
+          settings.bounds.height = displaySize.height - 100;
+          settings.bounds.width = Math.round(settings.bounds.height / 16 * 11);
         }
 
         if (settings.bounds.hasOwnProperty("x") && settings.bounds.hasOwnProperty("y")) {
