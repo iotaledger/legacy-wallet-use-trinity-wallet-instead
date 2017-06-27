@@ -756,6 +756,17 @@ hr {
   -o-text-overflow: ellipsis;
   width: 100%;
   -webkit-text-overflow: ellipsis;
+  text-align: left;
+}
+
+.tag {
+  background: #696969;
+  color: #fff;
+  display: inline-block;
+  padding: 3px;
+  border-radius: 5px;
+  font-size: 85%;
+  margin-right: 5px;
 }
 
 .list .value {
@@ -803,6 +814,10 @@ hr {
 
 #history-stack .addresses .details {
   margin-left: 50px;
+}
+
+#history-stack .tag {
+  background: #1a421a;
 }
 
 #history-stack .list .value, #history-stack .list .value span.amount {

@@ -26,34 +26,23 @@ var UI = (function(UI, $, undefined) {
           }
         }
 
-        console.log("Input addresses:");
-        console.log(inputAddresses);
-
         iota.api.isReattachable(inputAddresses, function(error, isReattachable) {
           //TEMP BUG FIX
           if (inputAddresses.length == 0) {
             isReattachable = false;
           }
 
-          console.log("Is reattachable: " + isReattachable);
-
           var html = "<div class='list'><ul>";
 
           for (var i=0; i<transactions.length; i++) {
-            html += "<li><div class='details'><div class='address'>" + UI.formatForClipboard(iota.utils.addChecksum(transactions[i].address)) + "</div></div><div class='value'>" + UI.formatAmount(transactions[i].value) + "</div></li>";
+            var tag = String(transactions[i].tag).replace(/[9]+$/, "");
+            html += "<li><div class='details'><div class='address'>" + (tag ? "<div class='tag'>" + tag.escapeHTML() + "</div>" : "") + UI.formatForClipboard(iota.utils.addChecksum(transactions[i].address)) + "</div></div><div class='value'>" + UI.formatAmount(transactions[i].value) + "</div></li>";
           }
 
           html += "</ul></div>";
         
           $modal.find(".contents").html(html);
           $modal.find(".hash").html("<strong><span data-i18n='hash'>" + i18n.t("Hash") + "</span>:</strong> " + UI.formatForClipboard(hash));
-
-          /*
-          if (bundle.transactions[0].signatureMessageChunk != "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999") {
-            $modal.find(".message").html("<strong>Message:</strong> " + String(bundle.transactions[0].signatureMessageChunk.replace(/[9]+$/, "")).escapeHTML()).show();
-          } else {
-            $modal.find(".message").html("").hide();
-          }*/
 
           $modal.find(".persistence").html("<span data-i18n='persistence'>" + i18n.t("Persistence") + "</span>: " + (persistence ? "<span data-i18n='confirmed'>" + i18n.t("confirmed") + "</span>" : "<span data-i18n='pending'>" + i18n.t("pending") + "</span>")).show(); 
           $modal.find(".btn").data("hash", hash);
@@ -209,10 +198,15 @@ var UI = (function(UI, $, undefined) {
         });
 
         var totalValue = 0;
+        var tags = [];
 
          $.each(bundle, function(i, item) {
           if (item.value !== 0 && connection.accountData.addresses.indexOf(item.address) != -1) {
             totalValue += item.value;
+          }
+          var tag = String(item.tag).replace(/[9]+$/, "");
+          if (tag && tags.indexOf(tag) == -1) {
+            tags.push(tag);
           }
         });
 
@@ -221,7 +215,13 @@ var UI = (function(UI, $, undefined) {
         transfersHtml += "<div class='details'>";
         transfersHtml += "<div class='date'>" + (bundle[0].timestamp != "0" ? UI.formatDate(bundle[0].timestamp, true) : i18n.t("genesis")) + "</div>";
         transfersHtml += "<div class='address'>" + (bundle[0].address ? UI.formatForClipboard(iota.utils.addChecksum(bundle[0].address)) : "/") + "</div>";
-        transfersHtml += "<div class='action'>" + (bundle[0].hash ? "<a href='#' class='show-bundle' data-i18n='show_bundle'>" + i18n.t("show_bundle") + "</a> " : "") + "<span data-i18n='" + (persistence ? "confirmed" : "pending") + "'>" + i18n.t(persistence ? "confirmed" : "pending") + "</span></div>";
+        transfersHtml += "<div class='action'>";
+        if (tags.length) {
+          for (var i=0; i<tags.length; i++) {
+            transfersHtml += "<div class='tag'>" + tags[i].escapeHTML() + "</div>";
+          }
+        }
+        transfersHtml += (bundle[0].hash ? "<a href='#' class='show-bundle' data-i18n='show_bundle'>" + i18n.t("show_bundle") + "</a> " : "") + "<span data-i18n='" + (persistence ? "confirmed" : "pending") + "'>" + i18n.t(persistence ? "confirmed" : "pending") + "</span></div>";
         transfersHtml += "</div>";
         transfersHtml += "<div class='value'>" + UI.formatAmount(totalValue) + "</div>";
         transfersHtml += "</li>";
