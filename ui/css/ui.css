@@ -1209,7 +1209,63 @@ input[type="number"] {
   }
 }
 
-@media only screen and (max-height: 735px), only screen and (max-width: 519px) { /* 519px */
+@media only screen and (max-height: 779px), only screen and (max-width: 549px) {
+  #app .menu {
+    left: 25px;
+  }
+
+  h1 {
+    padding-left: 25px;
+    padding-top: 25px;
+    margin-bottom: 25px;
+  }
+
+  .stack .submenu {
+    top: 25px;
+    right: 25px;
+  }
+
+  #available-balance-always {
+    top: 25px;
+    right: 25px;
+  }
+
+  h1 {
+    padding-left: 25px;
+    padding-top: 25px;
+    margin-bottom: 25px;
+  }
+
+  .padded {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+
+  .content.padded {
+    padding: 25px;
+    padding-top: 0;
+  }
+
+  .list .type, #history-stack .addresses .details {
+    margin-left: 25px;
+  }
+
+  .list .value {
+    margin-right: 25px;
+  }
+
+  .list p {
+    margin-right: 25px;
+    margin-left: 25px;
+  }
+
+  .stack .submenu {
+    top: 25px;
+    right: 25px;
+  }
+}
+
+@media only screen and (max-height: 735px), only screen and (max-width: 519px) {
   #login-form {
     bottom: 30px;
     left: 30px;
