@@ -303,5 +303,6 @@
   "password": "Password",
   "send_using_github_account": "Send Using GitHub Account",
   "send_using_email": "Send Using Email",
-  "describe_issue": "Describe the Issue in Detail"
+  "describe_issue": "Describe the Issue in Detail",
+  "invalid_address": "Invalid Address"
 }

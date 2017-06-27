@@ -14,7 +14,7 @@ var UI = (function(UI, $, undefined) {
       $stack.addClass("loading");
 
       try {
-        var address = $("#transfer-address").val().toUpperCase();
+        var address = $.trim($("#transfer-address").val());
 
         if (!address) {
           throw i18n.t("address_is_required");
@@ -22,6 +22,8 @@ var UI = (function(UI, $, undefined) {
           throw i18n.t("missing_address_checksum");
         } else if (address.length != 90) {
           throw i18n.t("incorrect_address_length");
+        } else if (!address.match(/^[A-Z9]+$/)) {
+          throw i18n.t("invalid_address");
         } else if (!iota.utils.isValidChecksum(address)) {
           throw i18n.t("incorrect_address_checksum");
         }
