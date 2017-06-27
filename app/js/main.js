@@ -134,8 +134,8 @@ var App = (function(App, undefined) {
           deleteAnyways = true;
           settings.version = appVersion;
       }
-      if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object") {
-        settings.bounds = {width: 520, height: 736};
+      if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object" || !settings.bounds.width || !settings.bounds.height) {
+        settings.bounds = {width: 520, height: 780};
       }
       if (!settings.hasOwnProperty("lightWallet")) {
         settings.lightWallet = -1;
@@ -184,7 +184,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 736}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: "", allowShortSeedLogin: 0};
+      settings = {bounds: {width: 520, height: 780}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: "", allowShortSeedLogin: 0};
     }
 
     try {
@@ -192,8 +192,7 @@ var App = (function(App, undefined) {
         var displaySize = electron.screen.getDisplayNearestPoint(electron.screen.getCursorScreenPoint()).workAreaSize;
 
         if (displaySize.width < settings.bounds.width + 100 || displaySize.height < settings.bounds.height+100) {
-          settings.bounds.height = displaySize.height - 100;
-          settings.bounds.width = Math.round(settings.bounds.height / 16 * 11);
+          settings.bounds = {width: 520, height: 780};
         }
 
         if (settings.bounds.hasOwnProperty("x") && settings.bounds.hasOwnProperty("y")) {
@@ -204,7 +203,7 @@ var App = (function(App, undefined) {
         }
       }
     } catch (err) {
-      settings.bounds = {width: 520, height: 736};
+      settings.bounds = {width: 520, height: 780};
     }
   }
 
@@ -366,16 +365,27 @@ var App = (function(App, undefined) {
     App.uiIsReady = false;
 
     if (!win) {
-      var windowOptions = {"width"           : settings.bounds.width < 375 ? 375 : settings.bounds.width,
-                           "height"          : settings.bounds.height < 524 ? 524 : settings.bounds.height,
-                           "useContentSize"  : true,
-                           "minWidth"        : 375, //this is 360 on mac..
-                           "minHeight"       : 524,
+      var windowOptions = {"width"           : settings.bounds.width,
+                           "height"          : settings.bounds.height,
+                           "minWidth"        : 375,
+                           "minHeight"       : 546,
                            "maxWidth"        : 825,
                            "maxHeight"       : 1200,
                            "backgroundColor" : "#4DC1B5",
                            "center"          : true,
                            "show"            : false};
+
+      if (settings.bounds.width < windowOptions.minWidth) {
+        settings.bounds.width = windowOptions.minWidth;
+      } else if (settings.bounds.width > windowOptions.maxWidth) {
+        settings.bounds.width = windowOptions.maxWidth;
+      }
+
+      if (settings.bounds.height < windowOptions.minHeight) {
+        settings.bounds.height = windowOptions.minHeight;
+      } else if (settings.bounds.height > windowOptions.maxHeight) {
+        settings.bounds.height = windowOptions.maxHeight;
+      }
 
       if (settings.bounds.hasOwnProperty("x") && settings.bounds.hasOwnProperty("y")) {
         windowOptions.x = settings.bounds.x;
