@@ -85,7 +85,10 @@ var UI = (function(UI, $, undefined) {
 
   UI.formatForClipboard = function(text, id) {
     text = String(text).escapeHTML();
-
+    if (id) {
+      id = String(id).escapeHTML();
+    }
+    
     return "<span class='clipboard' title='" + text + "' data-clipboard-text='" + text + "'" + (id ? " id='" + id + "'" : "") + ">" + text + "</span>";
   }
 
@@ -103,6 +106,8 @@ var UI = (function(UI, $, undefined) {
     }
 
     var parsedMessage;
+
+    message = String(message);
 
     if (message.match(/^[a-z\_]+$/i)) {
       parsedMessage = i18n.t(message, options);
@@ -145,6 +150,8 @@ var UI = (function(UI, $, undefined) {
     }
 
     var parsedMessage;
+
+    message = String(message);
 
     if (message.match(/^[a-z\_]+$/i)) {
       parsedMessage = i18n.t(message, options);
