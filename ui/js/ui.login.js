@@ -56,7 +56,7 @@ var UI = (function(UI, $, undefined) {
           curl.transform();
           var checksum = Converter.trytes(curl.state).substring(0, 3);
           if (checksum != "999") {
-            $checksum.html(String(checksum).escapeHTML());
+            $checksum.html("<span title='" + i18n.t("seed_checksum") + "' data-i18n='seed_checksum'>" + String(checksum).escapeHTML() + "</span>");
           } else {
             $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon");
           }

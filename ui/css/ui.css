@@ -349,6 +349,7 @@ hr {
   padding: 5px;
   font-size: 20px;
   line-height: 20px;
+  cursor: default;
 }
 
 #login-checksum.icon {
