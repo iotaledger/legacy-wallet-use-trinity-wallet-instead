@@ -16,17 +16,12 @@ iota.api.attachToTangle = function(trunkTransaction, branchTransaction, minWeigh
     })
 }
 
-iota.api.interruptAttachingToTangle_ = iota.api.interruptAttachingToTangle;
-
 iota.api.interruptAttachingToTangle = function(callback) {
     console.log("Light Wallet: iota.api.interruptAttachingToTangle");
 
-    iota.api.interruptAttachingToTangle_(function(error) {
-        if (!error) {
-            ccurl.ccurlInterrupt(connection.ccurlProvider);
-        }
-        if (callback) {
-            return callback(error);
-        }
-    });
+    ccurl.ccurlInterrupt(connection.ccurlProvider);
+
+    if (callback) {
+      return callback();
+    }
 }

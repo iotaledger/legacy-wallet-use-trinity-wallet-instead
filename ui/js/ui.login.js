@@ -182,11 +182,26 @@ var UI = (function(UI, $, undefined) {
       e.preventDefault();
       e.stopPropagation();
 
+      if (UI.isLoggingOut) {
+        return;
+      }
+
       UI.isLoggingOut = true;
-      
-      iota.api.interruptAttachingToTangle(function() {
-        window.location.reload();
-      });
+
+      var params = {
+        "inApp": 1,
+        "showStatus": connection.showStatus ? 1 : 0,
+        "host": connection.host,
+        "port": connection.port,
+        "depth": connection.depth,
+        "minWeightMagnitude": connection.minWeightMagnitude,
+        "ccurlPath": connection.ccurlPath,
+        "language": connection.language,
+        "allowShortSeedLogin": connection.allowShortSeedLogin ? 1 : 0,
+        "interrupt": 1
+      }
+
+      window.location.href = "index.html?" + $.param(params);
     });
 
     UI.handleTransfers();

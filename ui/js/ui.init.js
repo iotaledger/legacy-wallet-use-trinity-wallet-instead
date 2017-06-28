@@ -55,6 +55,8 @@ var UI = (function(UI, $, undefined) {
 
     UI.initializationTime = new Date().getTime();
 
+    var interruptAttachingToTangle = false;
+
     if (typeof(URLSearchParams) != "undefined" && parent) {
       var params = new URLSearchParams(location.search.slice(1));
       connection.inApp = params.get("inApp") == 1;
@@ -79,6 +81,9 @@ var UI = (function(UI, $, undefined) {
       }
       if (params.has("allowShortSeedLogin")) {
         connection.allowShortSeedLogin = params.get("allowShortSeedLogin") == 1;
+      }
+      if (params.has("interrupt")) {
+        interruptAttachingToTangle = true;
       }
     }
 
@@ -123,6 +128,9 @@ var UI = (function(UI, $, undefined) {
 
         // Overwrite iota lib with light wallet functionality
         $.getScript("js/iota.lightwallet.js").done(function() {
+          if (interruptAttachingToTangle) {
+            iota.api.interruptAttachingToTangle(function() {});
+          }
           setTimeout(initialize, 100);
         }).fail(function(jqxhr, settings, exception) {
           console.log("Could not load iota.lightwallet.js");
@@ -130,6 +138,9 @@ var UI = (function(UI, $, undefined) {
           showLightWalletErrorMessage();
         });
       } else {
+        if (interruptAttachingToTangle) {
+          iota.api.interruptAttachingToTangle(function() {});
+        }
         setTimeout(initialize, 100);
       }
     });
