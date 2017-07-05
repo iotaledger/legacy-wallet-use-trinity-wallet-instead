@@ -56,7 +56,7 @@ var UI = (function(UI, $, undefined) {
           curl.transform();
           var checksum = Converter.trytes(curl.state).substring(0, 3);
           if (checksum != "999") {
-            $checksum.html("<span title='" + i18n.t("seed_checksum") + "' data-i18n='seed_checksum'>" + String(checksum).escapeHTML() + "</span>");
+            $checksum.html("<span title='" + UI.t("seed_checksum") + "' data-i18n='seed_checksum'>" + UI.format(checksum) + "</span>");
           } else {
             $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon");
           }
@@ -90,17 +90,17 @@ var UI = (function(UI, $, undefined) {
         var seed = String($("#login-password").val());
 
         if (!seed) {
-          throw i18n.t("seed_is_required");
+          throw UI.t("seed_is_required");
         } else if (seed.match(/[^A-Z9]/) || seed.match(/^[9]+$/)) {
-          throw i18n.t("invalid_seed");
+          throw UI.t("invalid_seed");
         } else if (seed.length < 60) {
           if (connection.allowShortSeedLogin) {
-            _seedError = i18n.t("seed_not_secure");
+            _seedError = UI.t("seed_not_secure");
           } else {
-            throw i18n.t("invalid_seed");
+            throw UI.t("invalid_seed");
           }
         } else if (seed.length > 81) {
-          throw i18n.t("invalid_seed");
+          throw UI.t("invalid_seed");
         }
 
         if (connection.inApp) {
@@ -268,12 +268,12 @@ var UI = (function(UI, $, undefined) {
         if (timeTaken >= 500 && timeTaken < 10000) {
           if (!$("#error-btn").hasClass("no-connection")) {
             $("#login-btn, #login-password").hide();
-            $("#error-btn").addClass("no-connection").html(i18n.t("connecting")).fadeIn();
+            $("#error-btn").addClass("no-connection").html(UI.t("connecting")).fadeIn();
           }
         }
       } else {
         $("#login-btn, #login-password").hide();
-        $("#error-btn").removeClass("no-connection").html(i18n.t("connection_refused")).show();
+        $("#error-btn").removeClass("no-connection").html(UI.t("connection_refused")).show();
         if (UI.updateIntervalTime != 500) {
           UI.createStateInterval(500, false);
         }

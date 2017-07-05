@@ -2,6 +2,9 @@ const electron = require("electron");
 const path     = require("path");
 const http     = require("http");
 
+var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
+var resourcesDirectory = isDevelopment ? "../../" : "../../../";
+
 var __entityMap = {
   "&": "&amp;",
   "<": "&lt;",
@@ -10,9 +13,6 @@ var __entityMap = {
   "'": '&#39;',
   "/": '&#x2F;'
 };
-
-var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
-var resourcesDirectory = isDevelopment ? "../../" : "../../../";
 
 String.prototype.escapeHTML = function() {
   return String(this).replace(/[&<>"'\/]/g, function(s) {
@@ -144,13 +144,13 @@ var UI = (function(UI, undefined) {
       document.getElementById("host-format-example").style.display = "none";
       document.getElementById("host-select").innerHTML = "";
 
-      var content = "<option value='' data-i18n='select_your_host'>" + i18n.t("select_your_host") + "</option>";
+      var content = "<option value='' data-i18n='select_your_host'>" + UI.t("select_your_host") + "</option>";
 
       for (var i=0; i<_lightWalletHosts.length; i++) {
-        content += "<option value='" + String(_lightWalletHosts[i]).escapeHTML() + "'>" + String(_lightWalletHosts[i]).escapeHTML() + "</option>";
+        content += "<option value='" + UI.format(_lightWalletHosts[i]) + "'>" + UI.format(_lightWalletHosts[i]) + "</option>";
       }
       
-      content += "<option value='custom' data-i18n='custom'>" + i18n.t("custom") + "</option>";
+      content += "<option value='custom' data-i18n='custom'>" + UI.t("custom") + "</option>";
 
       console.log(content);
       document.getElementById("host-select").innerHTML = content;
@@ -203,17 +203,17 @@ var UI = (function(UI, undefined) {
   UI.showContextMenu = function(e) {
     var template = [
       {
-        label: i18n.t("cut"),
+        label: UI.t("cut"),
         accelerator: "CmdOrCtrl+X",
         role: "cut",
       },
       {
-        label: i18n.t("copy"),
+        label: UI.t("copy"),
         accelerator: "CmdOrCtrl+C",
         role: "copy"
       },
       {
-        label: i18n.t("paste"),
+        label: UI.t("paste"),
         accelerator: "CmdOrCtrl+V",
         role: "paste"
       }
@@ -281,6 +281,18 @@ var UI = (function(UI, undefined) {
     });
   }
 
+  UI.t = function(message, options) {
+    if (message.match(/^[a-z\_]+$/i)) {
+      return UI.format(i18n.t(message, options));
+    } else {
+      return UI.format(message);
+    }
+  }
+
+  UI.format = function(text) {
+    return String(text).escapeHTML();
+  }
+
   UI.changeLanguage = function(language, callback) {
     i18n.changeLanguage(language, function(err, t) {
       updateUI();
@@ -291,14 +303,16 @@ var UI = (function(UI, undefined) {
   }
 
   UI.changeElementLanguage = function(el, key) {
-    document.getElementById(el).innerHTML = i18n.t(key);
-    document.getElementById(el).setAttribute("data-i18n", key);
+    document.getElementById(el).innerHTML = UI.t(key);
+    document.getElementById(el).setAttribute("data-i18n", key.match(/^[a-z\_]+$/i ? key : ""));
   }
 
   function updateUI() {
     var i18nList = document.querySelectorAll('[data-i18n]');
     i18nList.forEach(function(v){
-      v.innerHTML = i18n.t(v.dataset.i18n, v.dataset.i18nOptions);
+      if (v.dataset.i18n) {
+        v.innerHTML = UI.t(v.dataset.i18n, v.dataset.i18nOptions);
+      }
     });
   }
 

@@ -1,6 +1,9 @@
 const electron = require("electron");
 const path     = require("path");
 
+var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
+var resourcesDirectory = isDevelopment ? "../../" : "../../../";
+
 var __entityMap = {
   "&": "&amp;",
   "<": "&lt;",
@@ -9,9 +12,6 @@ var __entityMap = {
   "'": '&#39;',
   "/": '&#x2F;'
 };
-
-var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
-var resourcesDirectory = isDevelopment ? "../../" : "../../../";
 
 String.prototype.escapeHTML = function() {
   return String(this).replace(/[&<>"'\/]/g, function(s) {
@@ -60,17 +60,17 @@ var UI = (function(UI, undefined) {
   UI.showContextMenu = function(e) {
     var template = [
       {
-        label: i18n.t("cut"),
+        label: UI.t("cut"),
         accelerator: "CmdOrCtrl+X",
         role: "cut",
       },
       {
-        label: i18n.t("copy"),
+        label: UI.t("copy"),
         accelerator: "CmdOrCtrl+C",
         role: "copy"
       },
       {
-        label: i18n.t("paste"),
+        label: UI.t("paste"),
         accelerator: "CmdOrCtrl+V",
         role: "paste"
       }
@@ -84,13 +84,13 @@ var UI = (function(UI, undefined) {
     if (params) {
       isLightWallet = params.lightWallet == 1;
       if (params.title) {
-        document.getElementById("title").innerHTML = String(params.title).escapeHTML();
+        document.getElementById("title").innerHTML = UI.format(params.title);
         document.getElementById("title").style.display = "block";
       } else {
         document.getElementById("title").style.display = "none";
       }
       if (params.message) {
-        document.getElementById("message").innerHTML = String(params.message).escapeHTML();
+        document.getElementById("message").innerHTML = UI.format(params.message);
         document.getElementById("message").style.display = "block";
       } else {
         document.getElementById("message").style.display = "none";
@@ -101,7 +101,7 @@ var UI = (function(UI, undefined) {
         log = log.replace(/\n\s*\n/g, "\n");
 
         if (!log || params.serverOutput.length == 1) {
-          log = i18n.t("no_server_output");
+          log = UI.t("no_server_output");
         }
 
         document.getElementById("server-output").value = log;
@@ -153,6 +153,18 @@ var UI = (function(UI, undefined) {
     });
   }
 
+  UI.t = function(message, options) {
+    if (message.match(/^[a-z\_]+$/i)) {
+      return UI.format(i18n.t(message, options));
+    } else {
+      return UI.format(message);
+    }
+  }
+
+  UI.format = function(text) {
+    return String(text).escapeHTML();
+  }
+
   UI.changeLanguage = function(language, callback) {
     i18n.changeLanguage(language, function(err, t) {
       updateUI();
@@ -163,14 +175,16 @@ var UI = (function(UI, undefined) {
   }
 
   UI.changeElementLanguage = function(el, key) {
-    document.getElementById(el).innerHTML = i18n.t(key);
-    document.getElementById(el).setAttribute("data-i18n", key);
+    document.getElementById(el).innerHTML = UI.t(key);
+    document.getElementById(el).setAttribute("data-i18n", key.match(/^[a-z\_]+$/i ? key : ""));
   }
 
   function updateUI() {
     var i18nList = document.querySelectorAll('[data-i18n]');
     i18nList.forEach(function(v){
-      v.innerHTML = i18n.t(v.dataset.i18n, v.dataset.i18nOptions);
+      if (v.dataset.i18n) {
+        v.innerHTML = UI.t(v.dataset.i18n, v.dataset.i18nOptions);
+      }
     });
   }
 

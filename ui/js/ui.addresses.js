@@ -41,7 +41,7 @@ var UI = (function(UI, $, undefined) {
       if (error) {
         console.log(error);
         $btn.css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
-        $btn.loadingReset(i18n.t("generate_new_address"), {"initial": i18n.t("generate_new_address"), "loading": i18n.t("attaching_to_tangle")});
+        $btn.loadingReset("generate_new_address", {"initial": "generate_new_address", "loading": "attaching_to_tangle"});
       } else {
         if (newAddress != $btn.data("address")) {
           updateGeneratedAddress(newAddress, true);
@@ -50,7 +50,7 @@ var UI = (function(UI, $, undefined) {
         $result.css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
         
         $btn.css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
-        $btn.loadingUpdate("Attach to Tangle", {"icon": false, "initial": "Attach to Tangle", "loading": "Attaching to Tangle..."});
+        $btn.loadingUpdate("attach_to_tangle", {"noIcon": true, "initial": "attach_to_tangle", "loading": "attaching_to_tangle"});
       }
 
       UI.animateStacks(0);
@@ -108,7 +108,7 @@ var UI = (function(UI, $, undefined) {
             } else {
               $btn.data("address", "");
               console.log("UI.handleAddressGeneration: Attached to Tangle");
-              UI.formSuccess("generate-address", i18n.t("address_attached"), {"initial": i18n.t("generate_new_address"), "loading": i18n.t("attaching_to_tangle")});
+              UI.formSuccess("generate-address", "address_attached", {"initial": "generate_new_address", "loading": "attaching_to_tangle"});
               UI.updateState(1000);
             }
             $stack.removeClass("loading");
@@ -125,6 +125,8 @@ var UI = (function(UI, $, undefined) {
     var $stack = $("#generate-address-stack");
     var $btn = $stack.find(".btn").first();
 
+    address = UI.format(address);
+
     $btn.data("address", address);
 
     if ($(document).height() <= 620 || $(document).width() <= 440) {
@@ -133,15 +135,15 @@ var UI = (function(UI, $, undefined) {
       var qrCodeSize = 150;
     }
 
-    $("#generate-address-result").html(String(address).escapeHTML());
+    $("#generate-address-result").html(address);
     $("#generate-address-qr-code").empty().qrcode({text: JSON.stringify({"address": address}), fill: "#000", background: "#fff", size: qrCodeSize});
+
+    $("#generate-address-result, #generate-address-qr-code").off("click.notyetgenerated");
 
     if (notYetGenerated) {
       $("#generate-address-result, #generate-address-qr-code").on("click.notyetgenerated", function(e) {
         UI.notify("error", "attach_tangle_before_using_address");
       });
-    } else {
-      $("#generate-address-result, #generate-address-qr-code").off("click.notyetgenerated");
     }
 
     $stack.find(".clipboard").attr("data-clipboard-text", address);

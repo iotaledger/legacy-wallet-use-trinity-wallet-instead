@@ -1,4 +1,42 @@
 (function($){
+  function updateButtonContent($btn, message, iconType) {
+    switch (iconType) {
+      case "loading": 
+        icon = "<i class='fa fa-cog fa-spin fa-fw'></i>";
+        break;
+      case "success":
+        icon = "<i class='fa fa-check'></i>";
+        break;
+      case "error":
+        icon = "<i class='fa fa-times'></i> ";
+        break;
+      default:
+        icon = "";
+        break;
+    }
+
+    var i18nKey = false;
+
+    if (message.match(/^[a-z\_]+$/i)) {
+      i18nKey = message;
+      message = icon + UI.t(message).toUpperCase();
+    } else {
+      message = icon + UI.format(message).toUpperCase();
+    }
+
+    if (!$btn.find(".content").length) {
+      $btn.html("<span class='content'></span>");
+    }
+
+    $btn.find(".content").html(message);
+
+    if (i18nKey) {
+      $btn.data("i18n", message);
+    } else {
+      $btn.data("i18n", "");
+    }  
+  }
+
   $.fn.loadingInitialize = function(){
     return this.each(function(){
       var resetTimeout;
@@ -16,19 +54,11 @@
 
         if (data.timeout) {
           messageTimeout = setTimeout(function() {
-            if (!$btn.find(".content").length) {
-              $btn.html("<span class='content'></span>");
-            }
-            $btn.find(".content").html(i18n.t(data.msg));
-            $btn.data("i18n", data.msg);
+            updateButtonContent($btn, data.msg, data.icon);
             $btn.data("updated", true);
           }, data.timeout);
         } else {
-          if (!$btn.find(".content").length) {
-            $btn.html("<span class='content'></span>");
-          }
-          $btn.find(".content").html(i18n.t(data.msg));
-          $btn.data("i18n", data.msg);
+          updateButtonContent($btn, data.msg, data.icon);
           $btn.data("updated", true);
         }
       });
@@ -51,19 +81,7 @@
           barTimeout = setTimeout(function() {
             // If the message has already been updated before barTimeout is called, then of course we do not overwrite it again.
             //if (!$btn.data("updated")) {
-              var message = ($btn.data("loading") ? $btn.data("loading") : "loading");
-              var icon = "<i class='fa fa-cog fa-spin fa-fw'></i> ";
-
-              if (!$btn.find(".content").length) {
-                $btn.html("<span class='content'></span>");
-              }
-
-              $btn.find(".content").html(icon + i18n.t(message).toUpperCase().escapeHTML());
-              $btn.data("i18n", message);
-           // } else {
-           //   console.log("ALREADY UPDATED");
-           // }
-
+            updateButtonContent($btn, $btn.data("loading") ? $btn.data("loading") : "loading", "loading");      
             $btn.append($bar);
             $bar.fadeIn(800);
           }, msTimeout);
@@ -74,54 +92,41 @@
 
           if ($(this).hasClass("wait")) {
             clearTimeout(messageTimeout);
-            $btn.removeClass("loading success error reset wait").addClass("reset").find(".content").html(i18n.t($btn.data("initial")).toUpperCase().escapeHTML());
+            $btn.removeClass("loading success error reset wait").addClass("reset").find(".content").html(UI.t($btn.data("initial")).toUpperCase());
             $btn.data("i18n", $btn.data("initial"));
           }
         }
       });
 
       $btn.on("finished", function(e, data) {
+        if (!data) {
+          data = {};
+        }
+
         $("body").css("cursor", "default");
 
         $bar.remove();
 
         clearTimeout(barTimeout);
 
-        var icon = message = "";
+        var message = "";
 
-        if (data && data.msg) {
+        if (data.msg) {
           message = data.msg;
         } else if (data.type) {
           message = $btn.data(data.type);
         }
 
-        if (data && data.hasOwnProperty("icon")) {
-          icon = "<i class='fa " + data.icon + "'></i>";
-        }
-
-        if (data.type == "success") {
-          if (!icon) {
-            icon = "<i class='fa fa-check'></i> ";
-          }
-          if (!message) {
-            message = "success";
-          }
-        } else if (data.type == "error") {
-          if (!icon) {
-            icon = "<i class='fa fa-times'></i> ";
-          }
-          if (!message) {
-            message = "error";
-          }
+        if (!message && data.type) {
+          message = data.type;
         } else if (!message) {
           message = "submit";
         }
 
-        if (data && data.hasOwnProperty("initial")) {
+        if (data.initial && data.initial.match(/^[a-z\_]+$/i)) {
           $btn.data("initial", data.initial);
         }
-
-        if (data && data.hasOwnProperty("loading")) {
+        if (data.loading && data.loading.match(/^[a-z\_]+$/i)) {
           $btn.data("loading", data.loading);
         }
 
@@ -129,14 +134,9 @@
 
         $btn.removeClass("loading success error reset").addClass(data.type);
 
-        if (!$btn.find(".content").length) {
-          $btn.html("<span class='content'></span>");
-        }
-
         clearTimeout(messageTimeout);
 
-        $btn.find(".content").html(icon + i18n.t(message).toUpperCase().escapeHTML());
-        $btn.data("i18n", message);
+        updateButtonContent($btn, message, data.type);
 
         if (data.type == "success" || data.type == "error") {
           var timeTaken = new Date().getTime() - startTime;
@@ -152,7 +152,7 @@
             //Else, The user will have to click the button to reset it.
             resetTimeout = setTimeout(function() {
               clearTimeout(messageTimeout);
-              $btn.removeClass("loading success error reset").addClass("reset").removeAttr("disabled").find(".content").html(i18n.t($btn.data("initial")).toUpperCase().escapeHTML());
+              $btn.removeClass("loading success error reset").addClass("reset").removeAttr("disabled").find(".content").html(UI.t($btn.data("initial")).toUpperCase());
               $btn.data("i18n", $btn.data("initial"));
             }, 2500);
           }
@@ -176,8 +176,6 @@
 
     $.extend(options, {"type": "success", "msg": msg});
     
-    console.log(options);
-
     return this.first().trigger("finished", options);
   };
 
@@ -193,8 +191,6 @@
     }
 
     $.extend(options, {"type": "error", "msg": msg});
-
-    console.log(options);
 
     return this.first().trigger("finished", options);
   };
@@ -214,22 +210,21 @@
   $.fn.loadingUpdate = function(msg, options) {
     console.log("$.fn.loadingUpdate: " + msg);
 
-    var icon = (options && options.hasOwnProperty("icon") ? options.icon : "fa fa-cog fa-spin fa-fw");
-
     var $btn = this.first();
 
-    if (options && options.hasOwnProperty("initial")) {
+    if (!options) {
+      options = {};
+    }
+  
+    if (options.initial && options.initial.match(/^[a-z\_]+$/i)) {
       $btn.data("initial", options.initial);
     }
-
-    if (options && options.hasOwnProperty("loading")) {
+    if (options.loading && options.loading.match(/^[a-z\_]+$/i)) {
       $btn.data("loading", options.loading);
     }
 
-    var msg = (icon ? "<i class='" + icon.escapeHTML() + "'></i> " : "") + msg.toUpperCase().escapeHTML();
+    var timeout = (options.timeout ? options.timeout : 0);
 
-    var timeout = (options && options.timeout ? options.timeout : 0);
-
-    return this.first().trigger("updateMessage", {"msg": msg, "timeout": timeout});
+    return this.first().trigger("updateMessage", {"msg": msg, "icon": options.noIcon ? "" : "loading", "timeout": timeout});
   };
 })(jQuery);

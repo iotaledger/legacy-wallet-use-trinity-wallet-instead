@@ -6,7 +6,7 @@ var UI = (function(UI, $, undefined) {
       var $stack = $("#transfer-stack");
 
       if ($("#transfer-autofill").val() == "1") {
-        UI.formError("transfer", i18n.t("are_you_sure"), {"initial": i18n.t("yes_send_it_now")});
+        UI.formError("transfer", "are_you_sure", {"initial": "yes_send_it_now"});
         $("#transfer-autofill").val("0");
         return;
       }
@@ -17,21 +17,21 @@ var UI = (function(UI, $, undefined) {
         var address = $.trim($("#transfer-address").val());
 
         if (!address) {
-          throw i18n.t("address_is_required");
+          throw UI.t("address_is_required");
         } else if (address.length == 81) {
-          throw i18n.t("missing_address_checksum");
+          throw UI.t("missing_address_checksum");
         } else if (address.length != 90) {
-          throw i18n.t("incorrect_address_length");
+          throw UI.t("incorrect_address_length");
         } else if (!address.match(/^[A-Z9]+$/)) {
-          throw i18n.t("invalid_address");
+          throw UI.t("invalid_address");
         } else if (!iota.utils.isValidChecksum(address)) {
-          throw i18n.t("incorrect_address_checksum");
+          throw UI.t("incorrect_address_checksum");
         }
       
         var amount = iota.utils.convertUnits(parseFloat($("#transfer-amount").val()), $("#transfer-units-value").html(), "i");
 
         if (!amount) {
-          throw i18n.t("amount_cannot_be_zero");
+          throw UI.t("amount_cannot_be_zero");
         }
 
         var tag = "";
@@ -39,8 +39,8 @@ var UI = (function(UI, $, undefined) {
         if ($("#transfer-tag-container").is(":visible")) {
           tag = $.trim($("#transfer-tag").val().toUpperCase());
 
-          if (tag && /[^A-Z9]/.test(tag)) {
-            throw i18n.t("tag_is_invalid");
+          if (tag && (/[^A-Z9]/.test(tag) || tag.length > 27)) {
+            throw UI.t("tag_is_invalid");
           }
         }
       } catch (error) {
@@ -55,10 +55,10 @@ var UI = (function(UI, $, undefined) {
         if (error) {
           console.log("UI.handleTransfers: Error");
           console.log(error);
-          UI.formError("transfer", error, {"initial": i18n.t("send_it_now")});
+          UI.formError("transfer", error, {"initial": "send_it_now"});
         } else {
           console.log("UI.handleTransfers: Success");
-          UI.formSuccess("transfer", i18n.t("transfer_completed"), {"initial": i18n.t("send_it_now")});
+          UI.formSuccess("transfer", "transfer_completed", {"initial": "send_it_now"});
           UI.updateState(1000);
         }
         $stack.removeClass("loading");

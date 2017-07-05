@@ -77,17 +77,17 @@ var UI = (function(UI, undefined) {
   UI.showContextMenu = function(e) {
     var template = [
       {
-        label: i18n.t("cut"),
+        label: UI.t("cut"),
         accelerator: "CmdOrCtrl+X",
         role: "cut",
       },
       {
-        label: i18n.t("copy"),
+        label: UI.t("copy"),
         accelerator: "CmdOrCtrl+C",
         role: "copy"
       },
       {
-        label: i18n.t("paste"),
+        label: UI.t("paste"),
         accelerator: "CmdOrCtrl+V",
         role: "paste"
       }
@@ -95,7 +95,7 @@ var UI = (function(UI, undefined) {
    
     if (electron.remote.getCurrentWindow().isFullScreen()) {
       template.push({
-        label: i18n.t("exit_fullscreen"),
+        label: UI.t("exit_fullscreen"),
         accelerator: process.platform === "darwin" ? "Ctrl+Command+F" : "F11",
         click: function() {
           electron.remote.getCurrentWindow().setFullScreen(false);
@@ -194,8 +194,8 @@ var UI = (function(UI, undefined) {
 
     log = log.replace(/\n\s*\n/g, "\n");
 
-    UI.showAlert("<h1 data-i18n='server_log'>" + i18n.t("server_log") + "</h1><p><span data-i18n='last_messages_from_server_log'>" + i18n.t("last_messages_from_server_log") + "</span> (<a href='#' id='copy_server_log' data-i18n='copy'>" + i18n.t("copy") + "</a>):</p>" +
-                 "<textarea rows='10' class='form-control' id='server_output' style='background:#000;color:#fff;font-family:courier;' readonly>" + String(log).escapeHTML() + "</textarea>", function() {
+    UI.showAlert("<h1 data-i18n='server_log'>" + UI.t("server_log") + "</h1><p><span data-i18n='last_messages_from_server_log'>" + UI.t("last_messages_from_server_log") + "</span> (<a href='#' id='copy_server_log' data-i18n='copy'>" + UI.t("copy") + "</a>):</p>" +
+                 "<textarea rows='10' class='form-control' id='server_output' style='background:#000;color:#fff;font-family:courier;' readonly>" + UI.format(log) + "</textarea>", function() {
       document.getElementById("copy_server_log").addEventListener("click", function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -241,17 +241,17 @@ var UI = (function(UI, undefined) {
 
   UI.updateStatusBar = function(data) {    
     if (data.hasOwnProperty("latestSolidSubtangleMilestoneIndex")) {
-      document.getElementById("status-bar-solid-milestone").innerHTML = String(data.latestSolidSubtangleMilestoneIndex).escapeHTML();
+      document.getElementById("status-bar-solid-milestone").innerHTML = UI.format(data.latestSolidSubtangleMilestoneIndex);
     }
     if (data.hasOwnProperty("latestMilestoneIndex")) {
-      document.getElementById("status-bar-milestone").innerHTML = String(data.latestMilestoneIndex).escapeHTML();
+      document.getElementById("status-bar-milestone").innerHTML = UI.format(data.latestMilestoneIndex);
     }
 
     if (data.hasOwnProperty("cpu")) {
       if (data.cpu === "") {
         document.getElementById("status-bar-cpu").innerHTML = "";
       } else {
-        document.getElementById("status-bar-cpu").innerHTML = "CPU: " + String(data.cpu).escapeHTML() + "%";
+        document.getElementById("status-bar-cpu").innerHTML = "CPU: " + UI.format(data.cpu) + "%";
       }
     }
 
@@ -353,11 +353,11 @@ var UI = (function(UI, undefined) {
                      "</select>");
     */
 
-    modal.setContent("<h1 data-i18n='preferences'>" + i18n.t("preferences") + "</h1>" + 
-                     "<div class='input-group'><label class='label--checkbox'><input type='checkbox' name='allow_short_seed_login' id='preferences_allow_short_seed_login' class='checkbox' value='1'" + (settings.allowShortSeedLogin ? " checked='checked'" : "") + " />" + i18n.t("allow_short_seed_login") + "</label>" + 
-                     (process.platform != "linux" ? "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='open_at_login' id='preferences_open_at_login' class='checkbox' value='1'" + (settings.openAtLogin ? " checked='checked'" : "") + " />" + i18n.t("open_at_login") + "</label>" : ""));
+    modal.setContent("<h1 data-i18n='preferences'>" + UI.t("preferences") + "</h1>" + 
+                     "<div class='input-group'><label class='label--checkbox'><input type='checkbox' name='allow_short_seed_login' id='preferences_allow_short_seed_login' class='checkbox' value='1'" + (settings.allowShortSeedLogin ? " checked='checked'" : "") + " />" + UI.t("allow_short_seed_login") + "</label>" + 
+                     (process.platform != "linux" ? "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='open_at_login' id='preferences_open_at_login' class='checkbox' value='1'" + (settings.openAtLogin ? " checked='checked'" : "") + " />" + UI.t("open_at_login") + "</label>" : ""));
     
-    modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(UI.t("save"), "tingle-btn tingle-btn--primary", function() {
       var settings = {};
 
       if (process.platform != "linux") {
@@ -394,16 +394,16 @@ var UI = (function(UI, undefined) {
       }
     });
 
-    modal.setContent("<h1 data-i18n='add_neighbor_node'>" + i18n.t("add_neighbor_node") + "</h1>" + 
-                     "<p data-i18n='confirm_add_node_to_config'>" + i18n.t("confirm_add_node_to_config") + "</p>" + 
-                     "<p style='font-weight:bold'>" + String(node).escapeHTML() + "</p>");
+    modal.setContent("<h1 data-i18n='add_neighbor_node'>" + UI.t("add_neighbor_node") + "</h1>" + 
+                     "<p data-i18n='confirm_add_node_to_config'>" + UI.t("confirm_add_node_to_config") + "</p>" + 
+                     "<p style='font-weight:bold'>" + UI.format(node) + "</p>");
 
-    modal.addFooterBtn(i18n.t("yes_add_node"), "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(UI.t("yes_add_node"), "tingle-btn tingle-btn--primary", function() {
       modal.close();
       electron.ipcRenderer.send("addNeighborNode", node);
     });
 
-    modal.addFooterBtn(i18n.t("no_cancel"), "tingle-btn tingle-btn--default", function() {
+    modal.addFooterBtn(UI.t("no_cancel"), "tingle-btn tingle-btn--default", function() {
       modal.close();
     });
 
@@ -436,13 +436,13 @@ var UI = (function(UI, undefined) {
     var content = "";
 
     content = "<h1 data-i18n='edit_neighbors'></h1>" + 
-    "<div class='input-group input-group'><label data-i18n='neighboring_nodes'>" + i18n.t("neighboring_nodes") + "</label>" + 
-    "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + String(nodes).escapeHTML() + "</textarea></div>" + 
-    "<p style='text-align:left;background:#efefef;padding:5px;color:gray;font-size:14px;'><span data-i18n='node_settings_format' style='text-align:left;font-size:14px;'>" + i18n.t("node_settings_format") + "</span>: udp://ip:12345</p>";
+    "<div class='input-group input-group'><label data-i18n='neighboring_nodes'>" + UI.t("neighboring_nodes") + "</label>" + 
+    "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + UI.format(nodes) + "</textarea></div>" + 
+    "<p style='text-align:left;background:#efefef;padding:5px;color:gray;font-size:14px;'><span data-i18n='node_settings_format' style='text-align:left;font-size:14px;'>" + UI.t("node_settings_format") + "</span>: udp://ip:12345</p>";
 
     modal.setContent(content);
 
-    modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {      
+    modal.addFooterBtn(UI.t("save"), "tingle-btn tingle-btn--primary", function() {      
       modal.close();
 
       electron.ipcRenderer.send("updateNodeConfiguration", {"nodes": document.getElementById("server_config_neighboring_nodes").value});
@@ -498,11 +498,11 @@ var UI = (function(UI, undefined) {
 
     if (configuration.lightWallet) {
       content = "<h1 data-18n='node_config'></h1>" + 
-      "<div class='input-group'><label><span data-i18n='host' class='label'>" + i18n.t("host") + "</span> <span class='error' id='host-error'></span></label>";
+      "<div class='input-group'><label><span data-i18n='host' class='label'>" + UI.t("host") + "</span> <span class='error' id='host-error'></span></label>";
 
       if (configuration.lightWalletHosts && configuration.lightWalletHosts.length) {
         content += "<select id='server_config_host_select'>";
-        content += "<option value='' data-i18n='select_your_host'>" + i18n.t("select_your_host") + "</option>";
+        content += "<option value='' data-i18n='select_your_host'>" + UI.t("select_your_host") + "</option>";
 
         var found = false;
 
@@ -511,36 +511,36 @@ var UI = (function(UI, undefined) {
           if (!found && (configuration.lightWalletHost && (configuration.lightWalletHost + ":" + configuration.lightWalletPort) == lightWalletHost)) {
             found = true;
           }
-          content += "<option value='" + String(lightWalletHost).escapeHTML() + "'" + (configuration.lightWalletHost && (configuration.lightWalletHost + ":" + configuration.lightWalletPort) == lightWalletHost ? " selected='selected'" : "") + ">" + String(lightWalletHost).escapeHTML() + "</option>";
+          content += "<option value='" + UI.format(lightWalletHost) + "'" + (configuration.lightWalletHost && (configuration.lightWalletHost + ":" + configuration.lightWalletPort) == lightWalletHost ? " selected='selected'" : "") + ">" + UI.format(lightWalletHost) + "</option>";
         }
 
-        content += "<option value='custom'" + (!found ? " selected='selected'" : "") + " data-i18n='custom'>" + i18n.t("custom") + "</option>";
+        content += "<option value='custom'" + (!found ? " selected='selected'" : "") + " data-i18n='custom'>" + UI.t("custom") + "</option>";
         content += "</select>";
         content += "<hr />";
-        content += "<input type='text' id='server_config_host' placeholder='" + i18n.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (!found && configuration.lightWalletHost ? String(configuration.lightWalletHost).escapeHTML() + (configuration.lightWalletPort ? ":" + String(configuration.lightWalletPort).escapeHTML() : "") : "") + "' /></div>";
+        content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (!found && configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' /></div>";
       } else {
-        content += "<input type='text' id='server_config_host' placeholder='" + i18n.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (configuration.lightWalletHost ? String(configuration.lightWalletHost).escapeHTML() + (configuration.lightWalletPort ? ":" + String(configuration.lightWalletPort).escapeHTML() : "") : "") + "' /></div>";
+        content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' /></div>";
       }
 
-      content += "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
-      "<input type='number' min='" + configuration.minWeightMagnitudeMinimum + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + String(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum).escapeHTML() + "' /></div>";
+      content += "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + UI.t("min_weight_magnitude") + "</label>" + 
+      "<input type='number' min='" + UI.format(configuration.minWeightMagnitudeMinimum) + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + UI.format(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum) + "' /></div>";
     } else {
       content = "<h1 data-i18n='node_config'></h1>" + 
-      "<div class='input-group'><label data-i18n='node_port'>" + i18n.t("node_port") + "</label>" + 
-      "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? String(configuration.port).escapeHTML() : "14265") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='udp_receiver_port'>" + i18n.t("udp_receiver_port") + "</label>" + 
-      "<input type='number' min='1024' name='udp_receiver_port' id='server_config_udp_receiver_port' placeholder='' value='" + (configuration.udpReceiverPort ? String(configuration.udpReceiverPort).escapeHTML() : "14600") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='tcp_receiver_port'>" + i18n.t("tcp_receiver_port") + "</label>" + 
-      "<input type='number' min='1024' name='tcp_receiver_port' id='server_config_tcp_receiver_port' placeholder='' value='" + (configuration.tcpReceiverPort ? String(configuration.tcpReceiverPort).escapeHTML() : "15600") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='send_limit'>" + i18n.t("send_limit") + "</label>" + 
-      "<input type='number' min='0' name='send_limit' id='server_config_send_limit' placeholder='' value='" + (configuration.sendLimit > 0 ? String(configuration.sendLimit).escapeHTML() : "") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='depth'>" + i18n.t("depth") + "</label>" + 
-      "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? String(configuration.depth).escapeHTML() : "3") + "' /></div>" +
-      "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + i18n.t("min_weight_magnitude") + "</label>" + 
-      "<input type='number' min='" + configuration.minWeightMagnitudeMinimum + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + String(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum).escapeHTML() + "' /></div>" + 
-      "<div class='input-group'><label><span data-i18n='db_location'>" + i18n.t("db_location") + "</span> <button id='db_location_select' class='small' style='display:inline-block;'>change</button></label>" + 
-      "<div class='file-path' id='server_config_db_location_preview'>" + String(configuration.dbLocation).escapeHTML() + "</div>" + 
-      "<input type='hidden' name='db_location' id='server_config_db_location' value='" + String(configuration.dbLocation).escapeHTML() + "' />";
+      "<div class='input-group'><label data-i18n='node_port'>" + UI.t("node_port") + "</label>" + 
+      "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? UI.format(configuration.port) : "14265") + "' /></div>" +  
+      "<div class='input-group'><label data-i18n='udp_receiver_port'>" + UI.t("udp_receiver_port") + "</label>" + 
+      "<input type='number' min='1024' name='udp_receiver_port' id='server_config_udp_receiver_port' placeholder='' value='" + (configuration.udpReceiverPort ? UI.format(configuration.udpReceiverPort) : "14600") + "' /></div>" +  
+      "<div class='input-group'><label data-i18n='tcp_receiver_port'>" + UI.t("tcp_receiver_port") + "</label>" + 
+      "<input type='number' min='1024' name='tcp_receiver_port' id='server_config_tcp_receiver_port' placeholder='' value='" + (configuration.tcpReceiverPort ? UI.format(configuration.tcpReceiverPort) : "15600") + "' /></div>" +  
+      "<div class='input-group'><label data-i18n='send_limit'>" + UI.t("send_limit") + "</label>" + 
+      "<input type='number' min='0' name='send_limit' id='server_config_send_limit' placeholder='' value='" + (configuration.sendLimit > 0 ? UI.format(configuration.sendLimit) : "") + "' /></div>" +  
+      "<div class='input-group'><label data-i18n='depth'>" + UI.t("depth") + "</label>" + 
+      "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? UI.format(configuration.depth) : "3") + "' /></div>" +
+      "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + UI.t("min_weight_magnitude") + "</label>" + 
+      "<input type='number' min='" + UI.format(configuration.minWeightMagnitudeMinimum) + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + UI.format(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum) + "' /></div>" + 
+      "<div class='input-group'><label><span data-i18n='db_location'>" + UI.t("db_location") + "</span> <button id='db_location_select' class='small' style='display:inline-block;'>change</button></label>" + 
+      "<div class='file-path' id='server_config_db_location_preview'>" + UI.format(configuration.dbLocation) + "</div>" + 
+      "<input type='hidden' name='db_location' id='server_config_db_location' value='" + UI.format(configuration.dbLocation) + "' />";
     } 
 
     modal.setContent(content);
@@ -552,13 +552,13 @@ var UI = (function(UI, undefined) {
         electron.remote.dialog.showOpenDialog({title: "Select Database Location", message: "Select Database Location", defaultPath: currentLocation, properties: ["openDirectory", "createDirectory"]}, function(filePaths) {
           if (filePaths && filePaths[0]) {
             document.getElementById('server_config_db_location').value = filePaths[0];
-            document.getElementById('server_config_db_location_preview').innerHTML = String(filePaths[0]).escapeHTML();
+            document.getElementById('server_config_db_location_preview').innerHTML = UI.format(filePaths[0]);
           }
         });
       });
     }
 
-    modal.addFooterBtn(i18n.t("save"), "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(UI.t("save"), "tingle-btn tingle-btn--primary", function() {
       var config = {};
 
       config.lightWallet = configuration.lightWallet;
@@ -606,7 +606,7 @@ var UI = (function(UI, undefined) {
   }
 
   UI.showUpdateAvailable = function() {
-    UI.showAlert("<h1 data-i18n='update_available'>" + i18n.t("update_available") + "</h1><p data-i18n='update_being_downloaded'>" + i18n.t("update_being_downloaded") + "</p>");
+    UI.showAlert("<h1 data-i18n='update_available'>" + UI.t("update_available") + "</h1><p data-i18n='update_being_downloaded'>" + UI.t("update_being_downloaded") + "</p>");
   }
 
   UI.showUpdateDownloaded = function(releaseNotes, releaseName, releaseDate) {
@@ -622,14 +622,14 @@ var UI = (function(UI, undefined) {
       cssClass: ["update-downloaded"]
     });
 
-    modal.setContent("<h1 data-i18n='new_update_available'>" + i18n.t("new_update_available") + "</h1><p data-i18n='version_is_downloaded_ready_to_install' data-i18n-options={version: " + String(releaseName).escapeHTML() + "}'>" + i18n.t("version_is_downloaded_ready_to_install", {version: String(releaseName).escapeHTML()}) + "</p>");
+    modal.setContent("<h1 data-i18n='new_update_available'>" + UI.t("new_update_available") + "</h1><p data-i18n='version_is_downloaded_ready_to_install' data-i18n-options={version: " + UI.format(releaseName) + "}'>" + UI.t("version_is_downloaded_ready_to_install", {version: UI.format(releaseName)}) + "</p>");
 
-    modal.addFooterBtn(i18n.t("install_now"), "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(UI.t("install_now"), "tingle-btn tingle-btn--primary", function() {
       modal.close();
       electron.ipcRenderer.send("installUpdate");
     });
 
-    modal.addFooterBtn(i18n.t("install_on_quit"), "tingle-btn tingle-btn--default", function() {
+    modal.addFooterBtn(UI.t("install_on_quit"), "tingle-btn tingle-btn--default", function() {
       modal.close();
     });
 
@@ -637,7 +637,7 @@ var UI = (function(UI, undefined) {
   }
 
   UI.showUpdateError = function() {
-    UI.showAlert("<h1 data-i18n='update_error'>" + i18n.t("update_error") + "</h1><p data-i18n='error_during_update_check'>" + i18n.t("error_during_update_check") + "</p>");
+    UI.showAlert("<h1 data-i18n='update_error'>" + UI.t("update_error") + "</h1><p data-i18n='error_during_update_check'>" + UI.t("error_during_update_check") + "</p>");
   }
 
   UI.showCheckingForUpdate = function() {
@@ -645,11 +645,11 @@ var UI = (function(UI, undefined) {
       return;
     }
 
-    UI.showAlert("<h1 data-i18n='checking_for_updates'>" + i18n.t("checking_for_updates") + "</h1><p data-i18n='checking_for_updates_please_wait'>" + i18n.t("checking_for_updates_please_wait") + "</p>");
+    UI.showAlert("<h1 data-i18n='checking_for_updates'>" + UI.t("checking_for_updates") + "</h1><p data-i18n='checking_for_updates_please_wait'>" + UI.t("checking_for_updates_please_wait") + "</p>");
   }
 
   UI.showUpdateNotAvailable = function() {
-    UI.showAlert("<h1 data-i18n='no_updates'>" + i18n.t("no_updates") + "</h1><p data-i18n='no_updates_available'>" + i18n.t("no_updates_available") + "</p>");
+    UI.showAlert("<h1 data-i18n='no_updates'>" + UI.t("no_updates") + "</h1><p data-i18n='no_updates_available'>" + UI.t("no_updates_available") + "</p>");
   }
 
   UI.showKillAlert = function() {
@@ -662,7 +662,7 @@ var UI = (function(UI, undefined) {
       allowClose: false
     });
 
-    modal.setContent("<h1 data-i18n='shutdown_in_progress'>" + i18n.t("shutdown_in_progress") + "</h1><p style='margin-bottom:0' data-i18n='shutting_down_iota'>" + i18n.t("shutting_down_iota") + "</p>");
+    modal.setContent("<h1 data-i18n='shutdown_in_progress'>" + UI.t("shutdown_in_progress") + "</h1><p style='margin-bottom:0' data-i18n='shutting_down_iota'>" + UI.t("shutting_down_iota") + "</p>");
 
     modal.open();
   }
@@ -703,14 +703,14 @@ var UI = (function(UI, undefined) {
 
     modal.setContent(msg);
 
-    modal.addFooterBtn(i18n.t("ok"), "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(UI.t("ok"), "tingle-btn tingle-btn--primary", function() {
       modal.close();
     });
 
     modal.open();
   }
 
-  UI.showAlertAndQuit = function(msg, serverOutput, callback) {
+  UI.showAlertAndQuit = function(title, msg, serverOutput) {
     if (showQuitAlert) {
       return;
     }
@@ -719,18 +719,23 @@ var UI = (function(UI, undefined) {
 
     UI.hideAlerts();
 
-    if (!msg) {
-      msg = "<h1 data-i18n='error'>" + i18n.t("error") + "</h1><p data-i18n='error_please_restart'>" + i18n.t("error_please_restart") + "</p>";
+    if (!title || !String(title).match(/^[a-z\_]+$/i)) {
+      title = "error";
     }
+    if (!msg || !String(msg).match(/^[a-z\_]+$/i)) {
+      msg = "error_please_restart";
+    }
+
+    var message = "<h1 data-i18n='" + UI.format(title) + "'>" + UI.t(title) + "</h1><p data-i18n='" + UI.format(msg) + "'>" + UI.t(msg) + "</p>";
 
     if (serverOutput && serverOutput.length) {
       var log = serverOutput.join("\n");
 
       log = log.replace(/\n\s*\n/g, "\n");
 
-      var html = "<p>" + msg + "</p><textarea rows='6' class='form-control' readonly>" + String(log).escapeHTML() + "</textarea>";
+      var html = "<p>" + message + "</p><textarea rows='6' class='form-control' readonly>" + UI.format(log) + "</textarea>";
     } else {
-      var html = "<p>" + msg + "</p>";
+      var html = "<p>" + message + "</p>";
     }
 
     var modal = new tingle.modal({
@@ -744,7 +749,7 @@ var UI = (function(UI, undefined) {
 
     modal.setContent(html);
 
-    modal.addFooterBtn(i18n.t("ok"), "tingle-btn tingle-btn--primary", function() {
+    modal.addFooterBtn(UI.t("ok"), "tingle-btn tingle-btn--primary", function() {
       modal.close();
     });
 
@@ -789,10 +794,24 @@ var UI = (function(UI, undefined) {
     }
   }
 
+  UI.t = function(message, options) {
+    if (message.match(/^[a-z\_]+$/i)) {
+      return UI.format(i18n.t(message, options));
+    } else {
+      return UI.format(message);
+    }
+  }
+
+  UI.format = function(text) {
+    return String(text).escapeHTML();
+  }
+
   UI.changeLanguage = function(language) {
     var i18nList = document.querySelectorAll('[data-i18n]');
     i18nList.forEach(function(v){
-      v.innerHTML = i18n.t(v.dataset.i18n, v.dataset.i18nOptions);
+      if (v.dataset.i18n) {
+        v.innerHTML = UI.t(v.dataset.i18n, v.dataset.i18nOptions);
+      }
     });
     if (webviewIsLoaded && webview) {
       webview.send("changeLanguage", language);
@@ -864,8 +883,8 @@ window.addEventListener("contextmenu", function(e) {
   UI.showContextMenu(e);
 });
 
-electron.ipcRenderer.on("showAlertAndQuit", function(event, msg, serverOutput, callback) {
-  UI.showAlertAndQuit(msg, serverOutput, callback);
+electron.ipcRenderer.on("showAlertAndQuit", function(event, title, msg, serverOutput) {
+  UI.showAlertAndQuit(title, msg, serverOutput);
 });
 
 electron.ipcRenderer.on("showKillAlert", UI.showKillAlert);

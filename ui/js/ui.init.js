@@ -17,8 +17,6 @@ var connection = {"accountData"         : false,
                   "allowShortSeedLogin" : false,
                   "language"            : "en"};
 
-var i18n = {t: function(msg) { return msg; }}
-
 var __entityMap = {
   "&": "&amp;",
   "<": "&lt;",
@@ -170,15 +168,15 @@ var UI = (function(UI, $, undefined) {
     $("body").on("click", ".amount.long", function(e) {
       if ($(this).hasClass("detailed")) {
         $(this).parent().removeClass("detailed");
-        $(this).removeClass("detailed").html($(this).data("short")).hide().fadeIn();
+        $(this).removeClass("detailed").html(UI.format($(this).data("short"))).hide().fadeIn();
       } else {
         $(this).parent().addClass("detailed");
-        $(this).addClass("detailed").html($(this).data("long")).hide().fadeIn();
+        $(this).addClass("detailed").html(UI.format($(this).data("long"))).hide().fadeIn();
       }
 
       $(this).css("font-size", "");
 
-      var currentFontSize = parseInt($(this).css("font-size"));
+      var currentFontSize = parseInt($(this).css("font-size"), 10);
       var parentWidth = $(this).parent().width();
 
       while ($(this).width() > parentWidth) {
@@ -198,16 +196,16 @@ var UI = (function(UI, $, undefined) {
   }
 
   function showErrorMessage(error) {
-    document.body.innerHTML = "<div style='padding: 20px;background:#efefef;border:#aaa;border-radius: 5px;max-width: 60%;margin: 100px auto;'>" + String(error).escapeHTML() + "</div>";
+    document.body.innerHTML = "<div style='padding: 20px;background:#efefef;border:#aaa;border-radius: 5px;max-width: 60%;margin: 100px auto;'>" + UI.format(error) + "</div>";
     document.body.style.display = "block";
   }
 
   function showLightWalletErrorMessage() {
-    showErrorMessage(i18n.t("could_not_load_light_wallet_functionality"));
+    showErrorMessage(UI.t("could_not_load_light_wallet_functionality"));
   }
 
   function showBackendConnectionError() {
-    showErrorMessage(i18n.t("could_not_load_required_backend_files"));
+    showErrorMessage(UI.t("could_not_load_required_backend_files"));
   }
 
   function showOutdatedBrowserMessage() {
@@ -216,11 +214,11 @@ var UI = (function(UI, $, undefined) {
     var html = "";
 
     html += "<div style='padding: 20px;background:#efefef;border:#aaa;border-radius: 5px;max-width: 60%;margin: 100px auto;'>";
-    html += "<strong data-i18n='browser_out_of_date'>" + i18n.t("browser_out_of_date") + "</strong>";
+    html += "<strong data-i18n='browser_out_of_date'>" + UI.t("browser_out_of_date") + "</strong>";
     html += "<ul>";
-    html += "<li><a href='https://www.google.com/chrome/browser/desktop/' rel='noopener noreferrer' data-i18n='google_chrome'>" + i18n.t("google_chrome") + "</a></li>";
-    html += "<li><a href='http://www.mozilla.com/firefox/' rel='noopener noreferrer' data-i18n='mozilla_firefox'>" + i18n.t("mozilla_firefox") + "</a></li>";
-    html += "<li><a href='http://www.opera.com/' rel='noopener noreferrer' data-i18n='opera'>" + i18n.t("opera") + "</a></li>";
+    html += "<li><a href='https://www.google.com/chrome/browser/desktop/' rel='noopener noreferrer' data-i18n='google_chrome'>" + UI.t("google_chrome") + "</a></li>";
+    html += "<li><a href='http://www.mozilla.com/firefox/' rel='noopener noreferrer' data-i18n='mozilla_firefox'>" + UI.t("mozilla_firefox") + "</a></li>";
+    html += "<li><a href='http://www.opera.com/' rel='noopener noreferrer' data-i18n='opera'>" + UI.t("opera") + "</a></li>";
     html += "</ul>";
     html += "</div>";
 

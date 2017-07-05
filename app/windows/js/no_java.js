@@ -3,6 +3,9 @@ const fs            = require("fs");
 const path          = require("path");
 const childProcess  = require("child_process");
 
+var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
+var resourcesDirectory = isDevelopment ? "../../" : "../../../";
+
 var __entityMap = {
   "&": "&amp;",
   "<": "&lt;",
@@ -11,9 +14,6 @@ var __entityMap = {
   "'": '&#39;',
   "/": '&#x2F;'
 };
-
-var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
-var resourcesDirectory = isDevelopment ? "../../" : "../../../";
 
 String.prototype.escapeHTML = function() {
   return String(this).replace(/[&<>"'\/]/g, function(s) {
@@ -309,7 +309,7 @@ var UI = (function(UI, undefined) {
                             isEnded = true;
                             res.destroy();
                             out.destroy();
-                            UI.downloadJavaFailed(i18n.t("no_response_15s"));
+                            UI.downloadJavaFailed(UI.t("no_response_15s"));
                           }
                         }, 15000);
                       }).on("end", function() {
@@ -416,7 +416,7 @@ var UI = (function(UI, undefined) {
 
                     downloadReq.end();
                   } else {
-                    UI.downloadJavaFailed(i18n.t("incorrect_status_code"));
+                    UI.downloadJavaFailed(UI.t("incorrect_status_code"));
                   }
                 }).on("error", function(err) {
                   UI.downloadJavaFailed(err);
@@ -429,7 +429,7 @@ var UI = (function(UI, undefined) {
             });
           }, 100);
         } else {
-          UI.downloadJavaFailed(i18n.t("could_not_match_regex"));
+          UI.downloadJavaFailed(UI.t("could_not_match_regex"));
         }
       });
     }).on("error", function(err) {
@@ -477,7 +477,24 @@ var UI = (function(UI, undefined) {
     }*/
 
     //For now just show the normal download location, as UI.directDownloadLink may fail also..
-    UI.showMessageAndQuit("download_failed", "[html]download_java_jre_manually");
+
+
+    UI.showMessageAndQuit("download_failed", "download_java_jre_manually");
+
+    var html = document.getElementById("message").innerHTML;
+
+    html = html.replace(/\*\*([^\*]+)\*\*/, '<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">$1</a>', html);
+
+    document.getElementById("message").innerHTML = html;
+
+    var aTags = document.getElementById("message").getElementsByTagName("a");
+    for (var i = 0; i < aTags.length; i++) {
+      aTags[i].onclick = function(e) {
+        electron.remote.shell.openExternal(e.target.href);
+        electron.remote.getCurrentWindow().close();
+        return false;
+      }
+    }
   }
 
   UI.relaunchApplication = function() {
@@ -508,6 +525,18 @@ var UI = (function(UI, undefined) {
     });
   }
 
+  UI.t = function(message, options) {
+    if (message.match(/^[a-z\_]+$/i)) {
+      return UI.format(i18n.t(message, options));
+    } else {
+      return UI.format(message);
+    }
+  }
+
+  UI.format = function(text) {
+    return String(text).escapeHTML();
+  }
+
   UI.changeLanguage = function(language, callback) {
     i18n.changeLanguage(language, function(err, t) {
       updateUI();
@@ -517,35 +546,17 @@ var UI = (function(UI, undefined) {
     });
   }
 
-  UI.changeElementLanguage = function(el, key, options) {
-    if (!options) {
-      options = {};
-    }
-
-    //Don't escape HTML
-    if (key.indexOf("[html]") == 0 ) {
-      options.interpolation = {escapeValue: false};
-      document.getElementById(el).innerHTML = i18n.t(key.replace("[html]", ""), options);
-      document.getElementById(el).setAttribute("data-18n", key);
-
-      var aTags = document.getElementById(el).getElementsByTagName("a");
-      for (var i = 0; i < aTags.length; i++) {
-        aTags[i].onclick = function(e) {
-          electron.remote.shell.openExternal(e.target.href);
-          electron.remote.getCurrentWindow().close();
-          return false;
-        }
-      }
-    } else {
-      document.getElementById(el).innerHTML = i18n.t(key, options);
-      document.getElementById(el).setAttribute("data-i18n", key);
-    }
+  UI.changeElementLanguage = function(el, key) {
+    document.getElementById(el).innerHTML = UI.t(key);
+    document.getElementById(el).setAttribute("data-i18n", key.match(/^[a-z\_]+$/i ? key : ""));
   }
 
   function updateUI() {
     var i18nList = document.querySelectorAll('[data-i18n]');
     i18nList.forEach(function(v){
-      v.innerHTML = i18n.t(v.dataset.i18n, v.dataset.i18nOptions);
+      if (v.dataset.i18n) {
+        v.innerHTML = UI.t(v.dataset.i18n, v.dataset.i18nOptions);
+      }
     });
   }
 

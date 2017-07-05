@@ -95,7 +95,7 @@ var UI = (function(UI, $, undefined) {
       html += "</ul></div>";
       
       $("#process-trytes").html(html);
-      $("#paste-trytes-modal h1").html(i18n.t("verify_trytes"));
+      $("#paste-trytes-modal h1").html(UI.t("verify_trytes"));
       $("#process-trytes-group").show();
       $("#paste-trytes-group").hide();
       $("#process-pasted-trytes-completed").val(0);

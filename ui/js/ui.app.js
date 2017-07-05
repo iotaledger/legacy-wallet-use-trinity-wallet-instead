@@ -19,7 +19,6 @@ var UI = (function(UI, $, undefined) {
     $("body").on("mouseenter.status", ".amount", function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log($(this).data("value"));
       hoverAmountStart($(this).data("value"));
     }).on("mouseleave.status", ".amount", function(e) {
       e.preventDefault();

@@ -465,15 +465,15 @@ var App = (function(App, undefined) {
 
     template.push(
     {
-      label: i18n.t("edit"),
+      label: App.t("edit"),
       submenu: [
         {
-          label: i18n.t("undo"),
+          label: App.t("undo"),
           accelerator: "CmdOrCtrl+Z",
           role: "undo"
         },
         {
-          label: i18n.t("redo"),
+          label: App.t("redo"),
           accelerator: "Shift+CmdOrCtrl+Z",
           role: "redo"
         },
@@ -481,22 +481,22 @@ var App = (function(App, undefined) {
           type: "separator"
         },
         {
-          label: i18n.t("cut"),
+          label: App.t("cut"),
           accelerator: "CmdOrCtrl+X",
           role: "cut"
         },
         {
-          label: i18n.t("copy"),
+          label: App.t("copy"),
           accelerator: "CmdOrCtrl+C",
           role: "copy"
         },
         {
-          label: i18n.t("paste"),
+          label: App.t("paste"),
           accelerator: "CmdOrCtrl+V",
           role: "paste"
         },
         {
-          label: i18n.t("select_all"),
+          label: App.t("select_all"),
           accelerator: "CmdOrCtrl+A",
           role: "selectall"
         },
@@ -505,17 +505,17 @@ var App = (function(App, undefined) {
 
     template.push(
     {
-      label: i18n.t("view"),
+      label: App.t("view"),
       submenu: [
         {
-          label: (settings.showStatusBar ? i18n.t("hide_status_bar") : i18n.t("show_status_bar")),
+          label: (settings.showStatusBar ? App.t("hide_status_bar") : App.t("show_status_bar")),
           accelerator: "CmdOrCtrl+/",
           click() {
             App.toggleStatusBar();
           }
         },
         {
-          label: i18n.t("toggle_web_inspector"),
+          label: App.t("toggle_web_inspector"),
           accelerator: process.platform === "darwin" ? "Alt+Command+I" : "Ctrl+Shift+I",
           click() {
             if (otherWin) {
@@ -526,34 +526,34 @@ var App = (function(App, undefined) {
           }
         },
         {
-          label: (win && win.isFullScreen() ? i18n.t("exit_full_screen") : i18n.t("enter_full_screen")),
+          label: (win && win.isFullScreen() ? App.t("exit_full_screen") : App.t("enter_full_screen")),
           accelerator: process.platform === "darwin" ? "Ctrl+Command+F" : "F11",
           click() {
             App.toggleFullScreen();
           },
         },
         {
-          label: i18n.t("change_language"),
+          label: App.t("change_language"),
           submenu: []
         }
       ]
     });
 
-    var languages = [["de", i18n.t("german"), "Deutsch"], 
-                     ["el", i18n.t("greek"), "Ελληνικά"], 
-                     ["en", i18n.t("english"), "English"], 
-                     ["es-ES", i18n.t("spanish"), "Español"], 
-                     ["fr", i18n.t("french"), "Français"], 
-                     ["it", i18n.t("italian"), "Italiano"], 
-                     ["ja", i18n.t("japanese"), "日本語"],
-                     ["ko", i18n.t("korean"), "한국어"],
-                     ["nl", i18n.t("dutch"), "Nederlands"], 
-                     ["pt-PT", i18n.t("portugese"), "Português"], 
-                     ["ru", i18n.t("russian"), "Русский"], 
-                     ["sv-SE", i18n.t("swedish"), "Svenska"], 
-                     ["tr", i18n.t("turkish"), "Türkçe"], 
-                     ["zh-CN", i18n.t("chinese_simplified"), "中文（简体)"],
-                     ["zh-TW", i18n.t("chinese_traditional"), "中文 (繁體)"]];
+    var languages = [["de", App.t("german"), "Deutsch"], 
+                     ["el", App.t("greek"), "Ελληνικά"], 
+                     ["en", App.t("english"), "English"], 
+                     ["es-ES", App.t("spanish"), "Español"], 
+                     ["fr", App.t("french"), "Français"], 
+                     ["it", App.t("italian"), "Italiano"], 
+                     ["ja", App.t("japanese"), "日本語"],
+                     ["ko", App.t("korean"), "한국어"],
+                     ["nl", App.t("dutch"), "Nederlands"], 
+                     ["pt-PT", App.t("portugese"), "Português"], 
+                     ["ru", App.t("russian"), "Русский"], 
+                     ["sv-SE", App.t("swedish"), "Svenska"], 
+                     ["tr", App.t("turkish"), "Türkçe"], 
+                     ["zh-CN", App.t("chinese_simplified"), "中文（简体)"],
+                     ["zh-TW", App.t("chinese_traditional"), "中文 (繁體)"]];
 
     languages.sort(function(a, b) {
       if (a[0] == settings.language) {
@@ -587,23 +587,23 @@ var App = (function(App, undefined) {
     } else {
       template.push(
       {
-        label: i18n.t("tools"),
+        label: App.t("tools"),
         submenu: [
           {
-            label: i18n.t("view_node_info"),
+            label: App.t("view_node_info"),
             accelerator: "CmdOrCtrl+I",
             click(item) {
               App.showNodeInfo();
             }
           },
           {
-            label: i18n.t("view_neighbors"),
+            label: App.t("view_neighbors"),
             click(item) {
               App.showPeers();
             }
           },
           {
-            label: i18n.t("view_server_log"),
+            label: App.t("view_server_log"),
             accelerator: "CmdOrCtrl+L",
             click(item) {
               App.showServerLog();
@@ -613,13 +613,13 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: i18n.t("paste_trytes"),
+            label: App.t("paste_trytes"),
             click(item) {
               App.pasteTrytes();
             }
           },
           {
-            label: i18n.t("network_spammer"),
+            label: App.t("network_spammer"),
             click(item) {
               App.showNetworkSpammer();
             }
@@ -628,21 +628,21 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: i18n.t("open_database_folder"),
+            label: App.t("open_database_folder"),
             //accelerator: "CmdOrCtrl+I",
             click(item) {
               App.openDatabaseFolder();
             }
           },
           {
-            label: i18n.t("edit_node_configuration"),
+            label: App.t("edit_node_configuration"),
             //accelerator: "CmdOrCtrl+E",
             click(item) {
               App.editNodeConfiguration();
             }
           },
           {
-            label: i18n.t("edit_neighbors"),
+            label: App.t("edit_neighbors"),
             //accelerator: "CmdOrCtrl+E",
             click(item) {
               App.editNeighbors();
@@ -652,7 +652,7 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: i18n.t("options"),
+            label: App.t("options"),
             accelerator: "CmdOrCtrl+O",
             click() {
               App.showPreferences();
@@ -662,7 +662,7 @@ var App = (function(App, undefined) {
             type: "separator",
           },
           {
-            label: i18n.t("switch_to_light_node"),
+            label: App.t("switch_to_light_node"),
             click() {
               App.switchNodeType();
             }
@@ -671,7 +671,7 @@ var App = (function(App, undefined) {
       });
 
       if (settings.lightWallet == 1) {
-        template[2].submenu[13].label = i18n.t("switch_to_full_node");
+        template[2].submenu[13].label = App.t("switch_to_full_node");
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 3);
         // Remove "network spammer and open database folder" options.
@@ -696,16 +696,16 @@ var App = (function(App, undefined) {
 
     template.push(
     {
-      label: i18n.t("window"),
+      label: App.t("window"),
       role: "window",
       submenu: [
         {
-          label: i18n.t("minimize"),
+          label: App.t("minimize"),
           accelerator: "CmdOrCtrl+M",
           role: "minimize"
         },
         {
-          label: i18n.t("close"),
+          label: App.t("close"),
           accelerator: "CmdOrCtrl+W",
           role: "close"
         },
@@ -714,33 +714,33 @@ var App = (function(App, undefined) {
 
     template.push(
     {
-      label: i18n.t("help"),
+      label: App.t("help"),
       role: "help",
       submenu: [
         {
-          label: i18n.t("faq"),
+          label: App.t("faq"),
           click() {
             App.showFAQ();
           }
         },
         {
-          label: i18n.t("official_website"),
+          label: App.t("official_website"),
           click() { shell.openExternal("https://iota.org/"); }
         },
         {
-          label: i18n.t("forum"),
+          label: App.t("forum"),
           click() { shell.openExternal("https://forum.iota.org/"); }
         },
         {
-          label: i18n.t("chat"),
+          label: App.t("chat"),
           click() { shell.openExternal("https://slack.iota.org/"); }
         },
         {
-          label: i18n.t("documentation"),
+          label: App.t("documentation"),
           click() { shell.openExternal("https://iota.readme.io/docs"); }
         },
         {
-          label: i18n.t("submit_bug_report"),
+          label: App.t("submit_bug_report"),
           click() { shell.openExternal("https://github.com/iotaledger/wallet/issues"); }
         }
       ]
@@ -752,12 +752,12 @@ var App = (function(App, undefined) {
     }
 
     if (process.platform === "darwin") {
-      const name = electron.app.getName().escapeHTML();
+      const name = App.format(electron.app.getName());
       template.unshift({
         label: name,
         submenu: [
           {
-            label: i18n.t("about") + " " + name,
+            label: App.t("about") + " " + name,
             role: "about"
           },/*
           {
@@ -770,7 +770,7 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: i18n.t("preferences"),
+            label: App.t("preferences"),
             accelerator: "Command+,",
             click() {
               App.showPreferences();
@@ -780,7 +780,7 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: i18n.t("services"),
+            label: App.t("services"),
             role: "services",
             submenu: []
           },
@@ -788,24 +788,24 @@ var App = (function(App, undefined) {
             type: "separator"
           },
           {
-            label: i18n.t("hide") + " " + name,
+            label: App.t("hide") + " " + name,
             accelerator: "Command+H",
             role: "hide"
           },
           {
-            label: i18n.t("hide_others"),
+            label: App.t("hide_others"),
             accelerator: "Command+Alt+H",
             role: "hideothers"
           },
           {
-            label: i18n.t("show_all"),
+            label: App.t("show_all"),
             role: "unhide"
           },
           {
             type: "separator"
           },
           {
-            label: i18n.t("quit"),
+            label: App.t("quit"),
             accelerator: "Command+Q",
             click() { electron.app.quit(); }
           },
@@ -822,7 +822,7 @@ var App = (function(App, undefined) {
           type: "separator"
         },
         {
-          label: i18n.t("bring_all_to_front"),
+          label: App.t("bring_all_to_front"),
           role: "front"
         }
       );
@@ -1570,7 +1570,7 @@ var App = (function(App, undefined) {
     if (!isStarted && !didKillNode && !nodeInitializationError)   {
       if (type == "error") {
         if (data.match(/java\.net\.BindException/i)) {
-          lastError = i18n.t("server_address_already_in_use", {port: String(settings.port).escapeHTML()});
+          lastError = App.t("server_address_already_in_use", {port: App.format(settings.port)});
         } else {
           var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
           if (error && !lastError.match(/URI Syntax Exception|Illegal Argument Exception/i)) {
@@ -1687,6 +1687,18 @@ var App = (function(App, undefined) {
     });
   }
 
+  App.t = function(message, options) {
+    if (message.match(/^[a-z\_]+$/i)) {
+      return App.format(i18n.t(message, options));
+    } else {
+      return App.format(message);
+    }
+  }
+
+  App.format = function(text) {
+    return String(text).escapeHTML();
+  }
+
   App.changeLanguage = function(language) {
     i18n.changeLanguage(language, function(err, t) {
       settings.language = language;
@@ -1790,7 +1802,7 @@ var App = (function(App, undefined) {
     }
 
     if (!msg) {
-      msg = (lastError ? lastError : i18n.t("server_initialization_error_occurred"));
+      msg = (lastError ? lastError : App.t("server_initialization_error_occurred"));
     }
 
     if (!selectedJavaLocation) {
@@ -1842,7 +1854,7 @@ var App = (function(App, undefined) {
       App.showWindow("quit.html", {"title": title, "message": msg});
     } else {
       App.showWindowIfNotVisible();
-      win.webContents.send("showAlertAndQuit", "<h1 data-i18n='" + String(title).escapeHTML() + "'>" + i18n.t(title) + "</h1><p data-i18n='" + String(msg).escapeHTML() + "'>" + i18n.t(msg) + "</p>", serverOutput);
+      win.webContents.send("showAlertAndquit", title, msg, serverOutput);
     }
   }
 
@@ -2366,7 +2378,7 @@ var App = (function(App, undefined) {
       _isTestNet = isTestNet;
     }
 
-    var title = "IOTA " + (includeNodeType && settings.lightWallet == 1 ? "Light " : "") + "Wallet " + String(appVersion.replace("-testnet", "")).escapeHTML() + (_isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + String(iriVersion).escapeHTML() : "");
+    var title = "IOTA " + (includeNodeType && settings.lightWallet == 1 ? "Light " : "") + "Wallet " + App.format(appVersion.replace("-testnet", "")) + (_isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + App.format(iriVersion) : "");
 
     try {
       if (win) {

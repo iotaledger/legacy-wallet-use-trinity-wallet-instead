@@ -15,30 +15,32 @@ var UI = (function(UI, $, undefined) {
       var html = "";
 
       if (!neighbors) {
-        html = "<p data-i18n='no_neighbors_found'>" + i18n.t("no_neighbors_found") + "</p>"; 
+        html = "<p data-i18n='no_neighbors_found'>" + UI.t("no_neighbors_found") + "</p>"; 
       } else {
-        for (var i=0; i<neighbors.length; i++) {
-          var peer = neighbors[i];
+        var nrNeighbors = parseInt(neighbors.length, 10);
+
+        for (var i=0; i<nrNeighbors; i++) {
+          var neighbor = neighbors[i];
 
           html += "<div class='list'><ul>";
  
-          $.each(peer, function(key, value) {
-            html += "<li><div class='details'><div class='address'>" + String(key).escapeHTML() + "</div></div><div class='value'>" + String(value).escapeHTML() + "</div></li>";
+          $.each(neighbor, function(key, value) {
+            html += "<li><div class='details'><div class='address'>" + UI.format(key) + "</div></div><div class='value'>" + UI.format(value) + "</div></li>";
           });
 
           html += "</ul></div>";
 
-          if (i<neighbors.length-1) {
+          if (i<length-1) {
             html += "<br><br>";
           }
         }
 
         if (callback) {
-          callback(null, "peers-modal", "<h1 id='neighbors' data-i18n='neighbors' data-i18n-options='{count: " + neighbors.length + "}'>" + i18n.t("neighbors", neighbors.length) + "</h1><div class='contents'>" + html + "</div>");
+          callback(null, "peers-modal", "<h1 id='neighbors' data-i18n='neighbors' data-i18n-options='{count: " + nrNeighbors + "}'>" + UI.t("neighbors", nrNeighbors) + "</h1><div class='contents'>" + html + "</div>");
         } else {
           var $modal = $("#peers-modal");
 
-          $("h1#neighbors").localize(neighbors.length);
+          $("h1#neighbors").localize(nrNeighbors);
   
           $modal.find(".contents").html(html);
 
@@ -66,14 +68,14 @@ var UI = (function(UI, $, undefined) {
 
       $.each(info, function(key, value) {
         if (key != "duration") {
-          html += "<li><div class='details details-" + String(key).escapeHTML() + "' title='" + String(key).escapeHTML() + "'><div class='address'>" + String(key).escapeHTML() + "</div></div><div class='value value-" + String(key).escapeHTML() + "' title='" + String(value).escapeHTML() + "'>" + String(value).escapeHTML() + "</div></li>";
+          html += "<li><div class='details details-" + UI.format(key) + "' title='" + UI.format(key) + "'><div class='address'>" + UI.format(key) + "</div></div><div class='value value-" + UI.format(key) + "' title='" + UI.format(value) + "'>" + UI.format(value) + "</div></li>";
         }
       });
 
       html += "</ul></div>";
 
       if (callback) {
-        callback(null, "node-info-modal", "<h1 data-i18n='node_info'>" + i18n.t("node_info") + "</h1><div class='contents'>" + html + "</div>");
+        callback(null, "node-info-modal", "<h1 data-i18n='node_info'>" + UI.t("node_info") + "</h1><div class='contents'>" + html + "</div>");
       } else {
         var $modal = $("#node-info-modal");
 

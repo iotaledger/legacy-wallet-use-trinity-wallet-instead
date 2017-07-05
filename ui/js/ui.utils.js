@@ -1,4 +1,6 @@
 var UI = (function(UI, $, undefined) {
+  var i18n;
+  
   UI.hideAlerts = function() {
     $(".remodal-wrapper, .remodal-overlay").remove();
     $("html").removeClass("remodal-is-locked");
@@ -71,22 +73,23 @@ var UI = (function(UI, $, undefined) {
     var short = negative + beforeComma + (afterComma ? "." + afterComma : "") + (hidden ? "+" : "") + " " + units;
     var long  = (hidden ? short.replace("+", hidden) : "");
 
-    long = long.escapeHTML();
-    short = short.escapeHTML();
+    long   = UI.format(long);
+    short  = UI.format(short);
+    amount = UI.format(negative + amount);
 
     if (long) {
-      var output = "<span class='amount long' data-value='" + negative + amount + "' data-short='" + short + "' data-long='" + long + "'>" + short + "</span>";
+      var output = "<span class='amount long' data-value='" + amount + "' data-short='" + short + "' data-long='" + long + "'>" + short + "</span>";
     } else {
-      var output = "<span class='amount' data-value='" + negative + amount + "' data-long='" + short + "'>" + short + "</span>";
+      var output = "<span class='amount' data-value='" + amount + "' data-long='" + short + "'>" + short + "</span>";
     }
 
     return output;
   }
 
   UI.formatForClipboard = function(text, id) {
-    text = String(text).escapeHTML();
+    text = UI.format(text);
     if (id) {
-      id = String(id).escapeHTML();
+      id = UI.format(id);
     }
     
     return "<span class='clipboard' title='" + text + "' data-clipboard-text='" + text + "'" + (id ? " id='" + id + "'" : "") + ">" + text + "</span>";
@@ -96,6 +99,10 @@ var UI = (function(UI, $, undefined) {
     var date = new Date(timestamp*1000);
 
     return ("0"+date.getDate()).substr(-2) + "/" + ("0"+(date.getMonth()+1)).substr(-2) + (full ? "/" + date.getFullYear() : "") + " " + ("0"+date.getHours()).substr(-2) + ":" + ("0"+date.getMinutes()).substr(-2);
+  }
+
+  UI.format = function(text) {
+    return String(text).escapeHTML();
   }
 
   UI.notify = function(type, message, options) {
@@ -110,9 +117,9 @@ var UI = (function(UI, $, undefined) {
     message = String(message);
 
     if (message.match(/^[a-z\_]+$/i)) {
-      parsedMessage = i18n.t(message, options);
+      parsedMessage = UI.t(message, options);
     } else {
-      parsedMessage = String(message).escapeHTML();
+      parsedMessage = UI.format(message);
     }
 
     if (type == "error") {
@@ -154,19 +161,19 @@ var UI = (function(UI, $, undefined) {
     message = String(message);
 
     if (message.match(/^[a-z\_]+$/i)) {
-      parsedMessage = i18n.t(message, options);
+      parsedMessage = UI.t(message, options);
     } else {
-      parsedMessage = String(message).escapeHTML();
+      parsedMessage = UI.format(message);
     }
 
     if (!("Notification" in window)) {
       return;
     } else if (Notification.permission === "granted") {
-      var notification = new Notification(i18n.t("iota_wallet"), {"body": parsedMessage});
+      var notification = new Notification("IOTA Wallet", {"body": parsedMessage});
     } else if (Notification.permission !== "denied") {
       Notification.requestPermission(function (permission) {
         if (permission === "granted") {
-          var notification = new Notification(i18n.t("iota_wallet"), {"body": parsedMessage});
+          var notification = new Notification("IOTA Wallet", {"body": parsedMessage});
         }
       });
     }
@@ -184,7 +191,7 @@ var UI = (function(UI, $, undefined) {
         backend: {
           loadPath: "../locales/{{lng}}/{{ns}}.json"
         },
-        debug: false
+        debug: false 
     }, function(err, t) {
       jqueryI18next.init(i18next, $, {useOptionsAttr: true});
       $("*[data-i18n]").localize();
@@ -197,6 +204,14 @@ var UI = (function(UI, $, undefined) {
       connection.language = language;
       $("*[data-i18n]").localize();
     });
+  }
+
+  UI.t = function(message, options) {
+    if (i18n && message.match(/^[a-z\_]+$/i)) {
+      return UI.format(i18n.t(message, options));
+    } else {
+      return UI.format(message);
+    }
   }
 
   UI.formSuccess = function(form, message, options) {

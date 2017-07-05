@@ -50,12 +50,12 @@ UI.handleNetworkSpamming = function() {
         async.doWhilst(function(callback) {
             console.log("send async transfer");
 
-            iota.api.getNodeInfo(function(e, nodeInfo) {
+            iota.api.getNodeInfo(function(error, nodeInfo) {
 
-                if (e) {
-                    console.log("we have error: " + e);
+                if (error) {
+                    console.log("we have error: " + error);
                     if (isSpamming) {
-                        $("#spam-msg").html(e).show();
+                        $("#spam-msg").html(UI.format(error)).show();
                     } else {
                         $("#spam-msg").hide();
                     }
@@ -73,7 +73,7 @@ UI.handleNetworkSpamming = function() {
                         } else {
                             console.log("we have error: " + error);
                             if (isSpamming) {
-                                $("#spam-msg").html(error).show();
+                                $("#spam-msg").html(UI.format(error)).show();
                             } else {
                                 $("#spam-msg").hide();
                             }
