@@ -9,7 +9,7 @@ const clipboard        = electron.clipboard;
 const pusage           = require("pidusage");
 const i18n             = require("i18next");
 const i18nBackend      = require("i18next-sync-fs-backend");
-const http             = require("http");
+const https            = require("https");
 
 global.i18n            = i18n;
 
@@ -2007,7 +2007,7 @@ var App = (function(App, undefined) {
       if (walletType == 1) {
         var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
 
-        var req = http.get('http://provider.iota.org/list.json?' + (new Date().getTime()));
+        var req = https.get('https://iotasupport.com/providers.json?' + (new Date().getTime()));
         req.on('response', function (res) {
           var body = '';
           res.on('data', function (chunk) {
@@ -2015,7 +2015,7 @@ var App = (function(App, undefined) {
           });
           res.on('end', function () {
             try {
-              config.lightWalletHosts = JSON.parse(body);
+              config.lightWalletHosts = shuffleArray(JSON.parse(body));
             } catch (err) {
               console.log(err);
             } finally {
@@ -2394,6 +2394,21 @@ var App = (function(App, undefined) {
 
   App.windowIsReady = function() {
     return (App.uiIsReady && win && win.webContents);
+  }
+
+  function shuffleArray(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    while (0 !== currentIndex) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
   }
 
   return App;

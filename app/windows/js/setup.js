@@ -1,6 +1,6 @@
 const electron = require("electron");
 const path     = require("path");
-const http     = require("http");
+const https    = require("https");
 
 var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
 var resourcesDirectory = isDevelopment ? "../../" : "../../../";
@@ -25,7 +25,7 @@ var UI = (function(UI, undefined) {
   var _lightWalletHosts = [];
 
   UI.initialize = function() {
-    var req = http.get('http://provider.iota.org/list.json?' + (new Date().getTime()));
+    var req = https.get('https://iotasupport.com/providers.json?' + (new Date().getTime()));
     req.on('response', function (res) {
       var body = '';
       res.on('data', function (chunk) {
@@ -33,7 +33,7 @@ var UI = (function(UI, undefined) {
       });
       res.on('end', function () {
         try {
-          _lightWalletHosts = JSON.parse(body);
+          _lightWalletHosts = shuffleArray(JSON.parse(body));
         } catch (err) {
           console.log(err);
         }
@@ -152,7 +152,6 @@ var UI = (function(UI, undefined) {
       
       content += "<option value='custom' data-i18n='custom'>" + UI.t("custom") + "</option>";
 
-      console.log(content);
       document.getElementById("host-select").innerHTML = content;
     } else {
       document.getElementById("host-select").style.display = "none";
@@ -314,6 +313,21 @@ var UI = (function(UI, undefined) {
         v.innerHTML = UI.t(v.dataset.i18n, v.dataset.i18nOptions);
       }
     });
+  }
+
+  function shuffleArray(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    while (0 !== currentIndex) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
   }
 
   return UI;

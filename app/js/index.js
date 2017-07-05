@@ -517,7 +517,7 @@ var UI = (function(UI, undefined) {
         content += "<option value='custom'" + (!found ? " selected='selected'" : "") + " data-i18n='custom'>" + UI.t("custom") + "</option>";
         content += "</select>";
         content += "<hr />";
-        content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (!found && configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' /></div>";
+        content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (!found && configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' " + (found ? " style='display:none'" : "") + " /></div>";
       } else {
         content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' /></div>";
       }
