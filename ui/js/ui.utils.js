@@ -1,6 +1,6 @@
 var UI = (function(UI, $, undefined) {
   var i18n;
-  
+
   UI.hideAlerts = function() {
     $(".remodal-wrapper, .remodal-overlay").remove();
     $("html").removeClass("remodal-is-locked");
@@ -112,15 +112,7 @@ var UI = (function(UI, $, undefined) {
       options = {};
     }
 
-    var parsedMessage;
-
-    message = String(message);
-
-    if (message.match(/^[a-z\_]+$/i)) {
-      parsedMessage = UI.t(message, options);
-    } else {
-      parsedMessage = UI.format(message);
-    }
+    var parsedMessage = UI.parseMessage(message, options);
 
     if (type == "error") {
       toastr.error(parsedMessage, "", options);
@@ -145,7 +137,7 @@ var UI = (function(UI, $, undefined) {
     if (arguments.length == 1) {
       options = {};
       ifNotFocused = false;
-    } else if (arguments.length == 2) {
+    } else if (arguments.length >= 2) {
       if (typeof(options) == "boolean") {
         ifNotFocused = options;
         options = {};
@@ -156,15 +148,10 @@ var UI = (function(UI, $, undefined) {
       return;
     }
 
-    var parsedMessage;
+    var parsedMessage = UI.parseMessage(message, options);
 
-    message = String(message);
-
-    if (message.match(/^[a-z\_]+$/i)) {
-      parsedMessage = UI.t(message, options);
-    } else {
-      parsedMessage = UI.format(message);
-    }
+    parsedMessage = parsedMessage.replace('&quot;', '"');
+    parsedMessage = parsedMessage.replace('&#39;', "'");
 
     if (!("Notification" in window)) {
       return;
@@ -285,7 +272,7 @@ var UI = (function(UI, $, undefined) {
     }
 
     if (settings.hasOwnProperty("removedNodes") && settings.removedNodes.length) {
-      iota.api.addNeighbors(settings.removedNodes, function(error, removedNodes) {
+      iota.api.removeNeighbors(settings.removedNodes, function(error, removedNodes) {
         if (error || removedNodes === undefined) {
           UI.notify("error", "error_whilst_removing_neighbors");
         } else {
@@ -300,6 +287,48 @@ var UI = (function(UI, $, undefined) {
 
     if (changeNode) {
       UI.resetState();
+    }
+  }
+
+  UI.parseMessage = function(message, options, returnKey) {
+    if (typeof message == "object" && message.message) {
+      message = String(message.message);
+    } else {
+      message = String(message);
+    }
+
+    if (arguments.length == 1) {
+      options = {};
+      returnKey = false;
+    } else if (arguments.length >= 2) {
+      if (typeof(options) == "boolean") {
+        returnKey = options;
+        options = {};
+      }
+    }
+
+    if (message.match(/^Invalid Response:/i)) {
+      message = "invalid_response";
+    } else if (message.match(/^No connection to host:/i)) {
+      message = "no_connection_to_host";
+    } else if (message.match(/^Request Error:/i)) {
+      message = "request_error";
+    }
+
+    var parsedMessage;
+    var key = "";
+
+    if (message.match(/^[a-z\_]+$/i)) {
+      key           = message;
+      parsedMessage = UI.t(message, options);
+    } else {
+      parsedMessage = UI.format(message);
+    }
+
+    if (returnKey) {
+      return [parsedMessage, key];
+    } else {
+      return parsedMessage;
     }
   }
 

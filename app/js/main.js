@@ -1000,8 +1000,12 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.start = function() {
-    if (settings.lightWallet == -1 || (settings.lightWallet == 1 && (!settings.lightWalletHost || !settings.lightWalletPort)) || (settings.lightWallet == 0 && settings.nodes.length == 0)) {
+  App.start = function() {    
+    if (settings.lightWallet == 1 && (!settings.lightWalletHost || !settings.lightWalletPort)) {
+      App.showSetupWindow({"section": "light-node"});
+    } else if (settings.lightWallet == 0 && settings.nodes.length == 0) {
+      App.showSetupWindow({"section": "full-node"});
+    } else if (settings.lightWallet == -1) {
       App.showSetupWindow();
     } else if (settings.lightWallet == 1) {
       global.lightWallet = true;
@@ -1400,7 +1404,7 @@ var App = (function(App, undefined) {
     }*/
     var lightWallet = settings.lightWallet == 1 ? 0 : 1;
 
-    if ((lightWallet && (!settings.lightWalletHost || !settings.lightWalletPort)) || (!lightWallet && settings.nodes.length == 0)) {
+    if ((lightWallet && (!settings.lightWalletHost || !settings.lightWalletPort))) {
       App.editNodeConfiguration(lightWallet);
     } else {
       App.updateNodeConfiguration({"lightWallet": lightWallet});

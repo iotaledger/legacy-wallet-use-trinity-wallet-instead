@@ -290,7 +290,7 @@
   "swedish":"Zweeds",
   "korean":"Koreaans",
   "seed":"Seed",
-  "seed_too_short":"Niet genoeg Seeds",
+  "seed_too_short":"Seed te kort",
   "seed_too_long":"Seed te lang",
   "could_not_connect":"Kan geen verbinding maken",
   "no_connection":"Geen verbinding",

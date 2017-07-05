@@ -97,10 +97,10 @@ var UI = (function(UI, $, undefined) {
           if (connection.allowShortSeedLogin) {
             _seedError = UI.t("seed_not_secure");
           } else {
-            throw UI.t("invalid_seed");
+            throw UI.t("seed_too_short");
           }
         } else if (seed.length > 81) {
-          throw UI.t("invalid_seed");
+          throw UI.t("seed_too_long");
         }
 
         if (connection.inApp) {

@@ -438,7 +438,7 @@ var UI = (function(UI, undefined) {
     content = "<h1 data-i18n='edit_neighbors'></h1>" + 
     "<div class='input-group input-group'><label data-i18n='neighboring_nodes'>" + UI.t("neighboring_nodes") + "</label>" + 
     "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + UI.format(nodes) + "</textarea></div>" + 
-    "<p style='text-align:left;background:#efefef;padding:5px;color:gray;font-size:14px;'><span data-i18n='node_settings_format' style='text-align:left;font-size:14px;'>" + UI.t("node_settings_format") + "</span>: udp://ip:12345</p>";
+    "<p style='text-align:left;background:#efefef;padding:5px;color:gray;'><span data-i18n='node_settings_format' style='text-align:left;'>" + UI.t("node_settings_format") + "</span>: udp://ip:12345</p>";
 
     modal.setContent(content);
 

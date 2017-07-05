@@ -2,10 +2,10 @@
   function updateButtonContent($btn, message, iconType) {
     switch (iconType) {
       case "loading": 
-        icon = "<i class='fa fa-cog fa-spin fa-fw'></i>";
+        icon = "<i class='fa fa-cog fa-spin fa-fw'></i> ";
         break;
       case "success":
-        icon = "<i class='fa fa-check'></i>";
+        icon = "<i class='fa fa-check'></i> ";
         break;
       case "error":
         icon = "<i class='fa fa-times'></i> ";
@@ -15,14 +15,11 @@
         break;
     }
 
-    var i18nKey = false;
+    var parsed, i18nKey;
 
-    if (message.match(/^[a-z\_]+$/i)) {
-      i18nKey = message;
-      message = icon + UI.t(message).toUpperCase();
-    } else {
-      message = icon + UI.format(message).toUpperCase();
-    }
+    parsed  = UI.parseMessage(message, true);
+    message = icon + parsed[0];
+    i18nKey = parsed[1];
 
     if (!$btn.find(".content").length) {
       $btn.html("<span class='content'></span>");
@@ -31,7 +28,7 @@
     $btn.find(".content").html(message);
 
     if (i18nKey) {
-      $btn.data("i18n", message);
+      $btn.data("i18n", i18nKey);
     } else {
       $btn.data("i18n", "");
     }  
