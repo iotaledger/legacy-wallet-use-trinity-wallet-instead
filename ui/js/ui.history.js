@@ -199,8 +199,20 @@ var UI = (function(UI, $, undefined) {
         var totalValue = 0;
         var tags = [];
 
+        var address = "";
+
          $.each(bundle, function(i, item) {
-          if (item.value !== 0 && connection.accountData.addresses.indexOf(item.address) != -1) {
+          var isOurAddress = connection.accountData.addresses.indexOf(item.address) != -1;
+
+          if (!address) {
+            if (!isSent && isOurAddress) {
+              address = item.address;
+            } else if (isSent && !isOurAddress) {
+              address = item.address;
+            }
+          }
+
+          if (item.value !== 0 && isOurAddress) {
             totalValue += item.value;
           }
           var tag = String(item.tag).replace(/[9]+$/, "");
@@ -209,11 +221,15 @@ var UI = (function(UI, $, undefined) {
           }
         });
 
+        if (!address) {
+          address = bundle[0].address;
+        }
+
         transfersHtml += "<li data-hash='" + UI.format(bundle[0].hash) + "' data-type='" + (isSent ? "spending" : "receiving") + "' data-persistence='" + UI.format(persistence*1) + "'>";
         transfersHtml += "<div class='type'><i class='fa fa-arrow-circle-" + (isSent ? "left" : "right") + "'></i></div>";
         transfersHtml += "<div class='details'>";
         transfersHtml += "<div class='date'>" + (bundle[0].timestamp != "0" ? UI.formatDate(bundle[0].timestamp, true) : UI.t("genesis")) + "</div>";
-        transfersHtml += "<div class='address'>" + (bundle[0].address ? UI.formatForClipboard(iota.utils.addChecksum(bundle[0].address)) : "/") + "</div>";
+        transfersHtml += "<div class='address'>" + (address ? UI.formatForClipboard(iota.utils.addChecksum(address)) : "/") + "</div>";
         transfersHtml += "<div class='action'>";
         if (tags.length) {
           for (var i=0; i<tags.length; i++) {
