@@ -308,5 +308,6 @@
   "seed_checksum":"Seed Checksum",
   "invalid_response":"Invalid Response",
   "no_connection_to_host":"No Connection to Host",
-  "request_error":"Request Error"
+  "request_error":"Request Error",
+  "invalid_transaction_hash": "Invalid Transaction Hash"
 }

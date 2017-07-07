@@ -190,7 +190,7 @@
   "no_updates_available":"No hay actualizaciones disponibles en este momento.",
   "shutdown_in_progress":"Apagado en progreso",
   "shutting_down_iota":"Apagando IOTA... Por favor espere.",
-  "error_please_restart":"Ocurrió un error un error, el servidor se ha cerrado. Por favor reinicia la aplicación.",
+  "error_please_restart":"Ocurrió un error, el servidor se ha cerrado. Por favor reinicia la aplicación.",
   "process_already_running":"El proceso ya está en ejecución...",
   "iota_process_already_running_choice":"Un proceso de IOTA ya está en ejecución. Si tienes corriendo otra aplicación de IOTA, por favor ciérrala antes de continuar. De lo contrario, selecciona 'Continuar'.",
   "continue":"Continuar",
@@ -202,7 +202,7 @@
   "drag_to_applications_folder_no_execution_from_dmg":"Arrastra la app a la carpeta Aplicaciones en vez de abrirla desde el DMG.",
   "java_not_found":"No se encontró Java...",
   "correct_java_version_not_found":"No se encontró la versión correcta de Java en el sistema.",
-  "sixtyfour_bit_java":"64-bit java",
+  "sixtyfour_bit_java":"Java de 64 bits",
   "click_to_download_or_switch_to_light_node":"Haz click en el botón de abajo para comenzar la descarga. Alternativamente, puedes cambiar a Nodo Light que no requiere Java.",
   "click_to_download_and_reopen_or_switch_to_light_node":"Haz click en el botón de abajo para comenzar la descarga. Vuelve a abrir la billetera luego de la instalación. Alternativamente, puedes cambiar a Nodo Light que no requiere Java.",
   "click_to_download_or_use_terminal":"Haz click en el botón para comenzar la descarga, o instala ingresando el/los siguiente(s) comando(s) en la Terminal:",
@@ -306,7 +306,7 @@
   "describe_issue":"Describa el problema en detalle",
   "invalid_address":"Dirección inválida",
   "seed_checksum":"Checksum de Seed",
-  "invalid_response":"Invalid Response",
-  "no_connection_to_host":"No Connection to Host",
-  "request_error":"Request Error"
+  "invalid_response":"Respuesta inválida",
+  "no_connection_to_host":"No hay conexión al Host",
+  "request_error":"Error en la solicitud"
 }

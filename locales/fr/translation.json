@@ -202,7 +202,7 @@
   "drag_to_applications_folder_no_execution_from_dmg":"Déplacer l'application dans votre dossier Applications au lieu de l'ouvir depuis le DMG.",
   "java_not_found":"Java introuvable...",
   "correct_java_version_not_found":"La version correcte de java n'a pas été trouvée sur votre système",
-  "sixtyfour_bit_java":"64-bit java",
+  "sixtyfour_bit_java":"java 64-bits",
   "click_to_download_or_switch_to_light_node":"Cliquez sur le bouton ci-dessous pour commencer le téléchargement. Alternativement vous pouvez basculer sur un Light Node qui n'a pas besoin de java.",
   "click_to_download_and_reopen_or_switch_to_light_node":"Cliquez sur le bouton ci-dessous pour commencer le téléchargement. Ouvrez à nouveau le wallet après l'installation. Alternativement vous pouvez basculer sur un Light Node qui n'a pas besoin de Java.",
   "click_to_download_or_use_terminal":"Cliquez sur le bouton ci-dessous pour commencer le téléchargement, ou installez le en tapant la/les commande(s) suivantes dans le terminal :",
