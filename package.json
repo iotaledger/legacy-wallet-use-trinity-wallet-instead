@@ -9,17 +9,17 @@
     "postinstall": "electron-builder install-app-deps && node install-deps.js && cd app && bower install && cd ../ui && bower install",
     "start": "export NODE_ENV=development || set NODE_ENV=development && electron app/js/main.js",
     "precompile": "rimraf out/* && node install-deps.js",
-    "compile": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --win --mac --linux --x64 --ia32",
-    "compile:lin": "build --linux --x64 --ia32",
-    "compile:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --mac --x64",
-    "compile:win": "build --win --x64 --ia32",
-    "compile:win64": "build --win --x64",
-    "compile:win32": "build --win --x32",
+    "compile": "export CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --win --mac --linux --x64 --ia32",
+    "compile:lin": "electron-builder --linux --x64 --ia32",
+    "compile:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --mac --x64",
+    "compile:win": "electron-builder --win --x64 --ia32",
+    "compile:win64": "electron-builder --win --x64",
+    "compile:win32": "electron-builder --win --x32",
     "prepublish": "rimraf out/*",
-    "publish": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --win --mac --linux --x64 --ia32 --publish always",
-    "publish:lin": "build --linux --x64 --ia32 --publish always",
-    "publish:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && build --mac --x64 --publish always",
-    "publish:win": "build --win --x64 --ia32 --publish always"
+    "publish": "export CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --win --mac --linux --x64 --ia32 --publish always",
+    "publish:lin": "electron-builder --linux --x64 --ia32 --publish always",
+    "publish:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --mac --x64 --publish always",
+    "publish:win": "electron-builder --win --x64 --ia32 --publish always"
   },
   "author": "IOTA Foundation <contact@iota.org>",
   "homepage": "https://www.iota.org",
@@ -31,15 +31,15 @@
     "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
     "glob": "^7.1.2",
-    "i18next": "^8.4.1",
+    "i18next": "^8.4.2",
     "i18next-sync-fs-backend": "^0.1.0",
     "pidusage": "^1.1.5"
   },
   "devDependencies": {
-    "electron": "^1.6.10",
-    "electron-builder": "^19.7.3",
-    "rimraf": "^2.6.1",
-    "follow-redirects": "^1.2.3"
+    "electron": "^1.7.4",
+    "electron-builder": "^19.13.0",
+    "follow-redirects": "^1.2.4",
+    "rimraf": "^2.6.1"
   },
   "build": {
     "directories": {
