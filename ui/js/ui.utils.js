@@ -291,12 +291,15 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.parseMessage = function(message, options, returnKey) {
+    console.log("UI.parseMessage");
+    console.log(message);
+
     if (typeof message == "object" && message.message) {
       message = String(message.message);
     } else {
       message = String(message);
     }
-
+    
     if (arguments.length == 1) {
       options = {};
       returnKey = false;
@@ -307,12 +310,18 @@ var UI = (function(UI, $, undefined) {
       }
     }
 
+    var match;
+
     if (message.match(/^Invalid Response:/i)) {
       message = "invalid_response";
     } else if (message.match(/^No connection to host:/i)) {
       message = "no_connection_to_host";
-    } else if (message.match(/^Request Error:/i)) {
-      message = "request_error";
+    } else if (match = message.match(/^Request Error: (.*)/i)) {
+      if (match[1] && match[1].toLowerCase() == "invalid transaction hash") {
+        message = "invalid_transaction_hash";
+      } else {
+        message = "request_error";
+      }
     }
 
     var parsedMessage;

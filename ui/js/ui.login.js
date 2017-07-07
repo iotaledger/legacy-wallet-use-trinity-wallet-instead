@@ -48,13 +48,9 @@ var UI = (function(UI, $, undefined) {
         $checksum.html("&lt;60").addClass("invalid").show();
       } else if (seed.length > 81) {
         $checksum.html("&gt;81").addClass("invalid").show();
-      } else if (window.Curl && window.Converter) {
+      } else {
         try {
-          var curl = new Curl();
-          curl.initialize();
-          curl.state = Converter.trits(seed, curl.state);
-          curl.transform();
-          var checksum = Converter.trytes(curl.state).substring(0, 3);
+          var checksum = iota.utils.addChecksum(seed, 3, false).substr(-3);
           if (checksum != "999") {
             $checksum.html("<span title='" + UI.t("seed_checksum") + "' data-i18n='seed_checksum'>" + UI.format(checksum) + "</span>");
           } else {
@@ -64,8 +60,6 @@ var UI = (function(UI, $, undefined) {
           console.log(err);
           $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon");
         }
-      } else {
-        $checksum.hide();
       }
 
       seed = "";

@@ -13,8 +13,10 @@ var UI = (function(UI, $, undefined) {
 
       $stack.addClass("loading");
 
+      var address, amount, tag;
+
       try {
-        var address = $.trim($("#transfer-address").val());
+        address = $.trim($("#transfer-address").val());
 
         if (!address) {
           throw UI.t("address_is_required");
@@ -27,14 +29,19 @@ var UI = (function(UI, $, undefined) {
         } else if (!iota.utils.isValidChecksum(address)) {
           throw UI.t("incorrect_address_checksum");
         }
-      
-        var amount = iota.utils.convertUnits(parseFloat($("#transfer-amount").val()), $("#transfer-units-value").html(), "i");
 
-        if (!amount) {
+        var rawAmount = $.trim($("#transfer-amount").val());
+        var rawUnits  = $("#transfer-units-value").html();
+
+        if (!rawAmount) {
           throw UI.t("amount_cannot_be_zero");
-        }
+        } else {
+          amount = iota.utils.convertUnits(parseFloat(rawAmount), rawUnits, "i");
 
-        var tag = "";
+          if (!amount) {
+            throw UI.t("amount_cannot_be_zero");
+          }
+        }
 
         if ($("#transfer-tag-container").is(":visible")) {
           tag = $.trim($("#transfer-tag").val().toUpperCase());
@@ -50,7 +57,7 @@ var UI = (function(UI, $, undefined) {
       }
 
       console.log("Server.transfer: " + address + " -> " + amount);
-      
+
       UI.isDoingPOW = true;
       iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], function(error, transfers) {
         UI.isDoingPOW = false;
