@@ -125,7 +125,11 @@ var UI = (function(UI, $, undefined) {
       UI.isLoggingIn = true;
 
       setTimeout(function() {
-        UI.executeState(function(error) {
+        iota.api.getAccountData(connection.seed, function(error, accountData) {
+          UI.isLoggingIn = false;
+
+          connection.accountData = accountData;
+
           if (error) {
             connection.seed = "";
             console.log(error);
@@ -141,7 +145,6 @@ var UI = (function(UI, $, undefined) {
             $("#login-btn").loadingReset("logging_in", {"icon": "fa-cog fa-spin fa-fw"});
             UI.showAppScreen();
           }
-          UI.isLoggingIn = false;
         });
       }, 150);
     });

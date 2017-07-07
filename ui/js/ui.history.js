@@ -97,7 +97,9 @@ var UI = (function(UI, $, undefined) {
       UI.isLocked = true;
 
       if (isRebroadcast) {
+        UI.isDoingPOW = true;
         iota.api.broadcastBundle(hash, function(error, bundle) {
+          UI.isDoingPOW = false;
           if (error) {
             console.log("UI.rebroadcast: Error");
             console.log(error);
@@ -116,7 +118,9 @@ var UI = (function(UI, $, undefined) {
           $("#reattach-btn").removeAttr("disabled");
         });
       } else {
+        UI.isDoingPOW = true;
         iota.api.replayBundle(hash, connection.depth, connection.minWeightMagnitude, function(error, bundle) {
+          UI.isDoingPOW = false;
           if (error) {
             console.log("UI.reattach: Error");
             console.log(error);

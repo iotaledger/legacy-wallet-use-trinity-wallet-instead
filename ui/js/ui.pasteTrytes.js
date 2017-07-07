@@ -129,8 +129,10 @@ var UI = (function(UI, $, undefined) {
 
       isProcessing = true;
 
+      UI.isDoingPOW = true;
       iota.api.sendTrytes(trytes, connection.depth, connection.minWeightMagnitude, function(error, transfers) {
-       if (error) {
+        UI.isDoingPOW = false;
+        if (error) {
           console.log("Process Pasted Trytes: Error");
           console.log(error);
           $("#process-pasted-trytes-btn").loadingError(error);

@@ -80,6 +80,8 @@ var UI = (function(UI, $, undefined) {
           $loader.css("bottom", $btn.outerHeight() + 10).show();
         }
 
+        UI.isDoingPOW = true;
+
         iota.api.getNewAddress(connection.seed, {"checksum": true}, function(error, newAddress) {
           $loader.fadeOut();
 
@@ -87,6 +89,7 @@ var UI = (function(UI, $, undefined) {
             console.log(error);
             UI.formError("generate-address", error);
             $stack.removeClass("loading");
+            UI.isDoingPOW = false;
             return;
           }
 
@@ -101,9 +104,10 @@ var UI = (function(UI, $, undefined) {
           UI.animateStacks(200);
 
           newAddress = iota.utils.noChecksum(newAddress);
-          
+            
           iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": newAddress, "value": 0, "message": "", "tag": ""}], function(error, transfers) {
-           if (error) {
+            UI.isDoingPOW = false;
+            if (error) {
               UI.formError("generate-address", error);
             } else {
               $btn.data("address", "");

@@ -1,35 +1,13 @@
 var UI = (function(UI, $, undefined) {
   UI.updateIntervalTime = 0;
+  UI.isDoingPOW         = false;
 
-  var isUpdatingState  = false;
-  var updateInterval   = null;
-
-  function stateExecution(callback) {
-    if (connection.seed) {
-      iota.api.getNodeInfo(function(error, info) {
-        connection.nodeInfo = info;
-
-        iota.api.getAccountData(connection.seed, function(error, accountData) {
-          connection.previousAccountData = connection.accountData;
-          connection.accountData = accountData;
-          callback(error, accountData);
-        });
-      });
-    } else {
-      iota.api.getNodeInfo(function(error, info) {
-        connection.nodeInfo = info;
-        if (callback) {
-          callback(error, info);
-        }
-      });
-    }
-  }
-
-  UI.executeState = function(callback) {
-    return stateExecution(callback);
-  }
+  var isUpdatingState   = false;
+  var updateInterval    = null;
 
   UI.resetState = function(timeout) {
+    console.log("UI.resetState");
+
     if (!connection.seed) {
       UI.loginFormShown = false;
     }
@@ -40,6 +18,8 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.updateState = function(timeout) {
+    console.log("UI.updateState: " + timeout);
+
     if (timeout) {
       setTimeout(function() {
         UI.createStateInterval(UI.updateIntervalTime, true);
@@ -50,53 +30,71 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.createStateInterval = function(ms, immediately) {
-    console.log("UI.createStateInterval: " + ms);
-
-    UI.updateIntervalTime = ms;
-
     // If connecting to a light wallet, minimum state interval is set to 1 minute.
     if (connection.lightWallet && ms < 60000) {
       ms = 60000;
     }
 
-    if (updateInterval) {
-      clearInterval(updateInterval);
-    }
+    UI.updateIntervalTime = ms;
 
-    updateInterval = setInterval(function() {
-      if (!isUpdatingState && !UI.isLoggingIn) {
-        isUpdatingState = true;
-        stateExecution(function(error) {
-          if (!error) {
-            UI.update();
-          }
-          isUpdatingState = false;
-        });
-      }
-    }, ms);
+    if (updateInterval) {
+      clearTimeout(updateInterval);
+    }
 
     if (immediately) {
-      console.log("UI.createStateInterval: Execute immediately");
-      if (!isUpdatingState) {
+      ms = 0;
+    }
+
+    console.log("UI.createStateInterval: " + UI.updateIntervalTime + ", " + ms);
+    console.log(new Date());
+
+    updateInterval = setTimeout(function() {
+      console.log("In update interval: " + isUpdatingState + ", " + UI.isLoggingIn + ", " + UI.isDoingPOW);
+      console.log(new Date());
+
+      if (!isUpdatingState && !UI.isLoggingIn && !UI.isDoingPOW) {
         isUpdatingState = true;
-        stateExecution(function(error) {
-          if (!error) {
-            UI.update();
-          } else if (!connection.seed && connection.lightWallet) {
-            //Show error specifically for light nodes...
-            UI.notify("error", "could_not_connect_to_remote_node");
-            $("#error-btn").addClass("no-connection");
-            if (!connection.seed) {
-              UI.showLoginForm = true;
+
+        console.log("Execute interval");
+
+        iota.api.getNodeInfo(function(error, info) {
+          connection.nodeInfo = info;
+
+          console.log("Got node info");
+          console.log(new Date());
+
+          if (connection.seed) {
+            iota.api.getAccountData(connection.seed, function(error, accountData) {
+              console.log("Got account data");
+              console.log(new Date());
+
+              connection.previousAccountData = connection.accountData;
+              connection.accountData = accountData;
+              isUpdatingState = false;
+
+              UI.createStateInterval(UI.updateIntervalTime);
+              if (!error) {
+                UI.update();
+              }
+            });
+          } else {
+            if (error && connection.lightWallet) {
+              //Show error specifically for light nodes...
+              UI.notify("error", "could_not_connect_to_remote_node");
+              $("#error-btn").addClass("no-connection");
+              if (!connection.seed) {
+                UI.showLoginForm = true;
+              }
             }
+            UI.createStateInterval(UI.updateIntervalTime);
+            isUpdatingState = false;
             UI.update();
           }
-          isUpdatingState = false;
         });
       } else {
-        console.log("UI.createStateInterval: Cannot execute immediately, already updating state");
+        console.log("Skipping update interval");
       }
-    }
+    }, ms);
   }
 
   UI.update = function() {
@@ -108,8 +106,8 @@ var UI = (function(UI, $, undefined) {
         if (connection.minWeightMagnitude < 9) {
           connection.minWeightMagnitude = 9;
         }
-      } else if (connection.minWeightMagnitude < 13) {
-        connection.minWeightMagnitude = 13;
+      } else if (connection.minWeightMagnitude < 15) {
+        connection.minWeightMagnitude = 15;
       }
       if (connection.inApp && connection.lightWallet) {
         updateAppInfo({"name": connection.nodeInfo.appName, "version": connection.nodeInfo.appVersion, "testnet": connection.testNet});

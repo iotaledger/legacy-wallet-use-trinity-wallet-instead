@@ -50,8 +50,10 @@ var UI = (function(UI, $, undefined) {
       }
 
       console.log("Server.transfer: " + address + " -> " + amount);
-
+      
+      UI.isDoingPOW = true;
       iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], function(error, transfers) {
+        UI.isDoingPOW = false;
         if (error) {
           console.log("UI.handleTransfers: Error");
           console.log(error);
