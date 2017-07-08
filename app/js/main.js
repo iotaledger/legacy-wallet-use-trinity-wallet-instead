@@ -2125,12 +2125,22 @@ var App = (function(App, undefined) {
             settings.lightWalletUser = lightWalletUser;
             lightWalletHostChange = true;
           }
+        } else {
+          if (settings.hasOwnProperty("lightWalletUser")) {
+            delete settings["lightWalletUser"]
+            lightWalletHostChange = true;
+          }
         }
 
         if (configuration.hasOwnProperty("lightWalletPassword")) {
           var lightWalletPassword = configuration.lightWalletPassword;
           if (lightWalletPassword != settings.lightWalletPassword) {
             settings.lightWalletPassword = lightWalletPassword;
+            lightWalletHostChange = true;
+          }
+        } else {
+          if (settings.hasOwnProperty("lightWalletPassword")) {
+            delete settings["lightWalletPassword"]
             lightWalletHostChange = true;
           }
         }
@@ -2221,10 +2231,16 @@ var App = (function(App, undefined) {
       if (relaunch || !App.windowIsReady()) {
         App.relaunchApplication();
       } else if (lightWalletHostChange && settings.lightWallet == 1) {
-        win.webContents.send("updateSettings", {
+        var updatedSettings = {
           "host": settings.lightWalletHost,
           "port": settings.lightWalletPort
-        });
+        };
+        if(settings.lightWalletUser) {
+          updatedSettings.lightWalletUser = settings.lightWalletUser;
+          updatedSettings.lightWalletPassword = settings.lightWalletPassword;
+        }
+
+        win.webContents.send("updateSettings", updatedSettings);
       } else {
         win.webContents.send("updateSettings", {
           "depth": settings.depth,

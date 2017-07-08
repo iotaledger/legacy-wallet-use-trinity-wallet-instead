@@ -586,14 +586,14 @@ var UI = (function(UI, undefined) {
         var selectedHost;
 
         var select = document.getElementById("server_config_host_select");
-        var username = "";
-        var password = "";
+        var lightWalletUser = "";
+        var lightWalletPassword = "";
         if (select) {
           var selectedHost = select.options[select.selectedIndex].value;
           if (selectedHost == "custom") {
             selectedHost = document.getElementById("server_config_host").value;
-            username = document.getElementById("light_wallet_user").value;
-            password = document.getElementById("light_wallet_password").value;
+            lightWalletUser = document.getElementById("light_wallet_user").value;
+            lightWalletPassword = document.getElementById("light_wallet_password").value;
           }
         } else {
           selectedHost = document.getElementById("server_config_host").value;
@@ -609,8 +609,14 @@ var UI = (function(UI, undefined) {
 
         config.lightWalletHost = res[1];
         config.lightWalletPort = res[2];
-        config.lightWalletUser = username;
-        config.lightWalletPassword = password;
+
+        if (lightWalletUser !== "") {
+          config.lightWalletUser = lightWalletUser;
+        }
+        if (lightWalletPassword !== "") {
+          config.lightWalletPassword = lightWalletPassword;
+        }
+
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
       } else {
         config.port = parseInt(document.getElementById("server_config_port").value, 10);

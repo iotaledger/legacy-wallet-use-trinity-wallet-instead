@@ -247,6 +247,7 @@ var UI = (function(UI, $, undefined) {
     }
 
     var changeNode = false;
+    var hasAuth = false;
 
     if (settings.hasOwnProperty("host") && settings.host != connection.host) {
       connection.host = settings.host;
@@ -257,8 +258,48 @@ var UI = (function(UI, $, undefined) {
       changeNode = true;
     }
 
+    if (settings.hasOwnProperty("lightWalletUser")) {
+      hasAuth = true;
+
+      if (settings.lightWalletUser != connection.lightWalletUser) {
+        connection.lightWalletUser = settings.lightWalletUser;
+        changeNode = true;
+      }
+    } else {
+      if(connection.hasOwnProperty("lightWalletUser")) {
+        delete connection["lightWalletUser"]
+        changeNode = true;
+      }
+    }
+
+    if (settings.hasOwnProperty("lightWalletPassword")) {
+      hasAuth = true;
+      if (settings.lightWalletPassword != connection.lightWalletPassword) {
+        connection.lightWalletPassword = settings.lightWalletPassword;
+        changeNode = true;
+      }
+    } else {
+      if(connection.hasOwnProperty("lightWalletPassword")) {
+        delete connection["lightWalletPassword"]
+        changeNode = true;
+      }
+    }  
+
     if (changeNode) {
-      iota.changeNode({"host": connection.host, "port": connection.port});
+      var nodeSettings = {
+        "host": connection.host,
+        "port": connection.port,
+      };
+
+      if (hasAuth) {
+        nodeSettings.auth = {
+          "type": "basic",
+          "user": connection.lightWalletUser,
+          "password": connection.lightWalletPassword
+        };
+      }
+      
+      iota.changeNode(nodeSettings);
 
       if (localAttachToTangle) {
         iota.api.attachToTangle = localAttachToTangle;
