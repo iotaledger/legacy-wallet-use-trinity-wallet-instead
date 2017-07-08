@@ -22,8 +22,22 @@
       <div id="light-node-section">
         <p class="label"><span data-i18n="host"></span>: <span id="host-error" class="error"></span></p>
         <p><select name="host_select" id="host-select" style="width:100%;font-size:110%"></select></p>
-        <p><input type="text" name="host" id="host" placeholder="" value="" style="width:100%;font-size:110%" data-i18n="[placeholder]custom_host" /></p>
-        <p class="note" id="host-format-example" data-i18n="add_in_following_format_example"></p>
+        <div id="custom_light_wallet">
+          <p>
+            <input type="text" name="host" id="host" style="width:100%;font-size:110%" data-i18n="[placeholder]custom_host" />
+            
+            <div class="input-group">
+              <label for="light_wallet_user" data-i18n="light_wallet_user"></label>
+              <input type="text" name="light_wallet_user" id="light_wallet_user" />
+            </div>
+    
+            <div class="input-group">
+              <label form="light_wallet_password" data-i18n="light_wallet_password"></label>
+              <input type="password" name="light_wallet_password" id="light_wallet_password" />
+            </div>
+          </p>
+          <p class="note" id="host-format-example" data-i18n="add_in_following_format_example"></p>
+        </div>
       </div>
       <div id="full-node-section">
         <p class="label"><span data-i18n="server_port"></span>: <span id="port-error" class="error"></span></p>

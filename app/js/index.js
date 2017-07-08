@@ -473,7 +473,7 @@ var UI = (function(UI, undefined) {
             select.addEventListener("change", function(e) {
               e.preventDefault();
               if (this.value == "custom") {
-                document.getElementById("server_config_host").style.display = "block";
+                document.getElementById("server_config_host").style.display = "none";
               } else {
                 document.getElementById("server_config_host").style.display = "none";
               }

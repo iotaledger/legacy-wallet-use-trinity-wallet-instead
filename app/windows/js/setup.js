@@ -51,11 +51,9 @@ var UI = (function(UI, undefined) {
     document.getElementById("host-select").addEventListener("change", function(e) {
       e.preventDefault();
       if (this.value == "custom") {
-        document.getElementById("host").style.display = "block";
-        document.getElementById("host-format-example").style.display = "block";
+        document.getElementById("custom_light_wallet").style.display = "block";
       } else {
-        document.getElementById("host").style.display = "none";
-        document.getElementById("host-format-example").style.display = "none";
+        document.getElementById("custom_light_wallet").style.display = "none";
       }
       UI.updateContentSize();
     });
@@ -142,8 +140,7 @@ var UI = (function(UI, undefined) {
 
     if (_lightWalletHosts && _lightWalletHosts.length) {
       document.getElementById("host-select").style.display = "block";
-      document.getElementById("host").style.display = "none";
-      document.getElementById("host-format-example").style.display = "none";
+      document.getElementById("custom_light_wallet").style.display = "none";
       document.getElementById("host-select").innerHTML = "";
 
       var content = "<option value='' data-i18n='select_your_host'>" + UI.t("select_your_host") + "</option>";
@@ -157,8 +154,7 @@ var UI = (function(UI, undefined) {
       document.getElementById("host-select").innerHTML = content;
     } else {
       document.getElementById("host-select").style.display = "none";
-      document.getElementById("host").style.display = "block";
-      document.getElementById("host-format-example").style.display = "block";
+      document.getElementById("custom_light_wallet").style.display = "block";
     }
 
     UI.updateContentSize();

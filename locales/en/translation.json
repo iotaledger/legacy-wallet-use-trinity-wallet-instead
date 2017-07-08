@@ -312,5 +312,7 @@
   "invalid_transaction_hash": "Invalid Transaction Hash",
   "seed_character_set": "Only uppercase latin letters and the number 9 are allowed.",
   "double_spend_warning": "Double Spend Warning",
-  "double_spend_attempt": "You are attempting to spend an already used input. You should wait for your transaction to be confirmed first before attempting to make a conflicting transaction. Do you want to continue anyway?"
+  "double_spend_attempt": "You are attempting to spend an already used input. You should wait for your transaction to be confirmed first before attempting to make a conflicting transaction. Do you want to continue anyway?",
+  "light_wallet_user":"Username",
+  "light_wallet_password": "Password"
 }
