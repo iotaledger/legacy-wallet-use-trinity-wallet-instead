@@ -613,7 +613,6 @@ hr {
 
 #generate-address-btn {
   margin-top: 15px;
-  visibility: hidden;
 }
 
 #generate-address:hover {
@@ -627,7 +626,6 @@ hr {
 
 #generate-address-stack .padded {
   text-align: center;
-  visibility: hidden;
 }
 
 #generate-address-qr-code {

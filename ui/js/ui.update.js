@@ -68,8 +68,11 @@ var UI = (function(UI, $, undefined) {
               console.log("Got account data");
               console.log(new Date());
 
-              connection.previousAccountData = connection.accountData;
-              connection.accountData = accountData;
+              if (!error) {
+                connection.previousAccountData = connection.accountData;
+                connection.accountData = accountData;
+              }
+              
               isUpdatingState = false;
 
               UI.createStateInterval(UI.updateIntervalTime);

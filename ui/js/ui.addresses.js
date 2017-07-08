@@ -1,9 +1,8 @@
 var UI = (function(UI, $, undefined) {
-  var isBusy = false;
   var hasGenerated = false;
 
   UI.onOpenAddressStack = function() {
-    if (isBusy || hasGenerated) {
+    if (hasGenerated) {
       return;
     }
 
@@ -13,48 +12,17 @@ var UI = (function(UI, $, undefined) {
     var $result = $stack.find(".padded");
     var $btn    = $stack.find(".btn").first();
 
-    $result.css("visibility", "hidden");
-    $btn.css("visibility", "hidden");
-    $loader.css("bottom", 0).show();
-  }
+    $loader.hide();
 
-  UI.onOpenAddressStackCompleted = function() {
-    if (isBusy || hasGenerated) {
-      return;
-    }
+    var latestAddress = iota.utils.addChecksum(connection.accountData.latestAddress);
 
-    isBusy = true;
+    if (latestAddress != $btn.data("address")) {
+      updateGeneratedAddress(latestAddress, true);
 
-    var $stack  = $("#generate-address-stack");
-
-    var $loader = $stack.find(".loading-ring");
-    var $result = $stack.find(".padded");
-    var $btn    = $stack.find(".btn").first();
-
-    iota.api.getNewAddress(connection.seed, {"checksum": true}, function(error, newAddress) {
-      setTimeout(function() {
-        isBusy = false;
-      }, 3000);
-
-      $loader.fadeOut();
-
-      if (error) {
-        console.log(error);
-        $btn.css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
-        $btn.loadingReset("generate_new_address", {"initial": "generate_new_address", "loading": "attaching_to_tangle"});
-      } else {
-        if (newAddress != $btn.data("address")) {
-          updateGeneratedAddress(newAddress, true);
-        }
-        
-        $result.css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
-        
-        $btn.css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
-        $btn.loadingUpdate("attach_to_tangle", {"noIcon": true, "initial": "attach_to_tangle", "loading": "attaching_to_tangle"});
-      }
-
+      $btn.loadingUpdate("attach_to_tangle", {"noIcon": true, "initial": "attach_to_tangle", "loading": "attaching_to_tangle"});
+    
       UI.animateStacks(0);
-    });
+    }
   }
 
   UI.handleAddressGeneration = function() {
@@ -78,6 +46,8 @@ var UI = (function(UI, $, undefined) {
         if (!gotAddress) {
           $result.css("visibility", "hidden");
           $loader.css("bottom", $btn.outerHeight() + 10).show();
+        } else {
+          $loader.hide();
         }
 
         UI.isDoingPOW = true;
@@ -97,13 +67,12 @@ var UI = (function(UI, $, undefined) {
             updateGeneratedAddress(newAddress);
             $result.css("opacity", 0).css("visibility", "visible").fadeTo("slow", 1);
           } else {
-            $("#generate-address-result, #generate-address-qr-code").off("click.notyetgenerated");
             $result.css("visibility", "visible");
           }
 
-          UI.animateStacks(200);
-
           newAddress = iota.utils.noChecksum(newAddress);
+
+          UI.animateStacks(200);
             
           iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": newAddress, "value": 0, "message": "", "tag": ""}], function(error, transfers) {
             UI.isDoingPOW = false;
@@ -141,14 +110,6 @@ var UI = (function(UI, $, undefined) {
 
     $("#generate-address-result").html(address);
     $("#generate-address-qr-code").empty().qrcode({text: JSON.stringify({"address": address}), fill: "#000", background: "#fff", size: qrCodeSize});
-
-    $("#generate-address-result, #generate-address-qr-code").off("click.notyetgenerated");
-
-    if (notYetGenerated) {
-      $("#generate-address-result, #generate-address-qr-code").on("click.notyetgenerated", function(e) {
-        UI.notify("error", "attach_tangle_before_using_address");
-      });
-    }
 
     $stack.find(".clipboard").attr("data-clipboard-text", address);
   }
