@@ -120,6 +120,8 @@ var UI = (function(UI, undefined) {
           settings.lightWallet = 1;
           settings.lightWalletHost = res[1];
           settings.lightWalletPort = res[2];
+          settings.lightWalletUser = document.getElementById("light_wallet_user").value;
+          settings.lightWalletPassword = document.getElementById("light_wallet_password").value;
         }
       }
 
