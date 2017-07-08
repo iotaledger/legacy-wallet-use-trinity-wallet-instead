@@ -2019,7 +2019,9 @@ var App = (function(App, undefined) {
           });
           res.on('end', function () {
             try {
-              config.lightWalletHosts = shuffleArray(JSON.parse(body));
+              config.lightWalletHosts = shuffleArray(JSON.parse(body)).filter(function(host) {
+                return host.match(/^(https?:\/\/.*):([0-9]+)$/i);
+              });
             } catch (err) {
               console.log(err);
             } finally {

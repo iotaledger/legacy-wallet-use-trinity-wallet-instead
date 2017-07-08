@@ -33,7 +33,9 @@ var UI = (function(UI, undefined) {
       });
       res.on('end', function () {
         try {
-          _lightWalletHosts = shuffleArray(JSON.parse(body));
+          _lightWalletHosts = shuffleArray(JSON.parse(body)).filter(function(host) {
+            return host.match(/^(https?:\/\/.*):([0-9]+)$/i);
+          });
         } catch (err) {
           console.log(err);
         }
