@@ -1,12 +1,16 @@
 var UI = (function(UI, $, undefined) {
+  var modal, doubleSpend, $stack;
+
   UI.handleTransfers = function() {
+    $stack = $("#transfer-stack");
+
     $("#transfer-btn").on("click", function(e) {    
       console.log("UI.handleTransfers: Click");
 
-      var $stack = $("#transfer-stack");
+      doubleSpend = {};
 
       if ($("#transfer-autofill").val() == "1") {
-        UI.formError("transfer", "are_you_sure", {"initial": "yes_send_it_now"});
+        UI.formError("transfer", "are_you_sure", {"initial": "yes_send_now"});
         $("#transfer-autofill").val("0");
         return;
       }
@@ -59,10 +63,79 @@ var UI = (function(UI, $, undefined) {
       console.log("Server.transfer: " + address + " -> " + amount);
 
       UI.isDoingPOW = true;
-      iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], function(error, transfers) {
+
+      iota.api.getInputs(connection.seed, {"treshold": amount}, function (error, inputs) {
+        if (error) {
+          UI.isDoingPOW = false;
+          UI.formError("transfer", error, {"initial": "send_it_now"});
+          $stack.removeClass("loading");
+          return;
+        } 
+
+        var addresses = [];
+
+        $.each(inputs.inputs, function(i, input) {
+          addresses.push(input.address);
+        });
+
+        iota.api.findTransactionObjects({"addresses": addresses}, function(error, transactions) {
+          if (error) {
+            UI.isDoingPOW = false;
+            UI.formError("transfer", error, {"initial": "send_it_now"});
+            $stack.removeClass("loading");
+            return;
+          }
+
+          var stop = false;
+
+          $.each(transactions, function(i, transaction) {
+            if (transaction.value < 0) {
+              stop = true;
+              return false;
+            }
+          });
+
+          var transfers = [{"address": address, "value": amount, "message": "", "tag": tag}];
+          var options   = {"inputs": inputs.inputs};
+
+          if (stop) {
+            console.log("Double spend!");
+            $("#transfer-btn .progress").hide();
+            $("body").css("cursor", "default");
+
+            UI.isDoingPOW = false;
+            doubleSpend = {"transfers": transfers, "options": options};
+            
+            modal = $("#double-spend-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
+            modal.open();
+            return;
+          }
+          
+          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, transfers, options, function(error, transfers) {
+            UI.isDoingPOW = false;
+            if (error) {
+              console.log(error);
+              UI.formError("transfer", error, {"initial": "send_it_now"});
+            } else {
+              console.log("UI.handleTransfers: Success");
+              UI.formSuccess("transfer", "transfer_completed", {"initial": "send_it_now"});
+              UI.updateState(1000);
+            }
+            $stack.removeClass("loading");
+          });
+        });
+      });
+    });
+
+    $("#double-spend-btn").on("click", function(e) {
+      $("#transfer-btn .progress").show();
+      $("body").css("cursor", "progress");
+
+      UI.isDoingPOW = true;
+
+      iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, doubleSpend.transfers, doubleSpend.options, function(error, transfers) {
         UI.isDoingPOW = false;
         if (error) {
-          console.log("UI.handleTransfers: Error");
           console.log(error);
           UI.formError("transfer", error, {"initial": "send_it_now"});
         } else {
@@ -72,6 +145,24 @@ var UI = (function(UI, $, undefined) {
         }
         $stack.removeClass("loading");
       });
+
+      modal.close();
+    });
+
+    $("#double-spend-cancel-btn").on("click", function(e) {
+      modal.close();
+    });
+
+    $(document).on("closed", "#double-spend-modal", function (e) {
+      doubleSpend = {};
+
+      $("#double-spend-btn").loadingReset("yes_send_now");
+      $("#double-spend-cancel-btn").loadingReset("no_cancel");
+
+      if (!UI.isDoingPOW) {
+        $("#transfer-btn").loadingReset("send_it_now");
+        $stack.removeClass("loading");
+      }
     });
 
     $("#transfer-units-value").on("click", function(e) {

@@ -828,15 +828,12 @@ hr {
 #history-stack .type .fa-arrow-circle-left {
   color: #ea98b3;
 }
+
 #history-stack .type .fa-arrow-circle-right {
   color: #caffb0;
 }
 
-#rebroadcast-btn {
-  margin-top: 10px;
-}
-
-#reattach-btn {
+#rebroadcast-btn, #reattach-btn, #double-spend-btn, #double-spend-cancel-btn {
   margin-top: 10px;
 }
 
@@ -1800,4 +1797,8 @@ input[type="number"] {
   transform-origin: 80px 81.5px;
   -webkit-animation: loading-ring-anim 1s linear infinite;
   animation: loading-ring-anim 1s linear infinite;
+}
+
+#double-spend-attempt {
+  text-align: left;
 }
