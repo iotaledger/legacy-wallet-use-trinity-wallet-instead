@@ -473,9 +473,9 @@ var UI = (function(UI, undefined) {
             select.addEventListener("change", function(e) {
               e.preventDefault();
               if (this.value == "custom") {
-                document.getElementById("server_config_host").style.display = "none";
+                document.getElementById("custom_light_wallet").style.display = "block";
               } else {
-                document.getElementById("server_config_host").style.display = "none";
+                document.getElementById("custom_light_wallet").style.display = "none";
               }
             });
           } else {
@@ -500,11 +500,10 @@ var UI = (function(UI, undefined) {
       content = "<h1 data-18n='node_config'></h1>" + 
       "<div class='input-group'><label><span data-i18n='host' class='label'>" + UI.t("host") + "</span> <span class='error' id='host-error'></span></label>";
 
+      var found = false;
       if (configuration.lightWalletHosts && configuration.lightWalletHosts.length) {
         content += "<select id='server_config_host_select'>";
         content += "<option value='' data-i18n='select_your_host'>" + UI.t("select_your_host") + "</option>";
-
-        var found = false;
 
         for (var i=0; i<configuration.lightWalletHosts.length; i++) {
           var lightWalletHost = configuration.lightWalletHosts[i];
@@ -517,10 +516,30 @@ var UI = (function(UI, undefined) {
         content += "<option value='custom'" + (!found ? " selected='selected'" : "") + " data-i18n='custom'>" + UI.t("custom") + "</option>";
         content += "</select>";
         content += "<hr />";
-        content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (!found && configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' " + (found ? " style='display:none'" : "") + " /></div>";
-      } else {
-        content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' /></div>";
       }
+
+      var hostValue = "";
+      if(!found && configuration.lightWalletHost) {
+        hostValue += UI.format(configuration.lightWalletHost);
+        if(configuration.lightWalletPort) {
+          hostValue += ":" + UI.format(configuration.lightWalletPort);
+        }
+      }
+    
+      var lwUser = configuration.lightWalletUser ? UI.format(configuration.lightWalletUser) : '';
+      var lwPassword = configuration.lightWalletPassword ? UI.format(configuration.lightWalletUPassword) : '';
+
+      content += "<div id='custom_light_wallet' style='margin-top: 10px; display:" + (found ? "none" : "block") + ";'>";
+      content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + hostValue + "' />";
+      content += "<div class='input-group' style='margin-top: 10px;'>"
+        + "<label for='light_wallet_user' data-i18n=light_wallet_user'>" + UI.t("light_wallet_user") + "</label>"
+        + "<input type='text' name='light_wallet_user' id='light_wallet_user' value='" + lwUser + "' />"
+        + "</div>";
+      content += "<div class='input-group'>"
+        + "<label for='light_wallet_password' data-i18n=light_wallet_password'>" + UI.t("light_wallet_password") + "</label>"
+        + "<input type='password' name='light_wallet_password' id='light_wallet_password' value='" + lwPassword + "' />"
+        + "</div>";
+      content += "</div>";
 
       content += "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + UI.t("min_weight_magnitude") + "</label>" + 
       "<input type='number' min='" + UI.format(configuration.minWeightMagnitudeMinimum) + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + UI.format(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum) + "' /></div>";
@@ -567,10 +586,14 @@ var UI = (function(UI, undefined) {
         var selectedHost;
 
         var select = document.getElementById("server_config_host_select");
+        var username = "";
+        var password = "";
         if (select) {
           var selectedHost = select.options[select.selectedIndex].value;
           if (selectedHost == "custom") {
             selectedHost = document.getElementById("server_config_host").value;
+            username = document.getElementById("light_wallet_user").value;
+            password = document.getElementById("light_wallet_password").value;
           }
         } else {
           selectedHost = document.getElementById("server_config_host").value;
@@ -586,6 +609,8 @@ var UI = (function(UI, undefined) {
 
         config.lightWalletHost = res[1];
         config.lightWalletPort = res[2];
+        config.lightWalletUser = username;
+        config.lightWalletPassword = password;
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
       } else {
         config.port = parseInt(document.getElementById("server_config_port").value, 10);
