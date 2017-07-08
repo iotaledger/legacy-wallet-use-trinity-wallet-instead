@@ -41,24 +41,24 @@ var UI = (function(UI, $, undefined) {
       $checksum.removeClass();
 
       if (!seed) {
-        $checksum.html("<i class='fa fa-question-circle'></i>").addClass("help icon");
+        $checksum.html("<i class='fa fa-question-circle'></i>").addClass("help icon").attr("title", "");;
       } else if (seed.match(/[^A-Z9]/) || seed.match(/^[9]+$/)) {
-        $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon");
+        $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon").attr("title", UI.t("seed_character_set"));
       } else if (seed.length < 60 && !connection.allowShortSeedLogin) {
-        $checksum.html("&lt;60").addClass("invalid").show();
+        $checksum.html("&lt;60").addClass("invalid").show().attr("title", UI.t("seed_too_short"));
       } else if (seed.length > 81) {
-        $checksum.html("&gt;81").addClass("invalid").show();
+        $checksum.html("&gt;81").addClass("invalid").show().attr("title", UI.t("seed_too_long"));
       } else {
         try {
           var checksum = iota.utils.addChecksum(seed, 3, false).substr(-3);
           if (checksum != "999") {
-            $checksum.html("<span title='" + UI.t("seed_checksum") + "' data-i18n='seed_checksum'>" + UI.format(checksum) + "</span>");
+            $checksum.html(UI.format(checksum)).attr("title", UI.t("seed_checksum"));
           } else {
-            $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon");
+            $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon").attr("title", UI.t("seed_character_set"));
           }
         } catch (err) {
           console.log(err);
-          $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon");
+          $checksum.html("<i class='fa fa-exclamation-circle'></i>").addClass("invalid icon").attr("title", UI.t("seed_character_set"));
         }
       }
 
