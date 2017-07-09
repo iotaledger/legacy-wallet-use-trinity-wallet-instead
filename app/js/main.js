@@ -78,6 +78,7 @@ var App = (function(App, undefined) {
   var minWeightMagnitudeMinimum = (isTestNet ? 9 : 15);
   var deleteDb                  = false;
   var deleteAnyways             = false;
+  var isFullScreen              = false;
 
   App.initialize = function() {
     App.loadEnvironment();
@@ -374,7 +375,8 @@ var App = (function(App, undefined) {
                            "maxHeight"       : 1200,
                            "backgroundColor" : "#4DC1B5",
                            "center"          : true,
-                           "show"            : false};
+                           "show"            : false,
+                           "fullscreenable"  : process.platform != "win32"};
 
       if (settings.bounds.width < windowOptions.minWidth) {
         settings.bounds.width = windowOptions.minWidth;
@@ -433,10 +435,12 @@ var App = (function(App, undefined) {
       });
 
       win.on("enter-full-screen", function() {
+        isFullScreen = true;
         App.createMenuBar();
       });
 
       win.on("leave-full-screen", function() {
+        isFullScreen = false;
         App.createMenuBar();
       });
 
@@ -526,7 +530,7 @@ var App = (function(App, undefined) {
           }
         },
         {
-          label: (win && win.isFullScreen() ? App.t("exit_full_screen") : App.t("enter_full_screen")),
+          label: (isFullScreen ? App.t("exit_full_screen") : App.t("enter_full_screen")),
           accelerator: process.platform === "darwin" ? "Ctrl+Command+F" : "F11",
           click() {
             App.toggleFullScreen();
@@ -585,6 +589,10 @@ var App = (function(App, undefined) {
       template[1].submenu.splice(0, 1);
       template[1].submenu.splice(1, 1);
     } else {
+      if (process.platform == "win32") {
+        template[1].submenu.splice(2, 1);
+      }
+
       template.push(
       {
         label: App.t("tools"),
@@ -1000,7 +1008,7 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.start = function() {    
+  App.start = function() {  
     if (settings.lightWallet == 1 && (!settings.lightWalletHost || !settings.lightWalletPort)) {
       App.showSetupWindow({"section": "light-node"});
     } else if (settings.lightWallet == 0 && settings.nodes.length == 0) {
