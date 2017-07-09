@@ -259,6 +259,13 @@ var UI = (function(UI, $, undefined) {
 
     if (changeNode) {
       iota.changeNode({"host": connection.host, "port": connection.port});
+
+      if (localAttachToTangle) {
+        iota.api.attachToTangle = localAttachToTangle;
+      }
+      if (localInterruptAttachingToTangle) {
+        iota.api.interruptAttachingToTangle = localInterruptAttachingToTangle;
+      }
     }
 
     if (settings.hasOwnProperty("addedNodes") && settings.addedNodes.length) {
