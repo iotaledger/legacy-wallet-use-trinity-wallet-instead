@@ -1137,7 +1137,7 @@ var App = (function(App, undefined) {
 
   App.relaunchApplication = function(didFinalize) {
     console.log("App.relaunchApplication: " + didFinalize);
-    // For light wallet, we want to make sure that everything is cleaned properly before restarting.. 
+    // For light wallet, we want to make sure that everything is cleaned properly before restarting..
     if (global.lightWallet && App.windowIsReady && !didFinalize) {
       console.log("Sending stopCcurl message to renderer");
       win.webContents.send("stopCcurl", {"relaunch": true});
@@ -1389,10 +1389,23 @@ var App = (function(App, undefined) {
   }
 
   App.stopTrackingCPU = function() {
-    if (cpuTrackInterval) {
-      clearInterval(cpuTrackInterval);
+    if (!cpuTrackInterval) {
+      App.updateStatusBar({"cpu": ""});
+      return
     }
-    App.updateStatusBar({"cpu": ""});
+
+    clearInterval(cpuTrackInterval);
+
+    var pid;
+    if (settings.lightWallet == 1) {
+      pid = rendererPid;
+    } else if (server && server.pid) {
+      pid = server.pid;
+    }
+
+    if (pid) {
+      pusage.unmonitor(pid);
+    }
   }
 
   App.trackCPU = function() {
@@ -1412,8 +1425,6 @@ var App = (function(App, undefined) {
           App.updateStatusBar({"cpu": Math.round(stat.cpu).toFixed(2)});
         }
        });
-
-      pusage.unmonitor(pid);
     } else {
       console.log("Track CPU: No server PID");
       if (cpuTrackInterval) {
