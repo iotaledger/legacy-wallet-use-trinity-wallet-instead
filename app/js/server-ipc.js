@@ -53,6 +53,12 @@ ipcRenderer.on("showFAQ", function() {
   }
 });
 
+ipcRenderer.on("showSeedTransition", function() {
+  if (typeof(UI) != "undefined") {
+    UI.showTransitionModal();
+  }
+});
+
 ipcRenderer.on("showNetworkSpammer", function() {
   if (typeof(UI) != "undefined") {
     UI.showNetworkSpammer();
@@ -172,6 +178,11 @@ function _clearSeedFromClipboard(seed) {
   }
 }
 
+function _finishedTransitioningToKeccak() {
+  connection.keccak = true;
+  ipcRenderer.send("finishedTransitioningToKeccak");
+}
+
 /*
 function _logUINotification(type, message) {
   ipcRenderer.send("logUINotification", type, message);
@@ -188,6 +199,7 @@ process.once("loaded", function() {
   global.relaunchApplication = _relaunchApplication;
   global.updateAppInfo = _updateAppInfo;
   global.clearSeedFromClipboard = _clearSeedFromClipboard;
+  global.finishedTransitioningToKeccak = _finishedTransitioningToKeccak;
 
   if (typeof(ccurl) != "undefined") {
     global.ccurl = ccurl;

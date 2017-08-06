@@ -7,6 +7,7 @@ var UI = (function(UI, $, undefined) {
 
   var loginGradientInterval;
   var _seedError;
+  var _loginFormShownCallback;
 
   UI.showLoginScreen = function() {
     console.log("UI.showLoginScreen");
@@ -20,6 +21,15 @@ var UI = (function(UI, $, undefined) {
     setTimeout(function() {
       clearInterval(loginGradientInterval);
     }, 60000);
+
+    if (!connection.keccak) {
+      _loginFormShownCallback = UI.showTransitionModal;
+    }
+
+    UI.handleTransitioning();
+    UI.handleHelpMenu();
+    UI.handleNetworkSpamming();
+    UI.handlePastingTrytes();
 
     $("#login .logo").hide().fadeIn(1000, function() {
       if (UI.showLoginForm) {
@@ -136,16 +146,13 @@ var UI = (function(UI, $, undefined) {
             UI.createStateInterval(500, false);
           } else {
             $("#login-password").val("");
-            $("#login-btn").loadingReset("logging_in", {"icon": "fa-cog fa-spin fa-fw"});
+            $("#login-btn").loadingReset("login", {"icon": "fa-cog fa-spin fa-fw"});
+
             UI.showAppScreen();
           }
         });
       }, 150);
     });
-
-    UI.handleHelpMenu();
-    UI.handleNetworkSpamming();
-    UI.handlePastingTrytes();
   }
 
   UI.showAppScreen = function() {
@@ -195,7 +202,8 @@ var UI = (function(UI, $, undefined) {
         "ccurlPath": connection.ccurlPath,
         "language": connection.language,
         "allowShortSeedLogin": connection.allowShortSeedLogin ? 1 : 0,
-        "interrupt": 1
+        "interrupt": 1,
+        "keccak": connection.keccak ? 1 : 0
       }
 
       window.location.href = "index.html?" + $.param(params);
@@ -293,12 +301,16 @@ var UI = (function(UI, $, undefined) {
       }
 
       $("#login-password").focus();
+
+      if (_loginFormShownCallback) {
+        _loginFormShownCallback();
+      }
     }
   }
 
   UI.shutdown = function() {
     UI.isShuttingDown = true;
   }
-  
+
   return UI;
 }(UI || {}, jQuery));

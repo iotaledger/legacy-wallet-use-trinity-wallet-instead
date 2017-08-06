@@ -831,7 +831,7 @@ hr {
   color: #caffb0;
 }
 
-#rebroadcast-btn, #reattach-btn, #double-spend-btn, #double-spend-cancel-btn {
+#rebroadcast-btn, #reattach-btn, #double-spend-btn, #double-spend-cancel-btn, #transition-restart-btn, #transition-stop-btn {
   margin-top: 10px;
 }
 
@@ -1799,4 +1799,26 @@ input[type="number"] {
 
 #double-spend-attempt {
   text-align: left;
+}
+
+#transition-modal label {
+  font-weight:bold;
+  text-align:left;
+  font-size:22px;
+  margin:0;
+  margin-bottom: 5px;
+  padding: 0;
+  display: block;
+}
+ 
+#transition-modal input {
+  box-sizing: border-box;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  border-bottom: 1px solid #7e8688;
+  color: #000;
+  padding: 0;
+  font-size: 20px;
 }

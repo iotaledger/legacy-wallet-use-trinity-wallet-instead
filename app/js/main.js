@@ -182,10 +182,13 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("allowShortSeedLogin")) {
         settings.allowShortSeedLogin = 0;
       }
+      if (!settings.hasOwnProperty("keccak")) {
+        settings.keccak = 0;
+      }
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 780}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: "", allowShortSeedLogin: 0};
+      settings = {bounds: {width: 520, height: 780}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: "", allowShortSeedLogin: 0, keccak: 0};
     }
 
     try {
@@ -627,6 +630,12 @@ var App = (function(App, undefined) {
             }
           },
           {
+            label: App.t("transition_seed"),
+            click(item) {
+              App.showSeedTransition();
+            }
+          },
+          {
             label: App.t("network_spammer"),
             click(item) {
               App.showNetworkSpammer();
@@ -683,12 +692,12 @@ var App = (function(App, undefined) {
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 3);
         // Remove "network spammer and open database folder" options.
-        template[2].submenu.splice(2, 3);
+        template[2].submenu.splice(3, 3);
         // Remove "edit neighbors" option.
-        template[2].submenu.splice(3, 1);
+        template[2].submenu.splice(4, 1);
         if (process.platform == "darwin") {
           // Remove options from mac platforms
-          template[2].submenu.splice(4, 2);
+          template[2].submenu.splice(5, 2);
         }
       } else {
         if (settings.lightWallet == -1) {
@@ -1570,7 +1579,8 @@ var App = (function(App, undefined) {
           "minWeightMagnitude": settings.minWeightMagnitude,
           "ccurlPath": ccurlPath,
           "language": settings.language,
-          "allowShortSeedLogin": settings.allowShortSeedLogin
+          "allowShortSeedLogin": settings.allowShortSeedLogin,
+          "keccak": (settings.keccak ? 1 : 0)
       });
     } catch (err) {
       console.log("Error:");
@@ -1728,6 +1738,11 @@ var App = (function(App, undefined) {
         }
       }
     });
+  }
+
+  App.finishedTransitioningToKeccak = function() {
+    settings.keccak = 1;
+    App.saveSettings();
   }
 
   App.startTrackingCPU = function() {
@@ -1993,6 +2008,13 @@ var App = (function(App, undefined) {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showFAQ");
+    }
+  }
+
+  App.showSeedTransition = function() {
+    if (App.windowIsReady()) {
+      App.showWindowIfNotVisible();
+      win.webContents.send("showSeedTransition");
     }
   }
 
@@ -2540,3 +2562,5 @@ electron.ipcMain.on("updateStatusBar", function(event, data) {
 electron.ipcMain.on("updateAppInfo", function(event, data) {
   App.updateAppInfo(data);
 });
+
+electron.ipcMain.on("finishedTransitioningToKeccak", App.finishedTransitioningToKeccak);

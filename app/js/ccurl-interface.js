@@ -63,26 +63,28 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
         return callback(new Error("Hashing not available"));
     }
 
+    var iotaObj = (UI.isTransitioningSeed ? oldIota : iota); //During transitioning to keccak only oldIota is doing POW
+
     // inputValidator: Check if correct hash
-    if (!iota.valid.isHash(trunkTransaction)) {
+    if (!iotaObj.valid.isHash(trunkTransaction)) {
 
         return callback(new Error("Invalid trunkTransaction"));
     }
 
     // inputValidator: Check if correct hash
-    if (!iota.valid.isHash(branchTransaction)) {
+    if (!iotaObj.valid.isHash(branchTransaction)) {
 
         return callback(new Error("Invalid branchTransaction"));
     }
 
     // inputValidator: Check if int
-    if (!iota.valid.isValue(minWeightMagnitude)) {
+    if (!iotaObj.valid.isValue(minWeightMagnitude)) {
 
         return callback(new Error("Invalid minWeightMagnitude"));
     }
 
     // inputValidator: Check if array of trytes
-    // if (!iota.valid.isArrayOfTrytes(trytes)) {
+    // if (!iotaObj.valid.isArrayOfTrytes(trytes)) {
     //
     //     return callback(new Error("Invalid trytes supplied"));
     // }
@@ -131,7 +133,7 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
         // assign it the supplied trunk and branch transactions
         if (!previousTxHash) {
 
-            var txObject = iota.utils.transactionObject(thisTrytes);
+            var txObject = iotaObj.utils.transactionObject(thisTrytes);
 
             // Check if last transaction in the bundle
             if (txObject.lastIndex !== txObject.currentIndex) {
@@ -141,7 +143,7 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
             txObject.trunkTransaction = trunkTransaction;
             txObject.branchTransaction = branchTransaction;
 
-            var newTrytes = iota.utils.transactionTrytes(txObject);
+            var newTrytes = iotaObj.utils.transactionTrytes(txObject);
 
             // cCurl updates the nonce as well as the transaction hash
             libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
@@ -152,7 +154,7 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
                     return callback("Interrupted");
                 }
 
-                var newTxObject= iota.utils.transactionObject(returnedTrytes);
+                var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
 
                 // Assign the previousTxHash to this tx
                 var txHash = newTxObject.hash;
@@ -165,14 +167,14 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
 
         } else {
 
-            var txObject = iota.utils.transactionObject(thisTrytes);
+            var txObject = iotaObj.utils.transactionObject(thisTrytes);
 
             // Chain the bundle together via the trunkTransaction (previous tx in the bundle)
             // Assign the supplied trunkTransaciton as branchTransaction
             txObject.trunkTransaction = previousTxHash;
             txObject.branchTransaction = trunkTransaction;
 
-            var newTrytes = iota.utils.transactionTrytes(txObject);
+            var newTrytes = iotaObj.utils.transactionTrytes(txObject);
 
             // cCurl updates the nonce as well as the transaction hash
             libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
@@ -183,7 +185,7 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
                     return callback("Interrupted");
                 }
 
-                var newTxObject= iota.utils.transactionObject(returnedTrytes);
+                var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
 
                 // Assign the previousTxHash to this tx
                 var txHash = newTxObject.hash;

@@ -25,6 +25,7 @@
   <script type="text/javascript" src="js/ui.transfers.js"></script>
   <script type="text/javascript" src="js/ui.url.js"></script>
   <script type="text/javascript" src="js/ui.update.js"></script>
+  <script type="text/javascript" src="js/ui.transition.js"></script>
   <script type="text/javascript" src="js/ui.pasteTrytes.js"></script>
   <script type="text/javascript" src="js/ui.utils.js"></script>
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
@@ -177,6 +178,24 @@
   <button id="spam-btn" type="button" class="btn" data-initial="spam_the_network" data-loading="spamming" data-i18n="spam_the_network"></button>
   <div id="spam-output" class="small"><span id="spam-cnt">0</span> <span data-i18n="x_transactions_generated"></span> <span id="spam-msg"></span></div>
   <div id="spam-not-synced" class="small" style="color:red;display:none;" data-i18n="not_synced"></div>
+</div>
+
+<div id="transition-modal" class="modal gray" data-remodal-id="transition">
+  <button data-remodal-action="close" class="remodal-close"></button>
+  <h1 data-i18n="transition-seed"></h1>
+  <div class="contents">
+    <div id="transition-phase-1-group">
+      <p data-i18n="transition_description"></p>
+      <div class='input-group'><label data-i18n="seed"></label> 
+      <input type='password' name='seed' id='transition-process-seed' placeholder='Seed of Account' value='' /></div>
+      <button id="transition-btn" type="button" class="btn" data-initial="transition" data-loading="transitioning" data-i18n="transition"></button>
+    </div>
+    <div id="transition-phase-2-group">
+      <p data-18n="transition-success"></p>
+      <button id="transition-restart-btn" type="button" class="btn" data-initial="transition_again" data-loading="transitioning" data-i18n="transition_again"></button>
+      <button id="transition-stop-btn" type="button" class="btn" data-initial="stop_transitioning" data-loading="transitioning" data-i18n="stop_transitioning"></button>
+    </div>
+  </div>
 </div>
 
 <div id="help">

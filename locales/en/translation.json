@@ -312,5 +312,13 @@
   "invalid_transaction_hash": "Invalid Transaction Hash",
   "seed_character_set": "Only uppercase latin letters and the number 9 are allowed.",
   "double_spend_warning": "Double Spend Warning",
-  "double_spend_attempt": "You are attempting to spend an already used input. You should wait for your transaction to be confirmed first before attempting to make a conflicting transaction. Do you want to continue anyway?"
+  "double_spend_attempt": "You are attempting to spend an already used input. You should wait for your transaction to be confirmed first before attempting to make a conflicting transaction. Do you want to continue anyway?",
+  "transition": "Transition",
+  "transition_description": "Transition description",
+  "transition_seed": "Transition Seed",
+  "transition_again": "Transition Again",
+  "stop_transitioning": "Stop Transitioning",
+  "please_log_out_first": "Please log out first.",
+  "transition_success": "Transition succeeded. What would you like to do now?",
+  "account_is_empty": "Account is empty"
 }
