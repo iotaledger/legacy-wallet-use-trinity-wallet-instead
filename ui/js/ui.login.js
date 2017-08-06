@@ -198,6 +198,11 @@ var UI = (function(UI, $, undefined) {
         "interrupt": 1
       }
 
+      if(connection.auth) {
+        params.auth_password = connection.auth.password;
+        params.auth_user = connection.auth.user;
+      }
+
       window.location.href = "index.html?" + $.param(params);
     });
 

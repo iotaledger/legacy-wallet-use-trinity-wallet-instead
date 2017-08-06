@@ -83,6 +83,14 @@ var UI = (function(UI, $, undefined) {
       if (params.has("interrupt")) {
         interruptAttachingToTangle = true;
       }
+
+      if (params.has("auth_user")) {
+        connection.auth = {
+          "type": "basic",
+          "user": params.get("auth_user"),
+          "password": params.get("auth_password")
+        };
+      }
     }
 
     UI.makeMultilingual(connection.language, function() {
@@ -98,10 +106,15 @@ var UI = (function(UI, $, undefined) {
         return;
       }
 
-      iota = new IOTA({
-        "host": connection.host,
-        "port": connection.port
-      });
+      var connectionSettings = {
+          "host": connection.host,
+          "port": connection.port
+      };
+      if (connection.auth) {
+        connectionSettings.auth = connection.auth;
+      }
+
+      iota = new IOTA(connectionSettings);
 
       if (connection.host != "http://localhost") {
         connection.lightWallet = true;

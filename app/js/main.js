@@ -1566,6 +1566,8 @@ var App = (function(App, undefined) {
           "showStatus": settings.showStatusBar,
           "host": (settings.lightWallet == 1 ? settings.lightWalletHost : "http://localhost"),
           "port": (settings.lightWallet == 1 ? settings.lightWalletPort : settings.port),
+          "auth_user": (settings.lightWallet == 1 ? settings.lightWalletUser : null),
+          "auth_password": (settings.lightWallet == 1 ? settings.lightWalletPassword : null),
           "depth": settings.depth,
           "minWeightMagnitude": settings.minWeightMagnitude,
           "ccurlPath": ccurlPath,
@@ -2017,8 +2019,16 @@ var App = (function(App, undefined) {
         walletType = settings.lightWallet;
       }
       if (walletType == 1) {
-        var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
-
+        var config = {
+          "lightWallet": 1,
+          "lightWalletHost": settings.lightWalletHost,
+          "lightWalletPassword": settings.lightWalletPassword,
+          "lightWalletPort": settings.lightWalletPort,
+          "lightWalletUser": settings.lightWalletUser,
+          "minWeightMagnitude": settings.minWeightMagnitude,
+          "testNet": isTestNet,
+          "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum
+        };
         var req = https.get('https://iotasupport.com/providers.json?' + (new Date().getTime()));
         req.on('response', function (res) {
           var body = '';
@@ -2105,6 +2115,32 @@ var App = (function(App, undefined) {
           var lightWalletPort = parseInt(configuration.lightWalletPort, 10);
           if (lightWalletPort != settings.lightWalletPort) {
             settings.lightWalletPort = lightWalletPort;
+            lightWalletHostChange = true;
+          }
+        }
+
+        if (configuration.hasOwnProperty("lightWalletUser")) {
+          var lightWalletUser = configuration.lightWalletUser;
+          if (lightWalletUser != settings.lightWalletUser) {
+            settings.lightWalletUser = lightWalletUser;
+            lightWalletHostChange = true;
+          }
+        } else {
+          if (settings.hasOwnProperty("lightWalletUser")) {
+            delete settings["lightWalletUser"]
+            lightWalletHostChange = true;
+          }
+        }
+
+        if (configuration.hasOwnProperty("lightWalletPassword")) {
+          var lightWalletPassword = configuration.lightWalletPassword;
+          if (lightWalletPassword != settings.lightWalletPassword) {
+            settings.lightWalletPassword = lightWalletPassword;
+            lightWalletHostChange = true;
+          }
+        } else {
+          if (settings.hasOwnProperty("lightWalletPassword")) {
+            delete settings["lightWalletPassword"]
             lightWalletHostChange = true;
           }
         }
@@ -2195,10 +2231,16 @@ var App = (function(App, undefined) {
       if (relaunch || !App.windowIsReady()) {
         App.relaunchApplication();
       } else if (lightWalletHostChange && settings.lightWallet == 1) {
-        win.webContents.send("updateSettings", {
+        var updatedSettings = {
           "host": settings.lightWalletHost,
           "port": settings.lightWalletPort
-        });
+        };
+        if(settings.lightWalletUser) {
+          updatedSettings.lightWalletUser = settings.lightWalletUser;
+          updatedSettings.lightWalletPassword = settings.lightWalletPassword;
+        }
+
+        win.webContents.send("updateSettings", updatedSettings);
       } else {
         win.webContents.send("updateSettings", {
           "depth": settings.depth,
