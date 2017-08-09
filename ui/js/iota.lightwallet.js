@@ -1,5 +1,5 @@
 var localAttachToTangle = function(trunkTransaction, branchTransaction, minWeightMagnitude, trytes, callback) {
-    console.log("Light Wallet: iota.api.attachToTangle");
+    console.log("Light Wallet: localAttachToTangle");
 
     ccurl.ccurlHashing(connection.ccurlProvider, trunkTransaction, branchTransaction, minWeightMagnitude, trytes, function(error, success) {
         console.log("Light Wallet: ccurl.ccurlHashing finished:");
@@ -17,7 +17,7 @@ var localAttachToTangle = function(trunkTransaction, branchTransaction, minWeigh
 }
 
 var localInterruptAttachingToTangle = function(callback) {
-    console.log("Light Wallet: iota.api.interruptAttachingToTangle");
+    console.log("Light Wallet: localInterruptAttachingToTangle");
 
     ccurl.ccurlInterrupt(connection.ccurlProvider);
 

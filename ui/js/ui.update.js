@@ -5,6 +5,8 @@ var UI = (function(UI, $, undefined) {
   var isUpdatingState   = false;
   var updateInterval    = null;
 
+  var stopStateInterval = false;
+
   UI.resetState = function(timeout) {
     console.log("UI.resetState");
 
@@ -30,6 +32,9 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.createStateInterval = function(ms, immediately) {
+    if (stopStateInterval) {
+      return;
+    }
     // If connecting to a light wallet, minimum state interval is set to 1 minute.
     if (connection.lightWallet && ms < 60000) {
       ms = 60000;
@@ -98,6 +103,15 @@ var UI = (function(UI, $, undefined) {
         console.log("Skipping update interval");
       }
     }, ms);
+  }
+
+  UI.stopStateInterval = function() {
+    clearTimeout(updateInterval);
+    stopStateInterval = true;
+  }
+
+  UI.startStateInterval = function() {
+    stopStateInterval = false;
   }
 
   UI.update = function() {

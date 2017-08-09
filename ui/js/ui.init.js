@@ -1,4 +1,4 @@
-var iota;
+var iota, oldIota;
 
 var connection = {"accountData"         : false,
                   "previousAccountData" : false,
@@ -15,6 +15,7 @@ var connection = {"accountData"         : false,
                   "ccurlPath"           : null,
                   "lightWallet"         : false,
                   "allowShortSeedLogin" : false,
+                  "keccak"              : false,
                   "language"            : "en"};
 
 var __entityMap = {
@@ -82,6 +83,9 @@ var UI = (function(UI, $, undefined) {
       }
       if (params.has("interrupt")) {
         interruptAttachingToTangle = true;
+      }
+      if (params.has("keccak")) {
+        connection.keccak = params.get("keccak") == 1;
       }
     }
 
