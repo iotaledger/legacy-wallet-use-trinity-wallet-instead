@@ -974,6 +974,11 @@ electron.ipcRenderer.on("showFAQ", function() {
   UI.sendToWebview("showFAQ");
 });
 
+electron.ipcRenderer.on("showTransition", function() {
+  UI.hideAlerts();
+  UI.sendToWebview("showTransition");
+});
+
 electron.ipcRenderer.on("showNetworkSpammer", function() {
   UI.hideAlerts();
   UI.sendToWebview("showNetworkSpammer");

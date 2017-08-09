@@ -78,9 +78,12 @@
           barTimeout = setTimeout(function() {
             // If the message has already been updated before barTimeout is called, then of course we do not overwrite it again.
             //if (!$btn.data("updated")) {
-            updateButtonContent($btn, $btn.data("loading") ? $btn.data("loading") : "loading", "loading");      
-            $btn.append($bar);
-            $bar.fadeIn(800);
+            updateButtonContent($btn, $btn.data("loading") ? $btn.data("loading") : "loading", "loading");   
+
+            if (!$btn.hasClass("btn-no-progress-bar")) {    
+              $btn.append($bar);
+              $bar.fadeIn(800);
+            }
           }, msTimeout);
         } else {
           e.preventDefault();
