@@ -96,7 +96,7 @@ var UI = (function(UI, $, undefined) {
         if (!seed) {
           throw UI.t("seed_is_required");
         } else if (seed.match(/[^A-Z9]/) || seed.match(/^[9]+$/)) {
-          throw UI.t("invalid_seed");
+          throw UI.t("invalid_characters");
         } else if (seed.length < 60) {
           if (connection.allowShortSeedLogin) {
             _seedError = UI.t("seed_not_secure");

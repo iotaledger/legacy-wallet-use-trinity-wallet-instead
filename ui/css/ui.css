@@ -1828,7 +1828,7 @@ input[type="number"] {
   font-size: 20px;
 }
 
-#transition-description, #transition-balance, #transition-succeeded {
+#transition-description, #transition-balance, #transition-succeeded, #transition-new-seed-description {
   background:#efefef;
   padding:10px;
 }

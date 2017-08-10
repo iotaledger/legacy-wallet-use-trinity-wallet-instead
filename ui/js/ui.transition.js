@@ -116,15 +116,19 @@ var UI = (function(UI, $, undefined) {
         if (newSeed != newSeedConfirmation) {
           throw "Seeds do not match";
         }
+
+        while (newSeed.length < 81) {
+          newSeed += "9";
+        }
+
+        if (newSeed == _seed) {
+          throw "Same as previous seed";
+        }
       } catch (err) {
         console.log(err);
         $("#transition-balance-btn").loadingError(err);
         $("#transition-new-seed").focus();
         return;
-      }
-
-      while (newSeed.length < 81) {
-        newSeed += "9";
       }
 
       $(".remodal-close").on("click", function(e) {
@@ -211,9 +215,11 @@ var UI = (function(UI, $, undefined) {
           "port": connection.port
         });
 
-        oldIota.api.attachToTangle = localAttachToTangle;
-        oldIota.api.interruptAttachingToTangle = localInterruptAttachingToTangle;
-
+        if (connection.lightWallet) {
+          oldIota.api.attachToTangle = localAttachToTangle;
+          oldIota.api.interruptAttachingToTangle = localInterruptAttachingToTangle;
+        }
+        
         checkSeedBalance(_seed, function(error, totalBalance) {
           if (error) {
             $("#search-address-space-btn").loadingError(error);
@@ -293,7 +299,7 @@ var UI = (function(UI, $, undefined) {
     if (!seed) {
       throw UI.t("seed_is_required");
     } else if (seed.match(/[^A-Z9]/) || seed.match(/^[9]+$/)) {
-      throw UI.t("invalid_seed");
+      throw UI.t("invalid_characters");
     } else if (seed.length < 60) {
       if (!connection.allowShortSeedLogin) {
         throw UI.t("seed_too_short");
