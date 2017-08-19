@@ -1,19 +1,10 @@
 const ipcRenderer = require("electron").ipcRenderer;
 const clipboard   = require("electron").clipboard;
 
-var ccurl = false;
-
+var curllibjs = require('curl.lib.js');
 var isLightWallet = require("electron").remote.getGlobal("lightWallet");
 
 //only load for light wallets
-if (isLightWallet) {
-  try {
-    ccurl = require("./ccurl-interface");
-  } catch (err) {
-    ccurl = false;
-    console.log(err);
-  }
-}
 
 ipcRenderer.on("showNodeInfo", function() {
   if (typeof(UI) != "undefined") {
@@ -135,9 +126,10 @@ ipcRenderer.on("updateSettings", function(event, settings) {
 
 ipcRenderer.on("stopCcurl", function(event, callback) {
   console.log("in stopCcurl renderer"); 
-  if (ccurl && connection.ccurlProvider) {
-    console.log("calling ccurlInterruptAndFinalize with " + connection.ccurlProvider);
-    ccurl.ccurlInterruptAndFinalize(connection.ccurlProvider);
+  if (curl) {
+    console.log("calling curlInterruptAndFinalize with " + curl);
+    curl.interrupt();
+    curl.remove();
   }
 
   console.log("Calling relaunchApplication");
@@ -201,8 +193,5 @@ process.once("loaded", function() {
   global.clearSeedFromClipboard = _clearSeedFromClipboard;
   global.finishedTransitioningToKeccak = _finishedTransitioningToKeccak;
 
-  if (typeof(ccurl) != "undefined") {
-    global.ccurl = ccurl;
-  }
   //global.logUINotification = _logUINotification;
 });

@@ -28,7 +28,6 @@
     "url": "https://github.com/iotaledger/wallet"
   },
   "dependencies": {
-    "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
     "glob": "^7.1.2",
     "i18next": "^8.4.2",
@@ -52,7 +51,6 @@
     "appId": "com.iotatoken.wallet-testnet",
     "extraResources": [
       "iri/iri-testnet.jar",
-      "ccurl/**/*",
       "ui/**/*",
       "locales/**/*"
     ],

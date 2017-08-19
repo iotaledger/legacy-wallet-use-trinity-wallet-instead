@@ -202,7 +202,6 @@ var UI = (function(UI, $, undefined) {
         "port": connection.port,
         "depth": connection.depth,
         "minWeightMagnitude": connection.minWeightMagnitude,
-        "ccurlPath": connection.ccurlPath,
         "language": connection.language,
         "allowShortSeedLogin": connection.allowShortSeedLogin ? 1 : 0,
         "interrupt": 1,
