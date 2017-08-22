@@ -64,7 +64,7 @@ var UI = (function(UI, $, undefined) {
 
       UI.isDoingPOW = true;
 
-      iota.api.getInputs(connection.seed, {"treshold": amount}, function (error, inputs) {
+      iota.api.getInputs(connection.seed, {"threshold": amount}, function (error, inputs) {
         if (error) {
           UI.isDoingPOW = false;
           UI.formError("transfer", error, {"initial": "send_it_now"});
