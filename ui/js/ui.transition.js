@@ -4,7 +4,7 @@ var UI = (function(UI, $, undefined) {
   var _modal;
   var _inputs;
   var _startIndex = 0;
-  var _endIndex   = 49;
+  var _endIndex   = 50;
   var _seed;
   var _totalBalance = 0;
 
@@ -62,8 +62,8 @@ var UI = (function(UI, $, undefined) {
     $("#transition-balance-incomplete-btn").on("click", function(e) {
       $("#transition-balance-complete-btn").addClass("btn-disabled").attr("disabled", "disabled");
 
-      _startIndex = _endIndex + 1;
-      _endIndex   = _startIndex + 49;
+      _startIndex = _endIndex;
+      _endIndex   = _startIndex + 50;
 
       $(".remodal-close").on("click", function(e) {
         UI.notify("error", "cannot_close_whilst_transitioning");
@@ -80,7 +80,7 @@ var UI = (function(UI, $, undefined) {
           $("#transition-balance").hide();
           $("#transition-balance-incomplete-btn").loadingError(error);
         } else {
-          $("#transition-balance").html(UI.t("balance") + " (" + (_endIndex+1) + " " + UI.t("addresses") + "): " + UI.formatAmount(totalBalance)).show();
+          $("#transition-balance").html(UI.t("balance") + " (" + (_endIndex) + " " + UI.t("addresses") + "): " + UI.formatAmount(totalBalance)).show();
           $("#transition-balance-incomplete-btn").loadingReset("balance_is_incomplete");
           $("#transition-balance-complete-btn").removeClass("btn-disabled").removeAttr("disabled");
         }
@@ -228,7 +228,7 @@ var UI = (function(UI, $, undefined) {
             $("#transition-seed").val("");
             $("#transition-phase-2-group").fadeIn();
             $("#transition-phase-1-group").hide();
-            $("#transition-balance").html(UI.t("balance") + " (" + (_endIndex+1) + " " + UI.t("addresses") + "): " + UI.formatAmount(totalBalance)).show();
+            $("#transition-balance").html(UI.t("balance") + " (" + (_endIndex) + " " + UI.t("addresses") + "): " + UI.formatAmount(totalBalance)).show();
           }
 
           $(".remodal-close").off("click");
@@ -288,7 +288,7 @@ var UI = (function(UI, $, undefined) {
 
     _inputs     = [];
     _startIndex = 0;
-    _endIndex   = 49;
+    _endIndex   = 50;
     _seed       = "";
     _totalBalance = 0;
   }
