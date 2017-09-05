@@ -7,8 +7,6 @@ var UI = (function(UI, $, undefined) {
     $("#transfer-btn").on("click", function(e) {    
       console.log("UI.handleTransfers: Click");
 
-      doubleSpend = {};
-
       if ($("#transfer-autofill").val() == "1") {
         UI.formError("transfer", "are_you_sure", {"initial": "yes_send_now"});
         $("#transfer-autofill").val("0");
@@ -88,6 +86,8 @@ var UI = (function(UI, $, undefined) {
 
           var stop = false;
 
+          var bundlesToCheck = [];
+
           $.each(transactions, function(i, transaction) {
             if (transaction.value < 0) {
               stop = true;
@@ -95,23 +95,16 @@ var UI = (function(UI, $, undefined) {
             }
           });
 
-          var transfers = [{"address": address, "value": amount, "message": "", "tag": tag}];
-          var options   = {"inputs": inputs.inputs};
-
           if (stop) {
-            console.log("Double spend!");
-            $("#transfer-btn .progress").hide();
-            $("body").css("cursor", "default");
-
             UI.isDoingPOW = false;
-            doubleSpend = {"transfers": transfers, "options": options};
-            
-            modal = $("#double-spend-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
+            UI.formError("transfer", "key_reuse_error", {"initial": "send_it_now"});
+
+            modal = $("#key-reuse-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
             modal.open();
             return;
           }
-          
-          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, transfers, options, function(error, transfers) {
+
+          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], {"inputs": inputs.inputs}, function(error, transfers) {
             UI.isDoingPOW = false;
             if (error) {
               console.log(error);
@@ -127,42 +120,9 @@ var UI = (function(UI, $, undefined) {
       });
     });
 
-    $("#double-spend-btn").on("click", function(e) {
-      $("#transfer-btn .progress").show();
-      $("body").css("cursor", "progress");
-
-      UI.isDoingPOW = true;
-
-      iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, doubleSpend.transfers, doubleSpend.options, function(error, transfers) {
-        UI.isDoingPOW = false;
-        if (error) {
-          console.log(error);
-          UI.formError("transfer", error, {"initial": "send_it_now"});
-        } else {
-          console.log("UI.handleTransfers: Success");
-          UI.formSuccess("transfer", "transfer_completed", {"initial": "send_it_now"});
-          UI.updateState(1000);
-        }
-        $stack.removeClass("loading");
-      });
-
+    $("#key-reuse-close-btn").on("click", function(e) {
       modal.close();
-    });
-
-    $("#double-spend-cancel-btn").on("click", function(e) {
-      modal.close();
-    });
-
-    $(document).on("closed", "#double-spend-modal", function (e) {
-      doubleSpend = {};
-
-      $("#double-spend-btn").loadingReset("yes_send_now");
-      $("#double-spend-cancel-btn").loadingReset("no_cancel");
-
-      if (!UI.isDoingPOW) {
-        $("#transfer-btn").loadingReset("send_it_now");
-        $stack.removeClass("loading");
-      }
+      $("#key-reuse-close-btn").loadingReset("close");
     });
 
     $("#transfer-units-value").on("click", function(e) {

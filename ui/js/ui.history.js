@@ -175,18 +175,10 @@ var UI = (function(UI, $, undefined) {
 
     var transfersHtml = addressesHtml = "";
 
+    var spentAddresses = [];
+
     if (connection.accountData) {
       var addresses = iota.utils.addChecksum(connection.accountData.addresses).reverse();
-
-      $.each(addresses, function(i, address) {
-        addressesHtml += "<li>";
-        addressesHtml += "<div class='details'>";
-        addressesHtml += "<div class='address'>" + UI.formatForClipboard(address) + "</div>";
-        addressesHtml += "</div>";
-        addressesHtml += "<div class='value'></div>";
-        addressesHtml += "</div>";
-        addressesHtml += "</li>";
-      });
 
       var categorizedTransfers = iota.utils.categorizeTransfers(connection.accountData.transfers, connection.accountData.addresses);
 
@@ -205,8 +197,12 @@ var UI = (function(UI, $, undefined) {
 
         var address = "";
 
-         $.each(bundle, function(i, item) {
+        $.each(bundle, function(i, item) {
           var isOurAddress = connection.accountData.addresses.indexOf(item.address) != -1;
+
+          if (isSent && isOurAddress && spentAddresses.indexOf(item.address) == -1) {
+            spentAddresses.push(item.address);
+          }
 
           if (!address) {
             if (!isSent && isOurAddress) {
@@ -246,6 +242,16 @@ var UI = (function(UI, $, undefined) {
         transfersHtml += "</li>";
       });
     }
+
+    $.each(addresses, function(i, address) {
+      addressesHtml += "<li>";
+      addressesHtml += "<div class='details'>";
+      addressesHtml += "<div class='address'" + (spentAddresses.indexOf(iota.utils.noChecksum(address)) != -1 ? " style='text-decoration:line-through'" : "") + ">" + UI.formatForClipboard(address) + "</div>";
+      addressesHtml += "</div>";
+      addressesHtml += "<div class='value'></div>";
+      addressesHtml += "</div>";
+      addressesHtml += "</li>";
+    });
 
     var nrTransfers = parseInt(connection.accountData.transfers.length, 10);
     var nrAddresses = parseInt(connection.accountData.addresses.length, 10);

@@ -330,5 +330,7 @@
   "cannot_close_whilst_transitioning": "Cannot close whilst transitioning.",
   "enter_new_seed": "Enter New Seed",
   "new_seed": "New Seed",
-  "new_seed_confirmation": "New Seed Confirmation"
+  "new_seed_confirmation": "New Seed Confirmation",
+  "key_reuse_error": "Key Reuse Error",
+  "key_reuse_attempt": "You are attempting to sign a transaction with input that have an already been used. IOTA uses Winternitz one-time signature (W-OTS) scheme, due to it's `one-time` nature, the security of funds in an address decreases rapidly if you re-sign new transactions using the same key. Please wait for previous transaction to confirm, before sending another transaction."
 }
