@@ -147,11 +147,18 @@
   <div class="contents"></div>
 </div>
 
-<div id="key-reuse-warning-modal" class="modal" data-remodal-id="double-spend">
+<div id="key-reuse-modal" class="modal" data-remodal-id="key-reuse">
   <button data-remodal-action="close" class="remodal-close"></button>
   <h1 data-i18n="key_reuse_error"></h1>
   <div class="contents"><p data-i18n="key_reuse_attempt"></p></div>
-  <button id="key-reuse-close-btn" data-remodal-action="close" type="button" class="btn" data-initial="close" data-loading="closing" data-i18n="close"></button>
+  <button id="key-reuse-close-btn" type="button" class="btn" data-initial="close" data-loading="closing" data-i18n="close"></button>
+</div>
+
+<div id="sent-to-key-reuse-modal" class="modal" data-remodal-id="sent-to-key-reuse">
+  <button data-remodal-action="close" class="remodal-close"></button>
+  <h1 data-i18n="sent_to_key_reuse_error"></h1>
+  <div class="contents"><p data-i18n="sent_to_key_reuse_attempt"></p></div>
+  <button id="sent-to-key-reuse-close-btn" type="button" class="btn" data-initial="close" data-loading="closing" data-i18n="close"></button>
 </div>
 
 <div id="paste-trytes-modal" class="modal" data-remodal-id="paste-trytes">

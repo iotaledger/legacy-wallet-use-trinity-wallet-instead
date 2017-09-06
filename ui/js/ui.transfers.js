@@ -4,7 +4,7 @@ var UI = (function(UI, $, undefined) {
   UI.handleTransfers = function() {
     $stack = $("#transfer-stack");
 
-    $("#transfer-btn").on("click", function(e) {    
+    $("#transfer-btn").on("click", function(e) {
       console.log("UI.handleTransfers: Click");
 
       if ($("#transfer-autofill").val() == "1") {
@@ -73,7 +73,7 @@ var UI = (function(UI, $, undefined) {
           UI.formError("transfer", "key_reuse_error", {"initial": "send_it_now"});
           modal = $("#key-reuse-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
           modal.open();
-         return;
+          return;
         } else if (inputs.totalBalance < amount) {
           UI.isDoingPOW = false;
           UI.formError("transfer", "not_enough_balance", {"initial": "send_it_now"});
@@ -81,17 +81,18 @@ var UI = (function(UI, $, undefined) {
           return;
         }
 
-        var outputsToCheck = transfer.map(transfer => { return {address: transfer.address}});
+        var transfers = [{"address": address, "value": amount, "message": "", "tag": tag}];
+        var outputsToCheck = transfers.map(transfer => { return {address: iota.utils.noChecksum(transfer.address)}});
         var exptectedOutputsLength = outputsToCheck.length;
         filterSpentAddresses(outputsToCheck).then(filtered => {
           if (filtered.length !== exptectedOutputsLength) {
             UI.isDoingPOW = false;
             UI.formError("transfer", "sent_to_key_reuse_error", {"initial": "send_it_now"});
-            modal = $("#sent-to-key-reuse-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
+            modal = $("#sent-to-key-reuse-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
             modal.open();
             return;
           }
-          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], {"inputs": inputs.inputs}, function(error, transfers) {
+          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, transfers, {"inputs": inputs.inputs}, function(error, transfers) {
           UI.isDoingPOW = false;
           if (error) {
             console.log(error);
@@ -113,16 +114,21 @@ var UI = (function(UI, $, undefined) {
       $("#key-reuse-close-btn").loadingReset("close");
     });
 
+    $("#sent-to-key-reuse-close-btn").on("click", function(e) {
+      modal.close();
+      $("#sent-to-key-reuse-close-btn").loadingReset("close");
+    });
+
     $("#transfer-units-value").on("click", function(e) {
       var $overlay = $("#overlay");
-      var $select = $('<div class="dropdown" id="transfer-units-select">' + 
-                        '<ul>' + 
-                          '<li class="iota-i">i</li>' + 
-                          '<li class="iota-ki">Ki</li>' + 
-                          '<li class="iota-mi">Mi</li>' + 
-                          '<li class="iota-gi">Gi</li>' + 
-                          '<li class="iota-ti">Ti</li>' + 
-                        '</ul>' + 
+      var $select = $('<div class="dropdown" id="transfer-units-select">' +
+                        '<ul>' +
+                          '<li class="iota-i">i</li>' +
+                          '<li class="iota-ki">Ki</li>' +
+                          '<li class="iota-mi">Mi</li>' +
+                          '<li class="iota-gi">Gi</li>' +
+                          '<li class="iota-ti">Ti</li>' +
+                        '</ul>' +
                       '</div>');
 
       $overlay.show();
@@ -175,7 +181,7 @@ var UI = (function(UI, $, undefined) {
       $("body").on("click.dropdown", function(e) {
         $ul.removeClass("active");
         $("body").unbind("click.dropdown");
-      }); 
+      });
     });
   }
 
@@ -266,4 +272,3 @@ function getUnspentInputs(seed, start, threshold, inputs, cb) {
     }).catch(err => cb(err))
   })
 }
-
