@@ -80,8 +80,8 @@ var UI = (function(UI, $, undefined) {
           $stack.removeClass("loading");
           return;
         }
-
-        var outputsToCheck = transfer.map(transfer => { return {address: transfer.address}});
+	var transfers = [{"address": address, "value": amount, "message": "", "tag": tag}];
+        var outputsToCheck = transfers.map(transfer => { return {address: transfer.address}});
         var exptectedOutputsLength = outputsToCheck.length;
         filterSpentAddresses(outputsToCheck).then(filtered => {
           if (filtered.length !== exptectedOutputsLength) {
@@ -91,7 +91,7 @@ var UI = (function(UI, $, undefined) {
             modal.open();
             return;
           }
-          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], {"inputs": inputs.inputs}, function(error, transfers) {
+          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, transfers, {"inputs": inputs.inputs}, function(error, transfers) {
           UI.isDoingPOW = false;
           if (error) {
             console.log(error);
