@@ -62,60 +62,36 @@ var UI = (function(UI, $, undefined) {
 
       UI.isDoingPOW = true;
 
-      iota.api.getInputs(connection.seed, {"treshold": amount}, function (error, inputs) {
+      getUnspentInputs(connection.seed, 0, amount, function(error, inputs) {
         if (error) {
           UI.isDoingPOW = false;
           UI.formError("transfer", error, {"initial": "send_it_now"});
           $stack.removeClass("loading");
           return;
-        } 
+        } else if (inputs.inputs.length == 0) {
+          UI.isDoingPOW = false;
+          UI.formError("transfer", "key_reuse_error", {"initial": "send_it_now"});
+          modal = $("#key-reuse-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
+          modal.open();
+          return;
+        } else if (inputs.totalBalance < amount) {
+          UI.isDoingPOW = false;
+          UI.formError("transfer", "not_enough_balance", {"initial": "send_it_now"});
+          $stack.removeClass("loading");
+          return;
+        }
 
-        var addresses = [];
-
-        $.each(inputs.inputs, function(i, input) {
-          addresses.push(input.address);
-        });
-
-        iota.api.findTransactionObjects({"addresses": addresses}, function(error, transactions) {
+        iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], {"inputs": inputs.inputs}, function(error, transfers) {
+          UI.isDoingPOW = false;
           if (error) {
-            UI.isDoingPOW = false;
+            console.log(error);
             UI.formError("transfer", error, {"initial": "send_it_now"});
-            $stack.removeClass("loading");
-            return;
+          } else {
+            console.log("UI.handleTransfers: Success");
+            UI.formSuccess("transfer", "transfer_completed", {"initial": "send_it_now"});
+            UI.updateState(1000);
           }
-
-          var stop = false;
-
-          var bundlesToCheck = [];
-
-          $.each(transactions, function(i, transaction) {
-            if (transaction.value < 0) {
-              stop = true;
-              return false;
-            }
-          });
-
-          if (stop) {
-            UI.isDoingPOW = false;
-            UI.formError("transfer", "key_reuse_error", {"initial": "send_it_now"});
-
-            modal = $("#key-reuse-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
-            modal.open();
-            return;
-          }
-
-          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], {"inputs": inputs.inputs}, function(error, transfers) {
-            UI.isDoingPOW = false;
-            if (error) {
-              console.log(error);
-              UI.formError("transfer", error, {"initial": "send_it_now"});
-            } else {
-              console.log("UI.handleTransfers: Success");
-              UI.formSuccess("transfer", "transfer_completed", {"initial": "send_it_now"});
-              UI.updateState(1000);
-            }
-            $stack.removeClass("loading");
-          });
+          $stack.removeClass("loading");
         });
       });
     });
@@ -199,3 +175,84 @@ var UI = (function(UI, $, undefined) {
 
   return UI;
 }(UI || {}, jQuery));
+
+function filterSpentInputs(inputs) {
+  return new Promise((resolve, reject) => {
+    iota.api.findTransactionObjects({addresses: inputs.map(input => input.address)}, (err, txs) => {
+      if (err) {
+        reject(err)
+      }
+      txs = txs.filter(tx => tx.value < 0)
+      var bundleHashes = txs.map(tx => tx.bundle)
+      if (txs.length > 0) {
+        var bundles = txs.map(tx => tx.bundle)
+        iota.api.findTransactionObjects({bundles: bundles}, (err, txs) => {
+          if (err) {
+            reject(err)
+          }
+          var hashes = txs.filter(tx => tx.currentIndex === 0)
+          var allBundleHashes = txs.map(tx => tx.bundle) 
+          hashes = hashes.map(tx => tx.hash)
+          iota.api.getLatestInclusion(hashes, (err, states) => { 
+            if (err) {
+              reject(err)
+            }
+            if (states.indexOf(false) === -1) {
+              resolve([])
+            }
+            var confirmedHashes = hashes.filter((hash, i) => states[i])
+            var unconfirmedHashes = hashes.filter(hash => confirmedHashes.indexOf(hash) === -1).map(hash => { 
+              return { hash: hash, validate: true }
+            })
+            var getBundles = confirmedHashes.concat(unconfirmedHashes).map(hash => new Promise((resolve, reject) => {
+                iota.api.traverseBundle(typeof hash == 'string' ? hash : hash.hash, null, [], (err, bundle) => {
+                if (err) {
+                  reject(err)
+                }
+                resolve(typeof hash === 'string' ? bundle : {bundle: bundle, validate: true})
+              })
+            }))
+            Promise.all(getBundles).then(bundles => {
+              bundles = bundles.filter(bundle => {    
+                if (bundle.validate) {
+                  return iota.utils.isBundle(bundle.bundle)
+                }
+                return true
+              }).map(bundle => bundle.hasOwnProperty('validate') ? bundle.bundle : bundle)
+              var blacklist = bundles.reduce((a, b) => a.concat(b), []).filter(tx => tx.value < 0).map(tx => tx.address) 
+              resolve(inputs.filter(input => blacklist.indexOf(input.address) === -1))
+            }).catch(err => reject(err))
+          })
+        })
+      }
+      else {
+        resolve(inputs);
+      }
+    })
+  })
+}
+
+function getUnspentInputs(seed, start, threshold, inputs, cb) {
+  if (arguments.length === 4) {
+    cb = arguments[3]
+    inputs = {inputs: [], totalBalance: 0}
+  }
+
+  iota.api.getInputs(seed, {start: start, threshold: threshold}, (err, res) => {
+    if (err) {
+      cb(err)
+      return
+    }
+    filterSpentInputs(res.inputs).then(filtered => {
+      var collected = filtered.reduce((sum, input) => sum + inputs.value, 0)
+      var diff = threshold - collected
+      if (diff > 0 && filtered.length) {
+        var end = filtered.sort((a, b) => {a.keyIndex - b.keyIndex}).reverse()[0]
+        getUnspentInputs(seed, end + 1, diff, inputs, cb) // is +1 needed ?
+      }
+      else {
+        cb(null, {inputs: inputs.inputs.concat(filtered), totalBalance: collected})
+      }
+    }).catch(err => cb(err))
+  })
+}
