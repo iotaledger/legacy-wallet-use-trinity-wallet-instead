@@ -73,7 +73,7 @@ var UI = (function(UI, $, undefined) {
           UI.formError("transfer", "key_reuse_error", {"initial": "send_it_now"});
           modal = $("#key-reuse-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
           modal.open();
-          return;
+         return;
         } else if (inputs.totalBalance < amount) {
           UI.isDoingPOW = false;
           UI.formError("transfer", "not_enough_balance", {"initial": "send_it_now"});
@@ -81,7 +81,17 @@ var UI = (function(UI, $, undefined) {
           return;
         }
 
-        iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], {"inputs": inputs.inputs}, function(error, transfers) {
+        var outputsToCheck = transfer.map(transfer => { return {address: transfer.address}});
+        var exptectedOutputsLength = outputsToCheck.length;
+        filterSpentAddresses(outputsToCheck).then(filtered => {
+          if (filtered.length !== exptectedOutputsLength) {
+            UI.isDoingPOW = false;
+            UI.formError("transfer", "sent_to_key_reuse_error", {"initial": "send_it_now"});
+            modal = $("#sent-to-key-reuse-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
+            modal.open();
+            return;
+          }
+          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, [{"address": address, "value": amount, "message": "", "tag": tag}], {"inputs": inputs.inputs}, function(error, transfers) {
           UI.isDoingPOW = false;
           if (error) {
             console.log(error);
@@ -93,7 +103,9 @@ var UI = (function(UI, $, undefined) {
           }
           $stack.removeClass("loading");
         });
-      });
+
+        })
+       });
     });
 
     $("#key-reuse-close-btn").on("click", function(e) {
@@ -177,7 +189,7 @@ var UI = (function(UI, $, undefined) {
 }(UI || {}, jQuery));
 
 
-function filterSpentInputs(inputs) {
+function filterSpentAddresses(inputs) {
   return new Promise((resolve, reject) => {
     iota.api.findTransactionObjects({addresses: inputs.map(input => input.address)}, (err, txs) => {
       if (err) {
@@ -240,7 +252,7 @@ function getUnspentInputs(seed, start, threshold, inputs, cb) {
       cb(err)
       return
     }
-    filterSpentInputs(res.inputs).then(filtered => {
+    filterSpentAddresses(res.inputs).then(filtered => {
       var collected = filtered.reduce((sum, input) => sum + input.balance, 0)
       var diff = threshold - collected
       if (diff > 0) {
