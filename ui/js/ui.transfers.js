@@ -81,7 +81,7 @@ var UI = (function(UI, $, undefined) {
           return;
         }
 	var transfers = [{"address": address, "value": amount, "message": "", "tag": tag}];
-        var outputsToCheck = transfers.map(transfer => { return {address: transfer.address}});
+        var outputsToCheck = transfers.map(transfer => { return {address: iota.utils.noChecksum(transfer.address)}});
         var exptectedOutputsLength = outputsToCheck.length;
         filterSpentAddresses(outputsToCheck).then(filtered => {
           if (filtered.length !== exptectedOutputsLength) {
