@@ -311,8 +311,10 @@
   "request_error":"Request Error",
   "invalid_transaction_hash": "Invalid Transaction Hash",
   "seed_character_set": "Only uppercase latin letters and the number 9 are allowed.",
-  "double_spend_warning": "Double Spend Warning",
-  "double_spend_attempt": "You are attempting to spend an already used input. You should wait for your transaction to be confirmed first before attempting to make a conflicting transaction. Do you want to continue anyway?",
+  "key_reuse_error": "Error: Private Key Reuse Detected!",
+  "key_reuse_attempt": "You are attempting to sign a transaction with input that have an already been used. IOTA uses Winternitz one-time signature (W-OTS) scheme, due to it's `one-time` nature, the security of funds in an address decreases rapidly if you re-sign new transactions using the same key. Please wait for previous transaction to confirm, e.g. by reattaching, before sending sending another transaction.",
+  "sent_to_key_reuse_error": "Error: Sending to a used address!",
+  "sent_to_key_reuse_attempt": "You are attempting to send a transaction to an address that has already been used (i.e. tokens have already been spent from this address). Please ask recipient for a new address, that hasn't been spent from yet.",
   "transition": "Transition",
   "transition_description": "For the transition phase your entire balance will be moved to a newly generated address under the same seed. In order to get your balance, 50 addresses are generated at a time, all you have to do is confirm that your balance is correct. After that a new transaction is issued on the network and you can login to your account as usual and check for your balance to be confirmed.",
   "transition_another_seed": "Transition Another Seed",
@@ -330,7 +332,5 @@
   "cannot_close_whilst_transitioning": "Cannot close whilst transitioning.",
   "enter_new_seed": "Enter New Seed",
   "new_seed": "New Seed",
-  "new_seed_confirmation": "New Seed Confirmation",
-  "key_reuse_error": "Key Reuse Error",
-  "key_reuse_attempt": "You are attempting to sign a transaction with input that have an already been used. IOTA uses Winternitz one-time signature (W-OTS) scheme, due to it's `one-time` nature, the security of funds in an address decreases rapidly if you re-sign new transactions using the same key. Please wait for previous transaction to confirm, before sending another transaction."
+  "new_seed_confirmation": "New Seed Confirmation"
 }

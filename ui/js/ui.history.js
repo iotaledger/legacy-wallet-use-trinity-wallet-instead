@@ -200,7 +200,7 @@ var UI = (function(UI, $, undefined) {
         $.each(bundle, function(i, item) {
           var isOurAddress = connection.accountData.addresses.indexOf(item.address) != -1;
 
-          if (isSent && isOurAddress && spentAddresses.indexOf(item.address) == -1) {
+          if (isSent && isOurAddress  && item.value < 0 && spentAddresses.indexOf(item.address) == -1) {
             spentAddresses.push(item.address);
           }
 
