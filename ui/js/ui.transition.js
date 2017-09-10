@@ -211,7 +211,8 @@ var UI = (function(UI, $, undefined) {
           "port": connection.port
         });
 
-        oldIota.api.attachToTangle = localAttachToTangle;
+        //oldIota.api.attachToTangle = localAttachToTangle;
+        curl.overrideAttachToTangle(oldIota.api);
         oldIota.api.interruptAttachingToTangle = localInterruptAttachingToTangle;
 
         checkSeedBalance(_seed, function(error, totalBalance) {
