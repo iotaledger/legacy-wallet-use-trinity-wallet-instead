@@ -688,7 +688,7 @@ var App = (function(App, undefined) {
       });
 
       if (settings.lightWallet == 1) {
-        template[2].submenu[13].label = App.t("switch_to_full_node");
+        template[2].submenu[14].label = App.t("switch_to_full_node");
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 3);
         // Remove "network spammer and open database folder" options.

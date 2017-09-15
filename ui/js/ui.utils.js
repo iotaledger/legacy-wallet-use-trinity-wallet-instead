@@ -259,12 +259,17 @@ var UI = (function(UI, $, undefined) {
 
     if (changeNode) {
       iota.changeNode({"host": connection.host, "port": connection.port});
-
-      if (localAttachToTangle) {
-        iota.api.attachToTangle = localAttachToTangle;
+      if (oldIota) {
+        oldIota.changeNode({"host": connection.host, "port": connection.port});
       }
-      if (localInterruptAttachingToTangle) {
+
+      if (connection.lightWallet) {
+        iota.api.attachToTangle = localAttachToTangle;
         iota.api.interruptAttachingToTangle = localInterruptAttachingToTangle;
+        if (oldIota) {
+          oldIota.api.attachToTangle = localAttachToTangle;
+          oldIota.api.interruptAttachingToTangle = localInterruptAttachingToTangle;
+        }
       }
     }
 
