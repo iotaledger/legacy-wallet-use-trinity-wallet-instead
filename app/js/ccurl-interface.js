@@ -128,12 +128,16 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
         // IF there is a bundle, chain  the bundle transactions via
         // trunkTransaction together
 
+        var txObject = iotaObj.utils.transactionObject(thisTrytes);
+        txObject.tag = txObject.obsoleteTag;
+        txObject.attachmentTimestamp = Date.now();
+        txObject.attachmentTimestampLowerBound = 0;
+        txObject.attachmentTimestampUpperBound = 0xffffffffffffffff;
         // If this is the first transaction, to be processed
         // Make sure that it's the last in the bundle and then
         // assign it the supplied trunk and branch transactions
         if (!previousTxHash) {
 
-            var txObject = iotaObj.utils.transactionObject(thisTrytes);
 
             // Check if last transaction in the bundle
             if (txObject.lastIndex !== txObject.currentIndex) {
@@ -166,8 +170,6 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
             });
 
         } else {
-
-            var txObject = iotaObj.utils.transactionObject(thisTrytes);
 
             // Chain the bundle together via the trunkTransaction (previous tx in the bundle)
             // Assign the supplied trunkTransaciton as branchTransaction
