@@ -75,7 +75,7 @@ var App = (function(App, undefined) {
   App.uiIsInitialized           = false;
   App.doNodeStarted             = false;
 
-  var minWeightMagnitudeMinimum = (isTestNet ? 9 : 15);
+  var minWeightMagnitudeMinimum = (isTestNet ? 9 : 14);
   var deleteDb                  = false;
   var deleteAnyways             = false;
   var isFullScreen              = false;
@@ -1560,6 +1560,17 @@ var App = (function(App, undefined) {
 
       App.updateTitle(true);
 
+      var ccurlPath;
+
+      if (process.platform == "win32") {
+        ccurlPath = path.join(resourcesDirectory, "ccurl", "win" + (is64BitOS ? "64" : "32"));
+      } else if (process.platform == "darwin") {
+        ccurlPath = path.join(resourcesDirectory, "ccurl", "mac");
+      } else {
+        ccurlPath = path.join(resourcesDirectory, "ccurl", "lin" + (is64BitOS ? "64" : "32"));
+      }
+
+
       win.webContents.send("nodeStarted", "file://" + path.join(resourcesDirectory, "ui").replace(path.sep, "/") + "/index.html", {
           "inApp": 1,
           "showStatus": settings.showStatusBar,
@@ -1567,6 +1578,7 @@ var App = (function(App, undefined) {
           "port": (settings.lightWallet == 1 ? settings.lightWalletPort : settings.port),
           "depth": settings.depth,
           "minWeightMagnitude": settings.minWeightMagnitude,
+          "ccurlPath": ccurlPath,
           "language": settings.language,
           "allowShortSeedLogin": settings.allowShortSeedLogin,
           "keccak": (settings.keccak ? 1 : 0)

@@ -11,7 +11,8 @@ var connection = {"accountData"         : false,
                   "host"                : "http://localhost",
                   "port"                : 14265,
                   "depth"               : 3,
-                  "minWeightMagnitude"  : 15,
+                  "minWeightMagnitude"  : 14,
+                  "ccurlPath"           : null,
                   "lightWallet"         : false,
                   "allowShortSeedLogin" : false,
                   "keccak"              : false,
@@ -71,6 +72,9 @@ var UI = (function(UI, $, undefined) {
       if (params.has("minWeightMagnitude")) {
         connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
       }
+      if (params.has("ccurlPath")) {
+        connection.ccurlPath = params.get("ccurlPath");
+      }
       if (params.has("language")) {
         connection.language = params.get("language");
       }
@@ -105,21 +109,34 @@ var UI = (function(UI, $, undefined) {
 
       if (connection.host != "http://localhost") {
         connection.lightWallet = true;
-        if (!connection.inApp) {
+        if (!connection.inApp || typeof(ccurl) == "undefined" || !ccurl) {
+          if (typeof(ccurl) == "undefined") {
+            console.log("ccurl is undefined");
+          } else if (!ccurl) {
+            console.log("ccurl is false");
+          } else {
+            console.log("...");
+          }
           showLightWalletErrorMessage();
           return;
-        } 
-
-          $.getScript("js/iota.lightwallet.js").done(function() {
-            if (interruptAttachingToTangle) {
-              iota.api.interruptAttachingToTangle(function() {});
-            }
-            setTimeout(initialize, 100);
-          }).fail(function(jqxhr, settings, exception) {
-            console.log("Could not load iota.lightwallet.js");
-            console.log(exception);
-            showLightWalletErrorMessage();
-          });
+        } else {
+          connection.ccurlProvider = ccurl.ccurlProvider(connection.ccurlPath);
+          if (!connection.ccurlProvider) {
+            console.log("Did not get ccurlProvider from " + connection.ccurlPath);
+            return;
+          }
+        }
+        // Overwrite iota lib with light wallet functionality
+        $.getScript("js/iota.lightwallet.js").done(function() {
+          if (interruptAttachingToTangle) {
+            iota.api.interruptAttachingToTangle(function() {});
+          }
+          setTimeout(initialize, 100);
+        }).fail(function(jqxhr, settings, exception) {
+          console.log("Could not load iota.lightwallet.js");
+          alert(exception);
+          showLightWalletErrorMessage();
+        });
       } else {
         if (interruptAttachingToTangle) {
           iota.api.interruptAttachingToTangle(function() {});
