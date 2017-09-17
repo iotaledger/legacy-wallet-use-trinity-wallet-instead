@@ -123,8 +123,8 @@ var UI = (function(UI, $, undefined) {
         if (connection.minWeightMagnitude < 9) {
           connection.minWeightMagnitude = 9;
         }
-      } else if (connection.minWeightMagnitude < 15) {
-        connection.minWeightMagnitude = 15;
+      } else if (connection.minWeightMagnitude < 14) {
+        connection.minWeightMagnitude = 14;
       }
       if (connection.inApp && connection.lightWallet) {
         updateAppInfo({"name": connection.nodeInfo.appName, "version": connection.nodeInfo.appVersion, "testnet": connection.testNet});

@@ -11,7 +11,7 @@ var connection = {"accountData"         : false,
                   "host"                : "http://localhost",
                   "port"                : 14265,
                   "depth"               : 3,
-                  "minWeightMagnitude"  : 15,
+                  "minWeightMagnitude"  : 14,
                   "ccurlPath"           : null,
                   "lightWallet"         : false,
                   "allowShortSeedLogin" : false,
@@ -134,6 +134,7 @@ var UI = (function(UI, $, undefined) {
           setTimeout(initialize, 100);
         }).fail(function(jqxhr, settings, exception) {
           console.log("Could not load iota.lightwallet.js");
+          alert(exception);
           showLightWalletErrorMessage();
         });
       } else {

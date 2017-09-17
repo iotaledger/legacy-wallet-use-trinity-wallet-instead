@@ -8,7 +8,10 @@ var isLightWallet = require("electron").remote.getGlobal("lightWallet");
 //only load for light wallets
 if (isLightWallet) {
   try {
-    global.libcurl = require('curl.lib.js');
+    const libcurl = require('curl.lib.js');
+    if(!libcurl.init()) {
+      global.libcurl = libcurl;
+    }
     ccurl = require("./ccurl-interface");
   } catch (err) {
     ccurl = false;

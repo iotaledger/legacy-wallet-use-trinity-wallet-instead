@@ -1,8 +1,6 @@
 var localInterruptAttachingToTangle = function(callback) {
     console.log("Light Wallet: localInterruptAttachingToTangle");
 
-    //curl.interrupt();
-    //
     if(!libcurl) {
       ccurl.ccurlInterrupt(connection.ccurlProvider);
     } else {
