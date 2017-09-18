@@ -228,7 +228,7 @@ var UI = (function(UI, $, undefined) {
         transfersHtml += "<li data-hash='" + UI.format(bundle[0].hash) + "' data-type='" + (isSent ? "spending" : "receiving") + "' data-persistence='" + UI.format(persistence*1) + "'>";
         transfersHtml += "<div class='type'><i class='fa fa-arrow-circle-" + (isSent ? "left" : "right") + "'></i></div>";
         transfersHtml += "<div class='details'>";
-        transfersHtml += "<div class='date'>" + (bundle[0].timestamp != "0" ? UI.formatDate(bundle[0].timestamp, true) : UI.t("genesis")) + "</div>";
+        transfersHtml += "<div class='date'>" + (bundle[0].attachmentTimestamp != "0" ? UI.formatDate(bundle[0].attachmentTimestamp, true) : UI.t("genesis")) + "</div>";
         transfersHtml += "<div class='address'>" + (address ? UI.formatForClipboard(iota.utils.addChecksum(address)) : "/") + "</div>";
         transfersHtml += "<div class='action'>";
         if (tags.length) {
