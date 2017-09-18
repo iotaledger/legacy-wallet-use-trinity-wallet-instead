@@ -161,6 +161,13 @@
   <button id="sent-to-key-reuse-close-btn" type="button" class="btn" data-initial="close" data-loading="closing" data-i18n="close"></button>
 </div>
 
+<div id="not-enough-available-inputs-modal" class="modal" data-remodal-id="not-enough-available-inputs">
+  <button data-remodal-action="close" class="remodal-close"></button>
+  <h1 data-i18n="not_enough_available_inputs_error"></h1>
+  <div class="contents"><p data-i18n="not_enough_available_inputs_attempt"></p></div>
+  <button id="not-enough-available-inputs-close-btn" type="button" class="btn" data-initial="close" data-loading="closing" data-i18n="close"></button>
+</div>
+
 <div id="paste-trytes-modal" class="modal" data-remodal-id="paste-trytes">
   <button data-remodal-action="close" class="remodal-close"></button>
   <h1 data-i18n="paste_trytes"></h1>
@@ -192,7 +199,7 @@
   <div class="contents">
     <div id="transition-phase-1-group">
       <p id="transition-description" data-i18n="transition_description"></p>
-      <div class='input-group'><label data-i18n="seed"></label> 
+      <div class='input-group'><label data-i18n="seed"></label>
       <input type='password' name='seed' id='transition-seed' placeholder='Seed of Account' value='' /></div>
       <button id="search-address-space-btn" type="button" class="btn btn-no-progress-bar" data-initial="search_address_space" data-loading="searching" data-i18n="search_address_space"></button>
     </div>
@@ -203,9 +210,9 @@
     </div>
     <div id="transition-phase-3-group">
       <p id="transition-new-seed-description" data-i18n="enter_new_seed"></p>
-      <div class='input-group'><label data-i18n="new_seed"></label> 
+      <div class='input-group'><label data-i18n="new_seed"></label>
       <input type='password' name='new-seed' id='transition-new-seed' placeholder='New Seed' value='' /></div>
-      <div class='input-group'><label data-i18n="new_seed_confirmation"></label> 
+      <div class='input-group'><label data-i18n="new_seed_confirmation"></label>
       <input type='password' name='new-seed-confirmation' id='transition-new-seed-confirmation' placeholder='New Seed Confirmation' value='' /></div>
       <button id="transition-balance-btn" type="button" class="btn btn-no-progress-bar" data-initial="transition" data-loading="transitioning" data-i18n="transition"></button>
     </div>

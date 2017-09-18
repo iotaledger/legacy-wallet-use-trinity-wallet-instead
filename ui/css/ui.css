@@ -71,7 +71,7 @@ body {
   overflow: hidden;
   display: inline-block;
   vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4,end) 2000ms infinite;      
+  -webkit-animation: ellipsis steps(4,end) 2000ms infinite;
   animation: ellipsis steps(4,end) 2000ms infinite;
   content: "\2026";
   width: 0px;
@@ -79,13 +79,13 @@ body {
 
 @keyframes ellipsis {
   to {
-    width: 1.25em;    
+    width: 1.25em;
   }
 }
 
 @-webkit-keyframes ellipsis {
   to {
-    width: 1.25em;    
+    width: 1.25em;
   }
 }
 
@@ -340,13 +340,13 @@ hr {
   background: #000;
 }
 
-#login-password-wrapper { 
-  position: relative; 
+#login-password-wrapper {
+  position: relative;
 }
 
 #login-checksum {
-  position: absolute; 
-  top: 25px; 
+  position: absolute;
+  top: 25px;
   right: 15px;
   color: gray;
   background: #fff;
@@ -836,7 +836,7 @@ hr {
   color: #caffb0;
 }
 
-#rebroadcast-btn, #reattach-btn, #key-reuse-modal, #sent-to-key-reuse-modal, #double-spend-cancel-btn, #transition-restart-btn, #transition-stop-btn, #transition-balance-complete-btn, #transition-balance-incomplete-btn {
+#rebroadcast-btn, #reattach-btn, #key-reuse-modal, #sent-to-key-reuse-modal, #double-spend-cancel-btn, #not-enough-vailable-inputs-modal, #transition-restart-btn, #transition-stop-btn, #transition-balance-complete-btn, #transition-balance-incomplete-btn {
   margin-top: 10px;
 }
 
@@ -880,7 +880,7 @@ hr {
 
 #help .sections {
   list-style-type: none;
-  margin: 0; 
+  margin: 0;
   padding: 0;
 }
 
@@ -1031,7 +1031,7 @@ dt, dd {
 
 #overlay {
   position: absolute;
-  top: 0; 
+  top: 0;
   left: 0;
   bottom: 0;
   right: 0;
@@ -1442,7 +1442,7 @@ input[type="number"] {
   #generate-address-qr-code {
     height: 120px;
   }
-  
+
   .stack .submenu {
     top: 15px;
     right: 15px;
@@ -1815,7 +1815,7 @@ input[type="number"] {
   padding: 0;
   display: block;
 }
- 
+
 #transition-modal input {
   box-sizing: border-box;
   width: 100%;
