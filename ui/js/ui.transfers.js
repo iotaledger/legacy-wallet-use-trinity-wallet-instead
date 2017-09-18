@@ -73,11 +73,17 @@ var UI = (function(UI, $, undefined) {
           UI.formError("transfer", "key_reuse_error", {"initial": "send_it_now"});
           modal = $("#key-reuse-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
           modal.open();
-          return;
+         return;
         } else if (inputs.totalBalance < amount) {
           UI.isDoingPOW = false;
-          UI.formError("transfer", "not_enough_balance", {"initial": "send_it_now"});
-          $stack.removeClass("loading");
+          if (inputs.allBalance < ammout) {
+            UI.formError("transfer", "not_enough_balance", {"initial": "send_it_now"});
+            $stack.removeClass("loading");
+          } else {
+            UI.formError("transfer", "not_enough_available_inputs", {"initial": "send_it_now"});
+            modal = $("#not-enough-available-inputs-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
+            modal.open();
+          }
           return;
         }
 
@@ -112,6 +118,11 @@ var UI = (function(UI, $, undefined) {
     $("#key-reuse-close-btn").on("click", function(e) {
       modal.close();
       $("#key-reuse-close-btn").loadingReset("close");
+    });
+
+    $("#not-enough-available-inputs-close-btn").on("click", function(e) {
+      modal.close();
+      $("#not-enough-available-inputs-close-btn").loadingReset("close");
     });
 
     $("#sent-to-key-reuse-close-btn").on("click", function(e) {
@@ -251,24 +262,26 @@ function filterSpentAddresses(inputs) {
 function getUnspentInputs(seed, start, threshold, inputs, cb) {
   if (arguments.length === 4) {
     cb = arguments[3]
-    inputs = {inputs: [], totalBalance: 0}
+    inputs = {inputs: [], totalBalance: 0, allBalance: 0}
   }
   iota.api.getInputs(seed, {start: start, threshold: threshold}, (err, res) => {
     if (err) {
       cb(err)
       return
     }
+    inputs.allBalance += res.inputs.reduce((sum, input) => sum + input.balance, 0)
     filterSpentAddresses(res.inputs).then(filtered => {
       var collected = filtered.reduce((sum, input) => sum + input.balance, 0)
       var diff = threshold - collected
       if (diff > 0) {
         var ordered = res.inputs.sort((a, b) => a.keyIndex - b.keyIndex).reverse()
         var end = ordered[0].keyIndex
-        getUnspentInputs(seed, end + 1, diff, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected}, cb)
+        getUnspentInputs(seed, end + 1, diff, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance}, cb)
       }
       else {
-        cb(null, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected})
+        cb(null, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance})
       }
     }).catch(err => cb(err))
   })
 }
+
