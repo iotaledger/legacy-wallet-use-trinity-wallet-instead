@@ -518,12 +518,22 @@ var UI = (function(UI, undefined) {
         content += "</select>";
         content += "<hr />";
         content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (!found && configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' " + (found ? " style='display:none'" : "") + " /></div>";
+
+      
       } else {
         content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' /></div>";
       }
 
       content += "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + UI.t("min_weight_magnitude") + "</label>" + 
       "<input type='number' min='" + UI.format(configuration.minWeightMagnitudeMinimum) + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + UI.format(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum) + "' /></div>";
+      content += "<hr />";
+
+      content += "<select id='server_config_curl_implementation_select'>";
+      content += "<option value='default' data-i18n='select_curl_implementation'>" + configuration.curlImplementation ? (configuration.curlImplementation === 'webgl-curl' ? UI.t("webgl_curl_implementation") : UI.t("ccurl_implementation")) : UI.t("select_curl_implementation")  + "</option>";
+      content += "<option value='webgl-curl' data-i18n='webgl_curl_implementation'>" + UI.t("webgl_curl_implementation") + "</option>";
+      content += "<option value='ccurl' data-i18n='ccurl_implementation'>" + UI.t('ccurl_implementation') + "</option>";
+      content += "</select>";
+
     } else {
       content = "<h1 data-i18n='node_config'></h1>" + 
       "<div class='input-group'><label data-i18n='node_port'>" + UI.t("node_port") + "</label>" + 
@@ -587,6 +597,20 @@ var UI = (function(UI, undefined) {
         config.lightWalletHost = res[1];
         config.lightWalletPort = res[2];
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
+
+        var selectedCurlImplementation;
+        var defaultCurlImplementation = 'webgl-curl';
+        var selectCurl = document.getElementbyId("server_config_curl_implementation_select")
+        if (selectCurl) {
+          selectedCurlImplementation = selectCurl.options[selectCurl.selectedIndex].value;
+          if (selectedCurlImplementation === 'default') {
+            selectedCurlImplementation = defaultCurlImplementation;
+          }
+        }
+        else {
+          selectedCurlImplementation = defaultCurlImplementation;
+        }
+        config.curlImplementation = selectedCurlImplementation;
       } else {
         config.port = parseInt(document.getElementById("server_config_port").value, 10);
         config.udpReceiverPort = parseInt(document.getElementById("server_config_udp_receiver_port").value, 10);
