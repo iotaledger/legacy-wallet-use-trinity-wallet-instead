@@ -189,7 +189,8 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
       });
     } else {
       console.log(newTrytes);
-      libcurl.pow({trytes: newTrytes, minWeight: minWeightMagnitude}).then(function(returnedTrytes) {
+      libcurl.pow({trytes: newTrytes, minWeight: minWeightMagnitude}).then(function(nonce) {
+        var returnedTrytes = newTrytes.substr(0, 2430).concat(nonce);
         var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
 
         // Assign the previousTxHash to this tx
