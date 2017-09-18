@@ -8,14 +8,10 @@ var isLightWallet = require("electron").remote.getGlobal("lightWallet");
 //only load for light wallets
 if (isLightWallet) {
   try {
-    const libcurl = require('curl.lib.js');
-    if(!libcurl.init()) {
-      global.libcurl = libcurl;
-    }
     ccurl = require("./ccurl-interface");
   } catch (err) {
+    alert(err);
     ccurl = false;
-    console.log(err);
   }
 }
 
@@ -142,11 +138,7 @@ ipcRenderer.on("stopCcurl", function(event, callback) {
   if (ccurl && connection.ccurlProvider) {
     console.log("calling ccurlInterruptAndFinalize with " + connection.ccurlProvider);
     ccurl.ccurlInterruptAndFinalize(connection.ccurlProvider);
-  } else if (libcurl) {
-    console.log("calling curlInterruptAndFinalize with " + curl);
-    libcurl.interrupt();
-    libcurl.remove();
-  }
+  } 
 
   console.log("Calling relaunchApplication");
   ipcRenderer.send("relaunchApplication", true);
