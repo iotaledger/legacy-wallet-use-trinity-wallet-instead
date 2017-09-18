@@ -76,7 +76,7 @@ var UI = (function(UI, $, undefined) {
          return;
         } else if (inputs.totalBalance < amount) {
           UI.isDoingPOW = false;
-          if (inputs.allBalance < ammout) {
+          if (inputs.allBalance < amount) {
             UI.formError("transfer", "not_enough_balance", {"initial": "send_it_now"});
             $stack.removeClass("loading");
           } else {
