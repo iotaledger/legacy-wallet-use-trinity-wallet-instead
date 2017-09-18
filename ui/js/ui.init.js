@@ -134,7 +134,6 @@ var UI = (function(UI, $, undefined) {
           setTimeout(initialize, 100);
         }).fail(function(jqxhr, settings, exception) {
           console.log("Could not load iota.lightwallet.js");
-          alert(exception);
           showLightWalletErrorMessage();
         });
       } else {

@@ -1005,7 +1005,7 @@ api.prototype.prepareTransfers = function(seed, transfers, options, callback) {
     transfers.forEach(function(thisTransfer) {
 
         thisTransfer.message = thisTransfer.message ? thisTransfer.message : '';
-        thisTransfer.tag = thisTransfer.tag ? thisTransfer.tag : '';
+        thisTransfer.obsoleteTag  = thisTransfer.obsoleteTag ? thisTransfer.obsoleteTag : '';
 
         if (addHMAC && thisTransfer.value > 0) {
             thisTransfer.message = nullHashTrytes + thisTransfer.message;
@@ -1094,7 +1094,7 @@ api.prototype.prepareTransfers = function(seed, transfers, options, callback) {
         var timestamp = Math.floor(Date.now() / 1000);
 
         // If no tag defined, get 27 tryte tag.
-        tag = transfers[i].tag ? transfers[i].tag : '999999999999999999999999999';
+        tag = transfers[i].obsoleteTag ? transfers[i].obsoleteTag : '999999999999999999999999999';
 
         // Pad for required 27 tryte length
         for (var j = 0; tag.length < 27; j++) {
@@ -2180,7 +2180,7 @@ Bundle.prototype.addEntry = function(signatureMessageLength, address, value, tag
         var transactionObject = new Object();
         transactionObject.address = address;
         transactionObject.value = i == 0 ? value : 0;
-        transactionObject.tag = tag;
+        transactionObject.obsoleteTag = tag;
         transactionObject.timestamp = timestamp;
 
         this.bundle[this.bundle.length] = transactionObject;
@@ -2249,7 +2249,7 @@ Bundle.prototype.finalize = function() {
             lastIndexTrits[lastIndexTrits.length] = 0;
         }
 
-        var bundleEssense = Converter.trits(this.bundle[i].address + Converter.trytes(valueTrits) + this.bundle[i].tag + Converter.trytes(timestampTrits) + Converter.trytes(currentIndexTrits) + Converter.trytes(lastIndexTrits));
+        var bundleEssense = Converter.trits(this.bundle[i].address + Converter.trytes(valueTrits) + this.bundle[i].obsoleteTag + Converter.trytes(timestampTrits) + Converter.trytes(currentIndexTrits) + Converter.trytes(lastIndexTrits));
         kerl.absorb(bundleEssense, 0, bundleEssense.length);
     }
 
@@ -3667,7 +3667,7 @@ Multisig.prototype.initiateTransfer = function(securitySum, inputAddress, remain
     // Also remove the checksum of the address if it's there
     transfers.forEach(function(thisTransfer) {
         thisTransfer.message = thisTransfer.message ? thisTransfer.message : '';
-        thisTransfer.tag = thisTransfer.tag ? thisTransfer.tag : '';
+        thisTransfer.obsoleteTag = thisTransfer.obsoleteTag ? thisTransfer.obsoleteTag : '';
         thisTransfer.address = Utils.noChecksum(thisTransfer.address);
     })
 
@@ -3747,7 +3747,7 @@ Multisig.prototype.initiateTransfer = function(securitySum, inputAddress, remain
         var timestamp = Math.floor(Date.now() / 1000);
 
         // If no tag defined, get 27 tryte tag.
-        tag = transfers[i].tag ? transfers[i].tag : '999999999999999999999999999';
+        tag = transfers[i].obsoleteTag ? transfers[i].obsoleteTag : '999999999999999999999999999';
 
         // Pad for required 27 tryte length
         for (var j = 0; tag.length < 27; j++) {
@@ -4286,7 +4286,7 @@ var isTransfersArray = function(transfersArray) {
         }
 
         // Check if tag is correct trytes of {0,27} trytes
-        var tag = transfer.tag;
+        var tag = transfer.obsoleteTag;
         if (!isTrytes(tag, "0,27")) {
             return false;
         }
@@ -4947,7 +4947,7 @@ var transactionObject = function(trytes) {
     thisTransaction.signatureMessageFragment = trytes.slice(0, 2187);
     thisTransaction.address = trytes.slice(2187, 2268);
     thisTransaction.value = Converter.value(transactionTrits.slice(6804, 6837));
-    thisTransaction.tag = trytes.slice(2295, 2322);
+    thisTransaction.obsoleteTag = trytes.slice(2295, 2322);
     thisTransaction.timestamp = Converter.value(transactionTrits.slice(6966, 6993));
     thisTransaction.currentIndex = Converter.value(transactionTrits.slice(6993, 7020));
     thisTransaction.lastIndex = Converter.value(transactionTrits.slice(7020, 7047));
@@ -4991,7 +4991,7 @@ var transactionTrytes = function(transaction) {
     return transaction.signatureMessageFragment
     + transaction.address
     + Converter.trytes(valueTrits)
-    + transaction.tag
+    + transaction.obsoleteTag
     + Converter.trytes(timestampTrits)
     + Converter.trytes(currentIndexTrits)
     + Converter.trytes(lastIndexTrits)
