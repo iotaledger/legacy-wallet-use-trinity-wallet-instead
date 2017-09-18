@@ -8,6 +8,7 @@ try {
 } catch(e) {
   useWebGl = false;
 }
+const MAX_TIMESTAMP_VALUE = (Math.pow(3,27) - 1) / 2;
 
 var ccurlProvider = function(ccurlPath) {
   if (!ccurlPath) {
@@ -139,12 +140,11 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
     // IF there is a bundle, chain  the bundle transactions via
     // trunkTransaction together
 
-    console.log(thisTrytes);
     var txObject = iotaObj.utils.transactionObject(thisTrytes);
     txObject.tag = txObject.obsoleteTag;
     txObject.attachmentTimestamp = Date.now();
     txObject.attachmentTimestampLowerBound = 0;
-    txObject.attachmentTimestampUpperBound = 0xffffffffffffffff;
+    txObject.attachmentTimestampUpperBound = MAX_TIMESTAMP_VALUE;
     // If this is the first transaction, to be processed
     // Make sure that it's the last in the bundle and then
     // assign it the supplied trunk and branch transactions
@@ -188,9 +188,8 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
         return callback(null);
       });
     } else {
-      console.log(newTrytes);
       libcurl.pow({trytes: newTrytes, minWeight: minWeightMagnitude}).then(function(nonce) {
-        var returnedTrytes = newTrytes.substr(0, 2430).concat(nonce);
+        var returnedTrytes = newTrytes.substr(0, 2673-81).concat(nonce);
         var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
 
         // Assign the previousTxHash to this tx
