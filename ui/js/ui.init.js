@@ -1,4 +1,4 @@
-var iota, oldIota;
+var iota;
 
 var connection = {"accountData"         : false,
                   "previousAccountData" : false,

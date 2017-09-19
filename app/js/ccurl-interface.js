@@ -55,7 +55,7 @@ var ccurlInterrupt = function(libccurl) {
     try {
       if (useWebGl) {
         libcurl.interrupt();
-      } else 
+      } else
       if (libccurl && libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
         libccurl.ccurl_pow_interrupt();
       }
@@ -75,7 +75,7 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
     return callback(new Error("Hashing not available"));
   }
 
-  var iotaObj = (UI.isTransitioningSeed ? oldIota : iota); //During transitioning to keccak only oldIota is doing POW
+  var iotaObj = iota;
 
   // inputValidator: Check if correct hash
   if (!iotaObj.valid.isHash(trunkTransaction)) {

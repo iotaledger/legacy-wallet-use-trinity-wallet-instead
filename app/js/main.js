@@ -546,19 +546,19 @@ var App = (function(App, undefined) {
       ]
     });
 
-    var languages = [["de", App.t("german"), "Deutsch"], 
-                     ["el", App.t("greek"), "Ελληνικά"], 
-                     ["en", App.t("english"), "English"], 
-                     ["es-ES", App.t("spanish"), "Español"], 
-                     ["fr", App.t("french"), "Français"], 
-                     ["it", App.t("italian"), "Italiano"], 
+    var languages = [["de", App.t("german"), "Deutsch"],
+                     ["el", App.t("greek"), "Ελληνικά"],
+                     ["en", App.t("english"), "English"],
+                     ["es-ES", App.t("spanish"), "Español"],
+                     ["fr", App.t("french"), "Français"],
+                     ["it", App.t("italian"), "Italiano"],
                      ["ja", App.t("japanese"), "日本語"],
                      ["ko", App.t("korean"), "한국어"],
-                     ["nl", App.t("dutch"), "Nederlands"], 
-                     ["pt-PT", App.t("portugese"), "Português"], 
-                     ["ru", App.t("russian"), "Русский"], 
-                     ["sv-SE", App.t("swedish"), "Svenska"], 
-                     ["tr", App.t("turkish"), "Türkçe"], 
+                     ["nl", App.t("dutch"), "Nederlands"],
+                     ["pt-PT", App.t("portugese"), "Português"],
+                     ["ru", App.t("russian"), "Русский"],
+                     ["sv-SE", App.t("swedish"), "Svenska"],
+                     ["tr", App.t("turkish"), "Türkçe"],
                      ["zh-CN", App.t("chinese_simplified"), "中文（简体)"],
                      ["zh-TW", App.t("chinese_traditional"), "中文 (繁體)"]];
 
@@ -630,12 +630,6 @@ var App = (function(App, undefined) {
             }
           },
           {
-            label: App.t("transition"),
-            click(item) {
-              App.showTransition();
-            }
-          },
-          {
             label: App.t("network_spammer"),
             click(item) {
               App.showNetworkSpammer();
@@ -688,7 +682,7 @@ var App = (function(App, undefined) {
       });
 
       if (settings.lightWallet == 1) {
-        template[2].submenu[14].label = App.t("switch_to_full_node");
+        template[2].submenu[13].label = App.t("switch_to_full_node");
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 3);
         // Remove "network spammer and open database folder" options.
@@ -1017,7 +1011,7 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.start = function() {  
+  App.start = function() {
     if (settings.lightWallet == 1 && (!settings.lightWalletHost || !settings.lightWalletPort)) {
       App.showSetupWindow({"section": "light-node"});
     } else if (settings.lightWallet == 0 && settings.nodes.length == 0) {
@@ -1240,7 +1234,7 @@ var App = (function(App, undefined) {
       params.push(path.join(jarDirectory, "iri" + (isTestNet ? "-testnet" : "") + ".jar"));
 
       // temporary !
-      // Only rescan once 
+      // Only rescan once
       if (!('rescan' in settings) || settings.rescan) {
           params.push("--rescan");
 
@@ -1458,7 +1452,7 @@ var App = (function(App, undefined) {
         if (settings.dbLocation && settings.dbLocation != databaseDirectory) {
           //Todo: During db move, user should not close the app? How to prevent..
           App.moveDatabase(settings.dbLocation);
-          databaseDirectory = settings.dbLocation; //because this is not reloaded during relaunch.. 
+          databaseDirectory = settings.dbLocation; //because this is not reloaded during relaunch..
         }
 
         App.start();
@@ -1741,11 +1735,6 @@ var App = (function(App, undefined) {
     });
   }
 
-  App.finishedTransitioningToKeccak = function() {
-    settings.keccak = 1;
-    App.saveSettings();
-  }
-
   App.startTrackingCPU = function() {
     if (cpuTrackInterval) {
       clearInterval(cpuTrackInterval);
@@ -2009,13 +1998,6 @@ var App = (function(App, undefined) {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showFAQ");
-    }
-  }
-
-  App.showTransition = function() {
-    if (App.windowIsReady()) {
-      App.showWindowIfNotVisible();
-      win.webContents.send("showTransition");
     }
   }
 
@@ -2563,5 +2545,3 @@ electron.ipcMain.on("updateStatusBar", function(event, data) {
 electron.ipcMain.on("updateAppInfo", function(event, data) {
   App.updateAppInfo(data);
 });
-
-electron.ipcMain.on("finishedTransitioningToKeccak", App.finishedTransitioningToKeccak);

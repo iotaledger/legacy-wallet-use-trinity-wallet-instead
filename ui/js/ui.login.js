@@ -22,11 +22,6 @@ var UI = (function(UI, $, undefined) {
       clearInterval(loginGradientInterval);
     }, 60000);
 
-    if (!connection.keccak) {
-      _loginFormShownCallback = UI.showTransitionModal;
-    }
-
-    UI.handleTransitioning();
     UI.handleHelpMenu();
     UI.handleNetworkSpamming();
     UI.handlePastingTrytes();
@@ -156,9 +151,6 @@ var UI = (function(UI, $, undefined) {
   }
 
   UI.showAppScreen = function() {
-    oldIota = null;
-    UI.isTransitioningSeed = false;
-    
     console.log("UI.showAppScreen");
 
     clearInterval(loginGradientInterval);
@@ -175,7 +167,7 @@ var UI = (function(UI, $, undefined) {
     UI.animateStacks(0);
 
     if (_seedError) {
-      var options = {timeOut: 10000, 
+      var options = {timeOut: 10000,
                      extendedTimeOut: 10000};
 
       UI.notify("error", _seedError, options);
@@ -227,7 +219,7 @@ var UI = (function(UI, $, undefined) {
       var $stack = $(this);
 
       var onOpen = $stack.data("onopen");
-      
+
       if (onOpen && UI[onOpen]) {
         UI[onOpen]();
       }
