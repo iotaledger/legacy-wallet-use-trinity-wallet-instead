@@ -173,6 +173,9 @@ var App = (function(App, undefined) {
       } else if (settings.minWeightMagnitude < minWeightMagnitudeMinimum) {
         settings.minWeightMagnitude = minWeightMagnitudeMinimum;
       }
+      if (!settings.hasOwnProperty("ccurl")) {
+        settings.ccurl = 0;
+      }
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
         settings.nodes = [];
       }
@@ -188,7 +191,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 780}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: "", allowShortSeedLogin: 0, keccak: 0};
+      settings = {bounds: {width: 520, height: 780}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: "", allowShortSeedLogin: 0, keccak: 0, ccurl: 0};
     }
 
     try {
@@ -231,7 +234,6 @@ var App = (function(App, undefined) {
       settings.isFirstRun = 0;
 
       var settingsFile = path.join(appDataDirectory, "settings.json");
-
       fs.writeFileSync(settingsFile, JSON.stringify(settings));
     } catch (err) {
       console.log("Error writing settings:");
@@ -1578,6 +1580,7 @@ var App = (function(App, undefined) {
           "port": (settings.lightWallet == 1 ? settings.lightWalletPort : settings.port),
           "depth": settings.depth,
           "minWeightMagnitude": settings.minWeightMagnitude,
+          "ccurl": settings.ccurl,
           "ccurlPath": ccurlPath,
           "language": settings.language,
           "allowShortSeedLogin": settings.allowShortSeedLogin,
@@ -2040,7 +2043,7 @@ var App = (function(App, undefined) {
         walletType = settings.lightWallet;
       }
       if (walletType == 1) {
-        var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
+        var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum, "ccurl": settings.ccurl};
 
         var req = https.get('https://iotasupport.com/providers.json?' + (new Date().getTime()));
         req.on('response', function (res) {
@@ -2213,6 +2216,10 @@ var App = (function(App, undefined) {
         }
       }
 
+      if (configuration.hasOwnProperty("ccurl")) {
+        settings.ccurl = parseInt(configuration.ccurl, 10);
+      }
+
       App.saveSettings();
 
       if (relaunch || !App.windowIsReady()) {
@@ -2220,12 +2227,14 @@ var App = (function(App, undefined) {
       } else if (lightWalletHostChange && settings.lightWallet == 1) {
         win.webContents.send("updateSettings", {
           "host": settings.lightWalletHost,
-          "port": settings.lightWalletPort
+          "port": settings.lightWalletPort,
+          "ccurl": settings.ccurl
         });
       } else {
         win.webContents.send("updateSettings", {
           "depth": settings.depth,
           "minWeightMagnitude": settings.minWeightMagnitude,
+          "ccurl": settings.ccurl,
           "addedNodes": addedNodes,
           "removedNodes": removedNodes
         });
