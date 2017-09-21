@@ -260,8 +260,8 @@ function filterSpentAddresses(inputs) {
 }
 
 function getUnspentInputs(seed, start, end, step, threshold, inputs, cb) {
-  if (arguments.length === 4) {
-    cb = arguments[3]
+  if (arguments.length === 6) {
+    cb = arguments[5]
     inputs = {inputs: [], totalBalance: 0, allBalance: 0}
   }
   iota.api.getInputs(seed, {start: start, end: end, threshold: threshold}, (err, res) => {
