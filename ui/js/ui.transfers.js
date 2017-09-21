@@ -62,7 +62,7 @@ var UI = (function(UI, $, undefined) {
 
       UI.isDoingPOW = true;
 
-      getUnspentInputs(connection.seed, 0, 10, 10, amount, function(error, inputs) {
+      getUnspentInputs(connection.seed, 0, 25, 25, amount, function(error, inputs) {
         if (error) {
           UI.isDoingPOW = false;
           UI.formError("transfer", error, {"initial": "send_it_now"});
@@ -260,13 +260,21 @@ function filterSpentAddresses(inputs) {
 }
 
 function getUnspentInputs(seed, start, end, step, threshold, inputs, cb) {
+  // TODO: define limit in settings to stop scanning for balance
+  var limit = 500 //connection.maxIndex
   if (arguments.length === 6) {
     cb = arguments[5]
     inputs = {inputs: [], totalBalance: 0, allBalance: 0}
   }
   iota.api.getInputs(seed, {start: start, end: end, threshold: threshold}, (err, res) => {
     if (err) {
-      cb(err)
+      // console.log('getUnspentInputs:', err)
+      if (err.message !== 'Not enough balance' || end > limit) {
+        cb(err)
+        return
+      }
+      end += step
+      getUnspentInputs(seed, start, end, step, threshold, inputs, cb)
       return
     }
     inputs.allBalance += res.inputs.reduce((sum, input) => sum + input.balance, 0)
@@ -284,4 +292,3 @@ function getUnspentInputs(seed, start, end, step, threshold, inputs, cb) {
     }).catch(err => cb(err))
   })
 }
-
