@@ -2,12 +2,7 @@ var ffi = require('ffi');
 var isInitialized = false;
 
 const libcurl = require('curl.lib.js');
-let useWebGl;
-try {
-  useWebGl = libcurl.init();
-} catch(e) {
-  useWebGl = false;
-}
+libcurl.init();
 const MAX_TIMESTAMP_VALUE = (Math.pow(3,27) - 1) / 2;
 
 var ccurlProvider = function(ccurlPath) {
@@ -53,11 +48,10 @@ var ccurlFinalize = function(libccurl) {
 var ccurlInterrupt = function(libccurl) {
   if (isInitialized) {
     try {
-      if (useWebGl) {
-        libcurl.interrupt();
-      } else 
-      if (libccurl && libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
+      if(connection.ccurl && libccurl && libccurl.hasOwnProperty("ccurl_pow_interrupt")) {
         libccurl.ccurl_pow_interrupt();
+      } else {
+        libcurl.interrupt();
       }
     } catch (err) {
       console.log(err);
@@ -167,38 +161,42 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
 
     var newTrytes = iotaObj.utils.transactionTrytes(txObject);
 
-    if (!useWebGl) {
-      // cCurl updates the nonce as well as the transaction hash
-      libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
+    switch (connection.ccurl) {
+      case 1: {
+        // cCurl updates the nonce as well as the transaction hash
+        libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
 
-        if (error) {
-          return callback(error);
-        } else if (returnedTrytes == null) {
-          return callback("Interrupted");
-        }
+          if (error) {
+            return callback(error);
+          } else if (returnedTrytes == null) {
+            return callback("Interrupted");
+          }
 
-        var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
+          var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
 
-        // Assign the previousTxHash to this tx
-        var txHash = newTxObject.hash;
-        previousTxHash = txHash;
+          // Assign the previousTxHash to this tx
+          var txHash = newTxObject.hash;
+          previousTxHash = txHash;
 
-        finalBundleTrytes.push(returnedTrytes);
+          finalBundleTrytes.push(returnedTrytes);
 
-        return callback(null);
-      });
-    } else {
-      libcurl.pow({trytes: newTrytes, minWeight: minWeightMagnitude}).then(function(nonce) {
-        var returnedTrytes = newTrytes.substr(0, 2673-81).concat(nonce);
-        var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
+          return callback(null);
+        });
+        break;
+      }
+      default: {
+        libcurl.pow({trytes: newTrytes, minWeight: minWeightMagnitude}).then(function(nonce) {
+          var returnedTrytes = newTrytes.substr(0, 2673-81).concat(nonce);
+          var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
 
-        // Assign the previousTxHash to this tx
-        var txHash = newTxObject.hash;
-        previousTxHash = txHash;
+          // Assign the previousTxHash to this tx
+          var txHash = newTxObject.hash;
+          previousTxHash = txHash;
 
-        finalBundleTrytes.push(returnedTrytes);
-        callback(null);
-      }).catch(callback);
+          finalBundleTrytes.push(returnedTrytes);
+          callback(null);
+        }).catch(callback);
+      }
     }
   }
   loopTrytes();
