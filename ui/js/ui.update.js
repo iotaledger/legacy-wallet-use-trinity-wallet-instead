@@ -85,7 +85,7 @@ var UI = (function(UI, $, undefined) {
                       }
                     });
                 } else {
-                  connectconnection.previousAccountData = connection.accountData;
+                  connection.previousAccountData = connection.accountData;
                   connection.accountData = accountData;
                 }
                 connection.previousAccountData = connection.accountData;
