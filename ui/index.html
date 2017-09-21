@@ -25,7 +25,6 @@
   <script type="text/javascript" src="js/ui.transfers.js"></script>
   <script type="text/javascript" src="js/ui.url.js"></script>
   <script type="text/javascript" src="js/ui.update.js"></script>
-  <script type="text/javascript" src="js/ui.transition.js"></script>
   <script type="text/javascript" src="js/ui.pasteTrytes.js"></script>
   <script type="text/javascript" src="js/ui.utils.js"></script>
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
@@ -191,37 +190,6 @@
   <button id="spam-btn" type="button" class="btn" data-initial="spam_the_network" data-loading="spamming" data-i18n="spam_the_network"></button>
   <div id="spam-output" class="small"><span id="spam-cnt">0</span> <span data-i18n="x_transactions_generated"></span> <span id="spam-msg"></span></div>
   <div id="spam-not-synced" class="small" style="color:red;display:none;" data-i18n="not_synced"></div>
-</div>
-
-<div id="transition-modal" class="modal gray" data-remodal-id="transition">
-  <button data-remodal-action="close" class="remodal-close"></button>
-  <h1 data-i18n="transition-seed"></h1>
-  <div class="contents">
-    <div id="transition-phase-1-group">
-      <p id="transition-description" data-i18n="transition_description"></p>
-      <div class='input-group'><label data-i18n="seed"></label>
-      <input type='password' name='seed' id='transition-seed' placeholder='Seed of Account' value='' /></div>
-      <button id="search-address-space-btn" type="button" class="btn btn-no-progress-bar" data-initial="search_address_space" data-loading="searching" data-i18n="search_address_space"></button>
-    </div>
-    <div id="transition-phase-2-group">
-      <p id="transition-balance" data-18n="transition-balance"></p>
-      <button id="transition-balance-incomplete-btn" type="button" class="btn btn-no-progress-bar" data-initial="balance_is_incomplete" data-loading="searching" data-i18n="balance_is_incomplete"></button>
-      <button id="transition-balance-complete-btn" type="button" class="btn btn-no-progress-bar" data-initial="balance_is_complete" data-loading="transitioning" data-i18n="balance_is_complete"></button>
-    </div>
-    <div id="transition-phase-3-group">
-      <p id="transition-new-seed-description" data-i18n="enter_new_seed"></p>
-      <div class='input-group'><label data-i18n="new_seed"></label>
-      <input type='password' name='new-seed' id='transition-new-seed' placeholder='New Seed' value='' /></div>
-      <div class='input-group'><label data-i18n="new_seed_confirmation"></label>
-      <input type='password' name='new-seed-confirmation' id='transition-new-seed-confirmation' placeholder='New Seed Confirmation' value='' /></div>
-      <button id="transition-balance-btn" type="button" class="btn btn-no-progress-bar" data-initial="transition" data-loading="transitioning" data-i18n="transition"></button>
-    </div>
-    <div id="transition-phase-4-group">
-      <p id="transition-succeeded" data-i18n="transition_succeeded"></p>
-      <button id="transition-restart-btn" type="button" class="btn" data-initial="transition_another_seed" data-loading="transitioning" data-i18n="transition_another_seed"></button>
-      <button id="transition-stop-btn" type="button" class="btn" data-initial="stop_transitioning" data-loading="stop_transitioning" data-i18n="stop_transitioning"></button>
-    </div>
-  </div>
 </div>
 
 <div id="help">

@@ -321,22 +321,5 @@
   "sent_to_key_reuse_attempt": "You are attempting to send a transaction to an address that has already been used (i.e. tokens have already been spent from this address). Please ask recipient for a new address, that hasn't been spent from yet.",
   "not_enough_available_inputs_error": "Error: Not enough available inputs",
   "not_enough_available_inputs_attempt": "You are attempting to send a transaction while there are no available inputs to fund it. Please wait for previous transfers to confirm, and reattach them if necessary, before sending another transaction.",
-  "transition": "Transition",
-  "transition_description": "For the transition phase your entire balance will be moved to a newly generated address under the same seed. In order to get your balance, 50 addresses are generated at a time, all you have to do is confirm that your balance is correct. After that a new transaction is issued on the network and you can login to your account as usual and check for your balance to be confirmed.",
-  "transition_another_seed": "Transition Another Seed",
-  "stop_transitioning": "Stop Transitioning",
-  "please_log_out_first": "Please log out first.",
-  "transition_succeeded": "Transition succeeded.",
-  "account_is_empty": "Account is empty",
-  "balance_is_complete": "Balance is Complete",
-  "balance_is_incomplete": "Balance is Incomplete",
-  "search_address_space": "Search Address Space",
-  "searching_address_space": "Searching Address Space",
-  "continue_searching": "Continue Searching...",
-  "searching": "Searching...",
-  "transitioning": "Transitioning...",
-  "cannot_close_whilst_transitioning": "Cannot close whilst transitioning.",
-  "enter_new_seed": "Enter New Seed",
-  "new_seed": "New Seed",
-  "new_seed_confirmation": "New Seed Confirmation"
+  "please_log_out_first": "Please log out first."
 }

@@ -69,7 +69,7 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
     return callback(new Error("Hashing not available"));
   }
 
-  var iotaObj = (UI.isTransitioningSeed ? oldIota : iota); //During transitioning to keccak only oldIota is doing POW
+  var iotaObj = iota;
 
   // inputValidator: Check if correct hash
   if (!iotaObj.valid.isHash(trunkTransaction)) {
