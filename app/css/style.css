@@ -338,7 +338,7 @@ body.full-node #status-bar-milestone, body.full-node #status-bar-solid-milestone
   }
 }
 
-@media only screen and (max-width: 400px) { 
+@media only screen and (max-width: 400px) {
   .tingle-modal-box {
     padding: 15px;
   }
@@ -566,7 +566,7 @@ button.small {
   margin: 0;
 }
 
-#server_config_host_select {
+#server_config_host_select, #server_config_curl_implementation_select {
   width: 100%;
 }
 
