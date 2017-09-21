@@ -132,7 +132,22 @@ var UI = (function(UI, $, undefined) {
         iota.api.getAccountData(connection.seed, function(error, accountData) {
           UI.isLoggingIn = false;
 
-          connection.accountData = accountData;
+          if (!error) {
+            if (accountData.balance === 0) {
+              //if no balance found, look at the first 10 addresses
+              iota.api.getAccountData(connection.seed, {start:0 , end:10}, function(error, accountData) {
+                  if (!error) {
+                    connection.accountData = accountData;
+                    $("#login-password").val("");
+                    $("#login-btn").loadingReset("login", {"icon": "fa-cog fa-spin fa-fw"});
+
+                    UI.showAppScreen();
+                  }
+                });
+            } else {
+              connection.accountData = accountData;
+            }
+          }
 
           if (error) {
             connection.seed = "";
@@ -158,7 +173,7 @@ var UI = (function(UI, $, undefined) {
   UI.showAppScreen = function() {
     oldIota = null;
     UI.isTransitioningSeed = false;
-    
+
     console.log("UI.showAppScreen");
 
     clearInterval(loginGradientInterval);
@@ -175,7 +190,7 @@ var UI = (function(UI, $, undefined) {
     UI.animateStacks(0);
 
     if (_seedError) {
-      var options = {timeOut: 10000, 
+      var options = {timeOut: 10000,
                      extendedTimeOut: 10000};
 
       UI.notify("error", _seedError, options);
@@ -227,7 +242,7 @@ var UI = (function(UI, $, undefined) {
       var $stack = $(this);
 
       var onOpen = $stack.data("onopen");
-      
+
       if (onOpen && UI[onOpen]) {
         UI[onOpen]();
       }
