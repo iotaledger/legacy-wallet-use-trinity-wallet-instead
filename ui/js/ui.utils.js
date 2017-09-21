@@ -249,6 +249,9 @@ var UI = (function(UI, $, undefined) {
       connection.depth = parseInt(settings.depth, 10);
     }
 
+    if (settings.hasOwnProperty("ccurl")) {
+      connection.ccurl = parseInt(settings.ccurl, 10);
+    }
     var changeNode = false;
 
     if (settings.hasOwnProperty("host") && settings.host != connection.host) {
