@@ -62,7 +62,7 @@ var UI = (function(UI, $, undefined) {
 
       UI.isDoingPOW = true;
 
-      getUnspentInputs(connection.seed, 0, amount, function(error, inputs) {
+      getUnspentInputs(connection.seed, 0, 10, 10, amount, function(error, inputs) {
         if (error) {
           UI.isDoingPOW = false;
           UI.formError("transfer", error, {"initial": "send_it_now"});
@@ -259,12 +259,12 @@ function filterSpentAddresses(inputs) {
   })
 }
 
-function getUnspentInputs(seed, start, threshold, inputs, cb) {
+function getUnspentInputs(seed, start, end, step, threshold, inputs, cb) {
   if (arguments.length === 4) {
     cb = arguments[3]
     inputs = {inputs: [], totalBalance: 0, allBalance: 0}
   }
-  iota.api.getInputs(seed, {start: start, threshold: threshold}, (err, res) => {
+  iota.api.getInputs(seed, {start: start, end: end, threshold: threshold}, (err, res) => {
     if (err) {
       cb(err)
       return
@@ -274,9 +274,9 @@ function getUnspentInputs(seed, start, threshold, inputs, cb) {
       var collected = filtered.reduce((sum, input) => sum + input.balance, 0)
       var diff = threshold - collected
       if (diff > 0) {
-        var ordered = res.inputs.sort((a, b) => a.keyIndex - b.keyIndex).reverse()
-        var end = ordered[0].keyIndex
-        getUnspentInputs(seed, end + 1, diff, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance}, cb)
+        start = end + 1
+        end += step
+        getUnspentInputs(seed, start, end, step, diff, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance}, cb)
       }
       else {
         cb(null, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance})
