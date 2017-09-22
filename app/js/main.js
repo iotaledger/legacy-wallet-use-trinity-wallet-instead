@@ -688,12 +688,12 @@ var App = (function(App, undefined) {
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 3);
         // Remove "network spammer and open database folder" options.
-        template[2].submenu.splice(3, 3);
+        template[2].submenu.splice(2, 3);
         // Remove "edit neighbors" option.
-        template[2].submenu.splice(4, 1);
+        template[2].submenu.splice(3, 1);
         if (process.platform == "darwin") {
           // Remove options from mac platforms
-          template[2].submenu.splice(5, 2);
+          template[2].submenu.splice(4, 2);
         }
       } else {
         if (settings.lightWallet == -1) {
