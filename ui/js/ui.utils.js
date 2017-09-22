@@ -249,6 +249,10 @@ var UI = (function(UI, $, undefined) {
       connection.depth = parseInt(settings.depth, 10);
     }
 
+    if (settings.hasOwnProperty("maxIndex")) {
+      connection.maxIndex = parseInt(settings.maxIndex, 10);
+    }
+
     if (settings.hasOwnProperty("ccurl")) {
       connection.ccurl = parseInt(settings.ccurl, 10);
     }

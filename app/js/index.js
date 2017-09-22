@@ -529,9 +529,12 @@ var UI = (function(UI, undefined) {
 
       content += "<div class='input-group'><label data-i18n='curl_implementation'>" + UI.t("curl_implementation")  + "</label>";
       content += "<select id='server_config_curl_implementation_select'>";
-      content += "<option value='webgl-curl' data-i18n='webgl_curl_implementation'" +  (configuration.ccurl === 0 ? " selected='selected'" : "")  + ">" + UI.t("webgl_curl_implementation") + "</option>";
+      content += "<option value='webgl-curl' data-i18n='webgl_curl_implementation'" + (configuration.ccurl === 0 ? " selected='selected'" : "")  + ">" + UI.t("webgl_curl_implementation") + "</option>";
       content += "<option value='ccurl' data-i18n='ccurl_implementation'" +  (configuration.ccurl !== 0 ? " selected='selected'" : "")  + ">" + UI.t('ccurl_implementation') + "</option>";
       content += "</select></div>";
+
+      content += "<div class='input-group'><label data-i18n='max_index'>" + UI.t("max_index")  + "</label>";
+      content += "<input type='number' min='10' name='max_index'  id='config_max_index' placeholder='' value='" + UI.format(configuration.maxIndex ? configuration.maxIndex : 100) + "' /></div>";
 
     } else {
       content = "<h1 data-i18n='node_config'></h1>" +
@@ -550,6 +553,9 @@ var UI = (function(UI, undefined) {
       "<div class='input-group'><label><span data-i18n='db_location'>" + UI.t("db_location") + "</span> <button id='db_location_select' class='small' style='display:inline-block;'>change</button></label>" +
       "<div class='file-path' id='server_config_db_location_preview'>" + UI.format(configuration.dbLocation) + "</div>" +
       "<input type='hidden' name='db_location' id='server_config_db_location' value='" + UI.format(configuration.dbLocation) + "' />";
+      
+      content += "<div class='input-group'><label data-i18n='max_index'>" + UI.t("max_index")  + "</label>";
+      content += "<input type='number' min='10' name='max_index'  id='config_max_index' placeholder='' value='" + UI.format(configuration.maxIndex ? configuration.maxIndex : 100) + "' /></div>";
     }
 
     modal.setContent(content);
@@ -569,6 +575,9 @@ var UI = (function(UI, undefined) {
 
     modal.addFooterBtn(UI.t("save"), "tingle-btn tingle-btn--primary", function() {
       var config = {};
+
+      var defaultMaxIndex = 100
+      var minMaxIndex = 10
 
       config.lightWallet = configuration.lightWallet;
 
@@ -600,9 +609,15 @@ var UI = (function(UI, undefined) {
         var selectCurl = document.getElementById("server_config_curl_implementation_select")
         if (selectCurl) {
           config.ccurl = selectCurl.options[selectCurl.selectedIndex].value === 'ccurl' ? 1 : 0;
-        }
-        else {
+        } else {
           config.ccurl = 0; 
+        }
+
+        var maxIndexInput = document.getElementById("config_max_index")
+        if (!maxIndexInput || !maxIndexInput.value) {
+          config.maxIndex = defaultMaxIndex
+        } else {
+          config.maxIndex = maxIndexInput.value < minMaxIndex ? minMaxIndex : parseInt(maxIndexInput.value)
         }
 
       } else {
@@ -613,6 +628,13 @@ var UI = (function(UI, undefined) {
         config.depth = parseInt(document.getElementById("server_config_depth").value, 10);
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
         config.dbLocation = document.getElementById("server_config_db_location").value;
+        
+        var maxIndexInput = document.getElementById("config_max_index")
+        if (!maxIndexInput || !maxIndexInput.value) {
+          config.maxIndex = defaultMaxIndex
+        } else {
+          config.maxIndex = maxIndexInput.value < minMaxIndex ? minMaxIndex : parseInt(maxIndexInput.value)
+        }
       }
 
       modal.close();

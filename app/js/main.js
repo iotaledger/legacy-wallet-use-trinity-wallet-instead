@@ -79,6 +79,7 @@ var App = (function(App, undefined) {
   var deleteDb                  = false;
   var deleteAnyways             = false;
   var isFullScreen              = false;
+  var defaultMaxIndexToScan     = 100;
 
   App.initialize = function() {
     App.loadEnvironment();
@@ -176,6 +177,9 @@ var App = (function(App, undefined) {
       if (!settings.hasOwnProperty("ccurl")) {
         settings.ccurl = 0;
       }
+      if (!settings.hasOwnProperty("maxIndex")) {
+        settings.maxIndex = defaultMaxIndexToScan;
+      }
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
         settings.nodes = [];
       }
@@ -191,7 +195,7 @@ var App = (function(App, undefined) {
     } catch (err) {
       console.log("Error reading settings:");
       console.log(err);
-      settings = {bounds: {width: 520, height: 780}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: "", allowShortSeedLogin: 0, keccak: 0, ccurl: 0};
+      settings = {bounds: {width: 520, height: 780}, checkForUpdates: 1, lastUpdateCheck: 0, showStatusBar: 0, isFirstRun: 1, port: (isTestNet ? 14900 : 14265), udpReceiverPort: 14600, tcpReceiverPort: 15600, sendLimit: 0, nodes: [], dbLocation: "", allowShortSeedLogin: 0, keccak: 0, ccurl: 0, maxIndex: defaultMaxIndexToScan};
     }
 
     try {
@@ -1575,6 +1579,7 @@ var App = (function(App, undefined) {
           "depth": settings.depth,
           "minWeightMagnitude": settings.minWeightMagnitude,
           "ccurl": settings.ccurl,
+          "maxIndex": settings.maxIndex,
           "ccurlPath": ccurlPath,
           "language": settings.language,
           "allowShortSeedLogin": settings.allowShortSeedLogin,
@@ -2025,7 +2030,7 @@ var App = (function(App, undefined) {
         walletType = settings.lightWallet;
       }
       if (walletType == 1) {
-        var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum, "ccurl": settings.ccurl};
+        var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum, "ccurl": settings.ccurl, "maxIndex": settings.maxIndex};
 
         var req = https.get('https://iotasupport.com/providers.json?' + (new Date().getTime()));
         req.on('response', function (res) {
@@ -2053,7 +2058,7 @@ var App = (function(App, undefined) {
 
         req.end();
       } else {
-        var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "sendLimit": settings.sendLimit, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "dbLocation": databaseDirectory, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
+        var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "sendLimit": settings.sendLimit, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "dbLocation": databaseDirectory, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum, "maxIndex": settings.maxIndex};
         win.webContents.send("editNodeConfiguration", config);
       }
     }
@@ -2202,6 +2207,10 @@ var App = (function(App, undefined) {
         settings.ccurl = parseInt(configuration.ccurl, 10);
       }
 
+      if (configuration.hasOwnProperty("maxIndex")) {
+        settings.maxIndex = parseInt(configuration.maxIndex, 10);
+      }
+
       App.saveSettings();
 
       if (relaunch || !App.windowIsReady()) {
@@ -2210,13 +2219,15 @@ var App = (function(App, undefined) {
         win.webContents.send("updateSettings", {
           "host": settings.lightWalletHost,
           "port": settings.lightWalletPort,
-          "ccurl": settings.ccurl
+          "ccurl": settings.ccurl,
+          "maxIndex": settings.maxIndex
         });
       } else {
         win.webContents.send("updateSettings", {
           "depth": settings.depth,
           "minWeightMagnitude": settings.minWeightMagnitude,
           "ccurl": settings.ccurl,
+          "maxIndex": settings.maxIndex,
           "addedNodes": addedNodes,
           "removedNodes": removedNodes
         });

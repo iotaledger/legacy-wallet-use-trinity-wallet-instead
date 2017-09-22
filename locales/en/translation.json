@@ -178,6 +178,7 @@
   "select_curl_implementation": "Select Curl implementation for PoW",
   "webgl_curl_implementation": "Webgl 2 Curl implementation",
   "ccurl_implementation": "CCurl implementation",
+  "max_index": "Index limit to scan addresses",
   "neighboring_nodes":"Neighboring Nodes",
   "node_settings_format":"Add nodes in the following format (one per line)",
   "update_available":"Update available.",

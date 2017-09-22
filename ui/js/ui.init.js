@@ -13,6 +13,7 @@ var connection = {"accountData"         : false,
                   "depth"               : 3,
                   "minWeightMagnitude"  : 14,
                   "ccurl"               : 0,
+                  "maxIndex"            : 100,
                   "ccurlPath"           : null,
                   "lightWallet"         : false,
                   "allowShortSeedLogin" : false,
@@ -72,6 +73,9 @@ var UI = (function(UI, $, undefined) {
       }
       if (params.has("minWeightMagnitude")) {
         connection.minWeightMagnitude = parseInt(params.get("minWeightMagnitude"), 10);
+      }
+      if (params.has("maxIndex")) {
+        connection.maxIndex = parseInt(params.get("maxIndex"), 10)
       }
       if (params.has("ccurl")) {
         connection.ccurl = parseInt(params.get("ccurl"), 10);
