@@ -66,7 +66,7 @@ var UI = (function(UI, undefined) {
       document.getElementById("status-bar-solid-milestone").addEventListener("click", function(e) {
         electron.ipcRenderer.send("showServerLog");
       });
-    } 
+    }
 
 
     document.getElementById("new-user").addEventListener("click", function(e) {
@@ -92,7 +92,7 @@ var UI = (function(UI, undefined) {
         role: "paste"
       }
     ];
-   
+
     if (electron.remote.getCurrentWindow().isFullScreen()) {
       template.push({
         label: UI.t("exit_fullscreen"),
@@ -117,7 +117,7 @@ var UI = (function(UI, undefined) {
 
     webview = document.getElementById("server");
     webviewIsLoaded = false;
-    
+
     if (isDebug) {
       webview.openDevTools({"mode": "undocked"});
     }
@@ -155,7 +155,7 @@ var UI = (function(UI, undefined) {
       webview.style.display = "";
     }
 
-    webviewIsLoaded = true;   
+    webviewIsLoaded = true;
 
     webview.getWebContents().addListener("context-menu", function(e) {
       e.preventDefault();
@@ -239,7 +239,7 @@ var UI = (function(UI, undefined) {
     }
   }
 
-  UI.updateStatusBar = function(data) {    
+  UI.updateStatusBar = function(data) {
     if (data.hasOwnProperty("latestSolidSubtangleMilestoneIndex")) {
       document.getElementById("status-bar-solid-milestone").innerHTML = UI.format(data.latestSolidSubtangleMilestoneIndex);
     }
@@ -265,7 +265,7 @@ var UI = (function(UI, undefined) {
         document.getElementById("status-bar-dot-2").style.display = "inline";
      }
     }
-    
+
     if (data.hasOwnProperty("hoverAmount")) {
       if (data.hoverAmount === false) {
         document.getElementById("status-bar-giota").style.display = "none";
@@ -344,19 +344,19 @@ var UI = (function(UI, undefined) {
     });
 
     /*
-    modal.setContent("<h1>Preferences</h1>" + 
-                     "<select name='auto_update_time' id='auto_update_time' style='width:100%'>" + 
-                     "<option value='1'" + (checkForUpdatesOption == "1" ? " selected='selected'" : "") + ">Check for Updates on Application Start</option>" + 
-                     "<option value='2'" + (checkForUpdatesOption == "2" ? " selected='selected'" : "") + ">Check for updates daily</option>" + 
-                     "<option value='3'" + (checkForUpdatesOption == "3" ? " selected='selected'" : "") + ">Check for updates weekly</option>" + 
-                     "<option value='0'" + (checkForUpdatesOption == "0" ? " selected='selected'" : "") + ">Never check for updates</option>" + 
+    modal.setContent("<h1>Preferences</h1>" +
+                     "<select name='auto_update_time' id='auto_update_time' style='width:100%'>" +
+                     "<option value='1'" + (checkForUpdatesOption == "1" ? " selected='selected'" : "") + ">Check for Updates on Application Start</option>" +
+                     "<option value='2'" + (checkForUpdatesOption == "2" ? " selected='selected'" : "") + ">Check for updates daily</option>" +
+                     "<option value='3'" + (checkForUpdatesOption == "3" ? " selected='selected'" : "") + ">Check for updates weekly</option>" +
+                     "<option value='0'" + (checkForUpdatesOption == "0" ? " selected='selected'" : "") + ">Never check for updates</option>" +
                      "</select>");
     */
 
-    modal.setContent("<h1 data-i18n='preferences'>" + UI.t("preferences") + "</h1>" + 
-                     "<div class='input-group'><label class='label--checkbox'><input type='checkbox' name='allow_short_seed_login' id='preferences_allow_short_seed_login' class='checkbox' value='1'" + (settings.allowShortSeedLogin ? " checked='checked'" : "") + " />" + UI.t("allow_short_seed_login") + "</label>" + 
+    modal.setContent("<h1 data-i18n='preferences'>" + UI.t("preferences") + "</h1>" +
+                     "<div class='input-group'><label class='label--checkbox'><input type='checkbox' name='allow_short_seed_login' id='preferences_allow_short_seed_login' class='checkbox' value='1'" + (settings.allowShortSeedLogin ? " checked='checked'" : "") + " />" + UI.t("allow_short_seed_login") + "</label>" +
                      (process.platform != "linux" ? "<div class='input-group input-group-last'><label class='label--checkbox'><input type='checkbox' name='open_at_login' id='preferences_open_at_login' class='checkbox' value='1'" + (settings.openAtLogin ? " checked='checked'" : "") + " />" + UI.t("open_at_login") + "</label>" : ""));
-    
+
     modal.addFooterBtn(UI.t("save"), "tingle-btn tingle-btn--primary", function() {
       var settings = {};
 
@@ -365,7 +365,7 @@ var UI = (function(UI, undefined) {
       }
 
       settings.allowShortSeedLogin = document.getElementById("preferences_allow_short_seed_login").checked == true ? 1 : 0;
-      
+
       /*
       var autoUpdateTimeSelect = document.getElementById("auto_update_time");
       var checkForUpdatesOption = autoUpdateTimeSelect.options[autoUpdateTimeSelect.selectedIndex].value;
@@ -394,8 +394,8 @@ var UI = (function(UI, undefined) {
       }
     });
 
-    modal.setContent("<h1 data-i18n='add_neighbor_node'>" + UI.t("add_neighbor_node") + "</h1>" + 
-                     "<p data-i18n='confirm_add_node_to_config'>" + UI.t("confirm_add_node_to_config") + "</p>" + 
+    modal.setContent("<h1 data-i18n='add_neighbor_node'>" + UI.t("add_neighbor_node") + "</h1>" +
+                     "<p data-i18n='confirm_add_node_to_config'>" + UI.t("confirm_add_node_to_config") + "</p>" +
                      "<p style='font-weight:bold'>" + UI.format(node) + "</p>");
 
     modal.addFooterBtn(UI.t("yes_add_node"), "tingle-btn tingle-btn--primary", function() {
@@ -435,14 +435,14 @@ var UI = (function(UI, undefined) {
 
     var content = "";
 
-    content = "<h1 data-i18n='edit_neighbors'></h1>" + 
-    "<div class='input-group input-group'><label data-i18n='neighboring_nodes'>" + UI.t("neighboring_nodes") + "</label>" + 
-    "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + UI.format(nodes) + "</textarea></div>" + 
+    content = "<h1 data-i18n='edit_neighbors'></h1>" +
+    "<div class='input-group input-group'><label data-i18n='neighboring_nodes'>" + UI.t("neighboring_nodes") + "</label>" +
+    "<textarea name='neighboring_nodes' id='server_config_neighboring_nodes' style='width:100%;height:150px;'>" + UI.format(nodes) + "</textarea></div>" +
     "<p style='text-align:left;background:#efefef;padding:5px;color:gray;'><span data-i18n='node_settings_format' style='text-align:left;'>" + UI.t("node_settings_format") + "</span>: udp://ip:12345</p>";
 
     modal.setContent(content);
 
-    modal.addFooterBtn(UI.t("save"), "tingle-btn tingle-btn--primary", function() {      
+    modal.addFooterBtn(UI.t("save"), "tingle-btn tingle-btn--primary", function() {
       modal.close();
 
       electron.ipcRenderer.send("updateNodeConfiguration", {"nodes": document.getElementById("server_config_neighboring_nodes").value});
@@ -497,7 +497,7 @@ var UI = (function(UI, undefined) {
     var content = "";
 
     if (configuration.lightWallet) {
-      content = "<h1 data-18n='node_config'></h1>" + 
+      content = "<h1 data-18n='node_config'></h1>" +
       "<div class='input-group'><label><span data-i18n='host' class='label'>" + UI.t("host") + "</span> <span class='error' id='host-error'></span></label>";
 
       if (configuration.lightWalletHosts && configuration.lightWalletHosts.length) {
@@ -518,33 +518,42 @@ var UI = (function(UI, undefined) {
         content += "</select>";
         content += "<hr />";
         content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (!found && configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' " + (found ? " style='display:none'" : "") + " /></div>";
+
+      
       } else {
         content += "<input type='text' id='server_config_host' placeholder='" + UI.t("custom_host") + "' data-i18n='[placeholder]custom_host' value='" + (configuration.lightWalletHost ? UI.format(configuration.lightWalletHost) + (configuration.lightWalletPort ? ":" + UI.format(configuration.lightWalletPort) : "") : "") + "' /></div>";
       }
 
-      content += "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + UI.t("min_weight_magnitude") + "</label>" + 
+      content += "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + UI.t("min_weight_magnitude") + "</label>" +
       "<input type='number' min='" + UI.format(configuration.minWeightMagnitudeMinimum) + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + UI.format(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum) + "' /></div>";
+
+      content += "<div class='input-group'><label data-i18n='curl_implementation'>" + UI.t("curl_implementation")  + "</label>";
+      content += "<select id='server_config_curl_implementation_select'>";
+      content += "<option value='webgl-curl' data-i18n='webgl_curl_implementation'" +  (configuration.ccurl === 0 ? " selected='selected'" : "")  + ">" + UI.t("webgl_curl_implementation") + "</option>";
+      content += "<option value='ccurl' data-i18n='ccurl_implementation'" +  (configuration.ccurl !== 0 ? " selected='selected'" : "")  + ">" + UI.t('ccurl_implementation') + "</option>";
+      content += "</select></div>";
+
     } else {
-      content = "<h1 data-i18n='node_config'></h1>" + 
-      "<div class='input-group'><label data-i18n='node_port'>" + UI.t("node_port") + "</label>" + 
-      "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? UI.format(configuration.port) : "14265") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='udp_receiver_port'>" + UI.t("udp_receiver_port") + "</label>" + 
-      "<input type='number' min='1024' name='udp_receiver_port' id='server_config_udp_receiver_port' placeholder='' value='" + (configuration.udpReceiverPort ? UI.format(configuration.udpReceiverPort) : "14600") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='tcp_receiver_port'>" + UI.t("tcp_receiver_port") + "</label>" + 
-      "<input type='number' min='1024' name='tcp_receiver_port' id='server_config_tcp_receiver_port' placeholder='' value='" + (configuration.tcpReceiverPort ? UI.format(configuration.tcpReceiverPort) : "15600") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='send_limit'>" + UI.t("send_limit") + "</label>" + 
-      "<input type='number' min='0' name='send_limit' id='server_config_send_limit' placeholder='' value='" + (configuration.sendLimit > 0 ? UI.format(configuration.sendLimit) : "") + "' /></div>" +  
-      "<div class='input-group'><label data-i18n='depth'>" + UI.t("depth") + "</label>" + 
+      content = "<h1 data-i18n='node_config'></h1>" +
+      "<div class='input-group'><label data-i18n='node_port'>" + UI.t("node_port") + "</label>" +
+      "<input type='number' min='1024' name='port' id='server_config_port' placeholder='' value='" + (configuration.port ? UI.format(configuration.port) : "14265") + "' /></div>" +
+      "<div class='input-group'><label data-i18n='udp_receiver_port'>" + UI.t("udp_receiver_port") + "</label>" +
+      "<input type='number' min='1024' name='udp_receiver_port' id='server_config_udp_receiver_port' placeholder='' value='" + (configuration.udpReceiverPort ? UI.format(configuration.udpReceiverPort) : "14600") + "' /></div>" +
+      "<div class='input-group'><label data-i18n='tcp_receiver_port'>" + UI.t("tcp_receiver_port") + "</label>" +
+      "<input type='number' min='1024' name='tcp_receiver_port' id='server_config_tcp_receiver_port' placeholder='' value='" + (configuration.tcpReceiverPort ? UI.format(configuration.tcpReceiverPort) : "15600") + "' /></div>" +
+      "<div class='input-group'><label data-i18n='send_limit'>" + UI.t("send_limit") + "</label>" +
+      "<input type='number' min='0' name='send_limit' id='server_config_send_limit' placeholder='' value='" + (configuration.sendLimit > 0 ? UI.format(configuration.sendLimit) : "") + "' /></div>" +
+      "<div class='input-group'><label data-i18n='depth'>" + UI.t("depth") + "</label>" +
       "<input type='number' min='1' name='depth' id='server_config_depth' placeholder='' value='" + (configuration.depth ? UI.format(configuration.depth) : "3") + "' /></div>" +
-      "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + UI.t("min_weight_magnitude") + "</label>" + 
-      "<input type='number' min='" + UI.format(configuration.minWeightMagnitudeMinimum) + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + UI.format(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum) + "' /></div>" + 
-      "<div class='input-group'><label><span data-i18n='db_location'>" + UI.t("db_location") + "</span> <button id='db_location_select' class='small' style='display:inline-block;'>change</button></label>" + 
-      "<div class='file-path' id='server_config_db_location_preview'>" + UI.format(configuration.dbLocation) + "</div>" + 
+      "<div class='input-group'><label data-i18n='min_weight_magnitude'>" + UI.t("min_weight_magnitude") + "</label>" +
+      "<input type='number' min='" + UI.format(configuration.minWeightMagnitudeMinimum) + "' name='min_weight_magnitude' id='server_config_min_weight_magnitude' placeholder='' value='" + UI.format(configuration.minWeightMagnitude ? configuration.minWeightMagnitude : configuration.minWeightMagnitudeMinimum) + "' /></div>" +
+      "<div class='input-group'><label><span data-i18n='db_location'>" + UI.t("db_location") + "</span> <button id='db_location_select' class='small' style='display:inline-block;'>change</button></label>" +
+      "<div class='file-path' id='server_config_db_location_preview'>" + UI.format(configuration.dbLocation) + "</div>" +
       "<input type='hidden' name='db_location' id='server_config_db_location' value='" + UI.format(configuration.dbLocation) + "' />";
-    } 
+    }
 
     modal.setContent(content);
-      
+
     if (!configuration.lightWallet) {
       document.getElementById('db_location_select').addEventListener('click', function(e) {
         currentLocation = document.getElementById('server_config_db_location').value;
@@ -562,7 +571,7 @@ var UI = (function(UI, undefined) {
       var config = {};
 
       config.lightWallet = configuration.lightWallet;
-      
+
       if (configuration.lightWallet) {
         var selectedHost;
 
@@ -582,11 +591,20 @@ var UI = (function(UI, undefined) {
           document.getElementById("host-error").style.display = "inline";
           document.getElementById("host-error").innerHTML = "Invalid!";
           return;
-        } 
+        }
 
         config.lightWalletHost = res[1];
         config.lightWalletPort = res[2];
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
+
+        var selectCurl = document.getElementById("server_config_curl_implementation_select")
+        if (selectCurl) {
+          config.ccurl = selectCurl.options[selectCurl.selectedIndex].value === 'ccurl' ? 1 : 0;
+        }
+        else {
+          config.ccurl = 0; 
+        }
+
       } else {
         config.port = parseInt(document.getElementById("server_config_port").value, 10);
         config.udpReceiverPort = parseInt(document.getElementById("server_config_udp_receiver_port").value, 10);
@@ -823,7 +841,7 @@ var UI = (function(UI, undefined) {
     return;
 
     UI.hideAlerts();
-    
+
     url = decodeURI(url.replace("iota://", "").toLowerCase().replace(/\/$/, ""));
 
     if (url == "config" || url == "configuration" || url == "setup") {
@@ -944,7 +962,7 @@ electron.ipcRenderer.on("showModal", function(event, identifier, html) {
       var close = document.querySelector(".tingle-modal__close");
       var modalContent = document.querySelector(".tingle-modal-box__content");
       modalContent.appendChild(close);
-      
+
       if (identifier == "generated-seed-modal") {
         document.getElementById("generated-seed-value").onclick = document.getElementById("generated-seed-value-copy").onclick = function(e) {
           e.preventDefault();
@@ -972,11 +990,6 @@ electron.ipcRenderer.on("showPeers", function() {
 electron.ipcRenderer.on("showFAQ", function() {
   UI.hideAlerts();
   UI.sendToWebview("showFAQ");
-});
-
-electron.ipcRenderer.on("showTransition", function() {
-  UI.hideAlerts();
-  UI.sendToWebview("showTransition");
 });
 
 electron.ipcRenderer.on("showNetworkSpammer", function() {
