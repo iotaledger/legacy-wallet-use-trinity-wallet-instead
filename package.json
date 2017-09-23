@@ -28,7 +28,7 @@
     "url": "https://github.com/iotaledger/wallet"
   },
   "dependencies": {
-    "curl.lib.js": "^1.0.20",
+    "curl.lib.js": "^1.0.21",
     "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
     "glob": "^7.1.2",
