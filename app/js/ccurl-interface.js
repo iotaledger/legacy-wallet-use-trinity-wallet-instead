@@ -178,6 +178,7 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
           finalBundleTrytes.push(returnedTrytes);
           callback(null);
         }).catch(callback);
+        break;
       }
       default: {
         // cCurl updates the nonce as well as the transaction hash
