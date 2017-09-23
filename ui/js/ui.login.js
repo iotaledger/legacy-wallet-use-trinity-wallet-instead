@@ -127,22 +127,7 @@ var UI = (function(UI, $, undefined) {
         iota.api.getAccountData(connection.seed, function(error, accountData) {
           UI.isLoggingIn = false;
 
-          if (!error) {
-            if (accountData.balance === 0) {
-              //if no balance found, look at the first 10 addresses
-              iota.api.getAccountData(connection.seed, {start:0 , end:10}, function(error, accountData) {
-                  if (!error) {
-                    connection.accountData = accountData;
-                    $("#login-password").val("");
-                    $("#login-btn").loadingReset("login", {"icon": "fa-cog fa-spin fa-fw"});
-
-                    UI.showAppScreen();
-                  }
-                });
-            } else {
-              connection.accountData = accountData;
-            }
-          }
+          connection.accountData = accountData;
 
           if (error) {
             connection.seed = "";

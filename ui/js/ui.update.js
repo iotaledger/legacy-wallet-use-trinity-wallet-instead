@@ -74,24 +74,10 @@ var UI = (function(UI, $, undefined) {
               console.log(new Date());
 
               if (!error) {
-                if (accountData.balance === 0) {
-                  //if no balance found, look at the first 10 addresses
-                  iota.api.getAccountData(connection.seed, {start:0 , end:10}, function(error, accountData) {
-                      if (!error) {
-                        connection.previousAccountData = connection.accountData;
-                        connection.accountData = accountData;
-                        UI.update();
-
-                      }
-                    });
-                } else {
-                  connection.previousAccountData = connection.accountData;
-                  connection.accountData = accountData;
-                }
                 connection.previousAccountData = connection.accountData;
                 connection.accountData = accountData;
               }
-
+              
               isUpdatingState = false;
 
               UI.createStateInterval(UI.updateIntervalTime);
