@@ -1,8 +1,12 @@
 var ffi = require('ffi');
 var isInitialized = false;
 
-const libcurl = require('curl.lib.js');
-libcurl.init();
+let libcurl = require('curl.lib.js');
+let webglAvailable = false;
+try {
+  libcurl.init();
+  webglAvailable = true;
+} catch (e) {}
 const MAX_TIMESTAMP_VALUE = (Math.pow(3,27) - 1) / 2;
 
 var ccurlProvider = function(ccurlPath) {
@@ -162,7 +166,20 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
     var newTrytes = iotaObj.utils.transactionTrytes(txObject);
 
     switch (connection.ccurl) {
-      case 1: {
+      case 0: {
+        libcurl.pow({trytes: newTrytes, minWeight: minWeightMagnitude}).then(function(nonce) {
+          var returnedTrytes = newTrytes.substr(0, 2673-81).concat(nonce);
+          var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
+
+          // Assign the previousTxHash to this tx
+          var txHash = newTxObject.hash;
+          previousTxHash = txHash;
+
+          finalBundleTrytes.push(returnedTrytes);
+          callback(null);
+        }).catch(callback);
+      }
+      default: {
         // cCurl updates the nonce as well as the transaction hash
         libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
 
@@ -182,20 +199,6 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
 
           return callback(null);
         });
-        break;
-      }
-      default: {
-        libcurl.pow({trytes: newTrytes, minWeight: minWeightMagnitude}).then(function(nonce) {
-          var returnedTrytes = newTrytes.substr(0, 2673-81).concat(nonce);
-          var newTxObject= iotaObj.utils.transactionObject(returnedTrytes);
-
-          // Assign the previousTxHash to this tx
-          var txHash = newTxObject.hash;
-          previousTxHash = txHash;
-
-          finalBundleTrytes.push(returnedTrytes);
-          callback(null);
-        }).catch(callback);
       }
     }
   }

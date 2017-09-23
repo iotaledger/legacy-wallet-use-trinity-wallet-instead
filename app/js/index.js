@@ -16,6 +16,13 @@ String.prototype.escapeHTML = function() {
   });
 }
 
+let webglAvailable = false;
+try {
+  require('curl.lib.js').init();
+  webglAvailable = true;
+} catch (e) {}
+
+
 var UI = (function(UI, undefined) {
   var showQuitAlert      = false;
   var isInitialized      = false;
@@ -598,11 +605,10 @@ var UI = (function(UI, undefined) {
         config.minWeightMagnitude = parseInt(document.getElementById("server_config_min_weight_magnitude").value, 10);
 
         var selectCurl = document.getElementById("server_config_curl_implementation_select")
-        if (selectCurl) {
-          config.ccurl = selectCurl.options[selectCurl.selectedIndex].value === 'ccurl' ? 1 : 0;
-        }
-        else {
-          config.ccurl = 0; 
+        if (selectCurl && webglAvailable) {
+            config.ccurl = selectCurl.options[selectCurl.selectedIndex].value === 'ccurl' ? 1 : 0;
+        } else {
+          config.ccurl = 1;
         }
 
       } else {
