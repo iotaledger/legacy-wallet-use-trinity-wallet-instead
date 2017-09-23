@@ -12,7 +12,7 @@
     "remodal": "^1.0.7",
     "toastr": "^2.1.2",
     "async": "^2.1.4",
-    "iota.lib.js": "iotaledger/iota.lib.js",
+    "iota.lib.js": "^0.4.1",
     "i18next": "^8.3.0",
     "i18next-xhr-backend": "^1.4.1",
     "jquery-i18next": "^1.2.0"

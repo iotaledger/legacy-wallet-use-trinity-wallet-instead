@@ -2,7 +2,7 @@
   "name": "iota",
   "productName": "IOTA Wallet",
   "description": "IOTA Wallet",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "url": "https://github.com/iotaledger/wallet"
   },
   "dependencies": {
-    "curl.lib.js": "^1.0.19",
+    "curl.lib.js": "^1.0.20",
     "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
     "glob": "^7.1.2",
