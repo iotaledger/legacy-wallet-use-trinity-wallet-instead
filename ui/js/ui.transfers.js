@@ -62,7 +62,7 @@ var UI = (function(UI, $, undefined) {
 
       UI.isDoingPOW = true;
 
-      getUnspentInputs(connection.seed, 0, 10, amount, function(error, inputs) {
+      getUnspentInputs(connection.seed, 0, 10, amount, connection.maxIndex, function(error, inputs) {
         if (error) {
           UI.isDoingPOW = false;
           UI.formError("transfer", error, {"initial": "send_it_now"});
@@ -259,12 +259,10 @@ function filterSpentAddresses(inputs) {
   })
 }
 
-function getUnspentInputs(seed, start, step, threshold, inputs, cb) {
-  // TODO: define limit in settings to stop scanning for balance
-  var limit = 500 //connection.maxIndex
+function getUnspentInputs(seed, start, step, threshold, limit, inputs, cb) {
   end = start + step
-  if (arguments.length === 5) {
-    cb = arguments[4]
+  if (arguments.length === 6) {
+    cb = arguments[5]
     inputs = {inputs: [], totalBalance: 0, allBalance: 0}
   }
   getInputs(seed, {start: start, end: end, threshold: threshold}, (err, res) => {
@@ -283,7 +281,7 @@ function getUnspentInputs(seed, start, step, threshold, inputs, cb) {
           cb('Not enough balance')
           return
         }
-        getUnspentInputs(seed, start, step, diff, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance}, cb)
+        getUnspentInputs(seed, start, step, diff, limit, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance}, cb)
       }
       else {
         cb(null, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance})

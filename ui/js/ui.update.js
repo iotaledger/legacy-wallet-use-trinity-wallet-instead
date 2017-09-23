@@ -75,8 +75,8 @@ var UI = (function(UI, $, undefined) {
 
               if (!error) {
                 if (accountData.balance === 0) {
-                  //if no balance found, look at the first 10 addresses
-                  iota.api.getAccountData(connection.seed, {start:0 , end:10}, function(error, accountData) {
+                  //if no balance found, look at the first N addresses
+                  iota.api.getAccountData(connection.seed, {start: 0 , end: connection.maxIndex}, function(error, accountData) {
                       if (!error) {
                         connection.previousAccountData = connection.accountData;
                         connection.accountData = accountData;

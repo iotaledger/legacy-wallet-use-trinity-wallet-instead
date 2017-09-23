@@ -129,8 +129,8 @@ var UI = (function(UI, $, undefined) {
 
           if (!error) {
             if (accountData.balance === 0) {
-              //if no balance found, look at the first 10 addresses
-              iota.api.getAccountData(connection.seed, {start:0 , end:10}, function(error, accountData) {
+              //if no balance found, look at first N user addresses as specified in settings
+              iota.api.getAccountData(connection.seed, {start: 0 , end: connection.maxIndex}, function(error, accountData) {
                   if (!error) {
                     connection.accountData = accountData;
                     $("#login-password").val("");
@@ -209,6 +209,7 @@ var UI = (function(UI, $, undefined) {
         "port": connection.port,
         "depth": connection.depth,
         "minWeightMagnitude": connection.minWeightMagnitude,
+        "maxIndex": connection.maxIndex,
         "ccurl": connection.ccurl,
         "ccurlPath": connection.ccurlPath,
         "language": connection.language,
