@@ -836,7 +836,7 @@ hr {
   color: #caffb0;
 }
 
-#rebroadcast-btn, #reattach-btn, #key-reuse-modal, #sent-to-key-reuse-modal, #double-spend-cancel-btn, #not-enough-available-inputs-modal, #transition-restart-btn, #transition-stop-btn, #transition-balance-complete-btn, #transition-balance-incomplete-btn {
+#rebroadcast-btn, #reattach-btn, #key-reuse-modal, #sent-to-key-reuse-modal, #double-spend-cancel-btn, #transition-restart-btn, #transition-stop-btn, #transition-balance-complete-btn, #transition-balance-incomplete-btn {
   margin-top: 10px;
 }
 

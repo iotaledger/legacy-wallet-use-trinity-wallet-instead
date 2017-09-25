@@ -63,30 +63,24 @@ var UI = (function(UI, $, undefined) {
       UI.isDoingPOW = true;
 
       getUnspentInputs(connection.seed, 0, amount, function(error, inputs) {
-        if (error) {
+        if (error && error.message !== 'Not enough balance') {
           UI.isDoingPOW = false;
           UI.formError("transfer", error, {"initial": "send_it_now"});
           $stack.removeClass("loading");
           return;
-        } else if (inputs.inputs.length == 0) {
-          UI.isDoingPOW = false;
-          UI.formError("transfer", "key_reuse_error", {"initial": "send_it_now"});
-          modal = $("#key-reuse-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
-          modal.open();
-         return;
+        } else if (inputs.allBalance < amount) {
+          UI.formError("transfer", "not_enough_balance", {"initial": "send_it_now"});
+          $stack.removeClass("loading");
+          return;
         } else if (inputs.totalBalance < amount) {
           UI.isDoingPOW = false;
-          if (inputs.allBalance < amount) {
-            UI.formError("transfer", "not_enough_balance", {"initial": "send_it_now"});
-            $stack.removeClass("loading");
-          } else {
-            UI.formError("transfer", "not_enough_available_inputs", {"initial": "send_it_now"});
-            modal = $("#not-enough-available-inputs-warning-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
-            modal.open();
-          }
+          UI.formError("transfer", "key_reuse_error", {"initial": "send_it_now"});
+          modal = $("#key-reuse-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
+          modal.open();
+          $stack.removeClass("loading");
           return;
         }
-
+        
         var transfers = [{"address": address, "value": amount, "message": "", "tag": tag}];
         var outputsToCheck = transfers.map(transfer => { return {address: iota.utils.noChecksum(transfer.address)}});
         var exptectedOutputsLength = outputsToCheck.length;
@@ -96,33 +90,48 @@ var UI = (function(UI, $, undefined) {
             UI.formError("transfer", "sent_to_key_reuse_error", {"initial": "send_it_now"});
             modal = $("#sent-to-key-reuse-modal").remodal({hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false});
             modal.open();
+            $stack.removeClass("loading");
             return;
           }
-          iota.api.sendTransfer(connection.seed, connection.depth, connection.minWeightMagnitude, transfers, {"inputs": inputs.inputs}, function(error, transfers) {
-          UI.isDoingPOW = false;
-          if (error) {
-            console.log(error);
-            UI.formError("transfer", error, {"initial": "send_it_now"});
-          } else {
-            console.log("UI.handleTransfers: Success");
-            UI.formSuccess("transfer", "transfer_completed", {"initial": "send_it_now"});
-            UI.updateState(1000);
-          }
-          $stack.removeClass("loading");
+          iota.api.prepareTransfers(connection.seed, transfers, {"inputs": inputs.inputs}, function(error, trytes) {
+            if (error) {
+              console.log(error);
+              UI.formError("transfer", error, {"initial": "send_it_now"});
+              $stack.removeClass("loading");
+              return;
+            }
+            var sentToInputs = false;
+            trytes.forEach(transactionTrytes => {
+              var tx = iota.utils.transactionObject(transactionTrytes);
+              if (inputs.inputs.findIndex(input => tx.value > 0 && input.address === tx.address) !== -1) {
+                sentToInputs = true;
+              }
+            })
+            if (sentToInputs) {
+              UI.formError("transfer", "sent_to_inputs", {"initial": "send_it_now"});
+              $stack.removeClass("loading");
+              return;
+            }
+            iota.api.sendTrytes(trytes, connection.depth, connection.minWeightMagnitude, (error, transfers) => {
+              UI.isDoingPOW = false;
+              if (error) {
+                console.log(error);
+                UI.formError("transfer", error, {"initial": "send_it_now"});
+              } else {
+                console.log("UI.handleTransfers: Success");
+                UI.formSuccess("transfer", "transfer_completed", {"initial": "send_it_now"});
+                UI.updateState(1000);
+              }
+              $stack.removeClass("loading");
+            });
+          });
         });
-
-        })
-       });
+      });
     });
 
     $("#key-reuse-close-btn").on("click", function(e) {
       modal.close();
       $("#key-reuse-close-btn").loadingReset("close");
-    });
-
-    $("#not-enough-available-inputs-close-btn").on("click", function(e) {
-      modal.close();
-      $("#not-enough-available-inputs-close-btn").loadingReset("close");
     });
 
     $("#sent-to-key-reuse-close-btn").on("click", function(e) {
@@ -213,7 +222,6 @@ function filterSpentAddresses(inputs) {
         reject(err)
       }
       txs = txs.filter(tx => tx.value < 0)
-      var bundleHashes = txs.map(tx => tx.bundle)
       if (txs.length > 0) {
         var bundles = txs.map(tx => tx.bundle)
         iota.api.findTransactionObjects({bundles: bundles}, (err, txs) => {
@@ -266,7 +274,8 @@ function getUnspentInputs(seed, start, threshold, inputs, cb) {
   }
   iota.api.getInputs(seed, {start: start, threshold: threshold}, (err, res) => {
     if (err) {
-      cb(err)
+      console.log(err)
+      cb(err, inputs)
       return
     }
     inputs.allBalance += res.inputs.reduce((sum, input) => sum + input.balance, 0)
@@ -281,7 +290,7 @@ function getUnspentInputs(seed, start, threshold, inputs, cb) {
       else {
         cb(null, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance})
       }
-    }).catch(err => cb(err))
+    }).catch(err => cb(err, inputs))
   })
 }
 
