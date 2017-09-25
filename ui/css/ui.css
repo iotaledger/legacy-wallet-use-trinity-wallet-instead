@@ -409,6 +409,16 @@ hr {
   cursor: pointer;
 }
 
+#app .seed-hash {
+  position: absolute;
+  top: 25px;
+  left: 80px;
+  width: 36px;
+  height: 22px;
+  color: white;
+  font-size: 30px;
+}
+
 #app .logo {
   text-align: center;
   position: absolute;
@@ -1153,6 +1163,11 @@ input[type="number"] {
     left: 30px;
   }
 
+  #app .seed-hash {
+    top: 30px;
+    left: 80px;
+  }
+
   #app .logout {
     top: 26px;
     right: 25px;
@@ -1294,6 +1309,14 @@ input[type="number"] {
     background-size: 24px 14.6px;
   }
 
+  #app .seed-hash {
+    top: 30px;
+    left: 80px;
+    width: 24px;
+    height: 14.6px;
+    background-size: 24px 14.6px;
+  }
+
   #app .logout {
     top: 23px;
     right: 20px;
@@ -1395,6 +1418,10 @@ input[type="number"] {
 
   #app .menu {
     left: 15px;
+  }
+
+  #app .seed-hash {
+    left: 30px;
   }
 
   #app .logout {
@@ -1537,6 +1564,10 @@ input[type="number"] {
   }
 
   #app .menu {
+    top: 20px;
+  }
+
+  #app .seed-hash {
     top: 20px;
   }
 
