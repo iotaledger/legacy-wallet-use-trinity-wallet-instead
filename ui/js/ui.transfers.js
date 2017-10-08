@@ -38,7 +38,7 @@ var UI = (function(UI, $, undefined) {
         if (!rawAmount) {
           throw UI.t("amount_cannot_be_zero");
         } else {
-          amount = iota.utils.convertUnits(parseFloat(rawAmount), rawUnits, "i");
+          amount = parseInt(iota.utils.convertUnits(parseFloat(rawAmount), rawUnits, "i"), 10);
 
           if (!amount) {
             throw UI.t("amount_cannot_be_zero");
