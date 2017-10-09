@@ -28,6 +28,7 @@
     "url": "https://github.com/iotaledger/wallet"
   },
   "dependencies": {
+    "core-util-is": "^1.0.2",
     "curl.lib.js": "^1.0.22",
     "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
@@ -37,8 +38,8 @@
     "pidusage": "^1.1.5"
   },
   "devDependencies": {
-    "electron": "1.7.4",
-    "electron-builder": "^19.19.1",
+    "electron": "1.7.9",
+    "electron-builder": "^19.37.2",
     "follow-redirects": "^1.2.4",
     "rimraf": "^2.6.1"
   },

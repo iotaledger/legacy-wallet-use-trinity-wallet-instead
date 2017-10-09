@@ -836,7 +836,7 @@ hr {
   color: #caffb0;
 }
 
-#rebroadcast-btn, #reattach-btn, #key-reuse-modal, #sent-to-key-reuse-modal, #double-spend-cancel-btn, #not-enough-available-inputs-modal, #transition-restart-btn, #transition-stop-btn, #transition-balance-complete-btn, #transition-balance-incomplete-btn {
+#rebroadcast-btn, #reattach-btn, #key-reuse-modal, #sent-to-key-reuse-modal, #double-spend-cancel-btn, #transition-restart-btn, #transition-stop-btn, #transition-balance-complete-btn, #transition-balance-incomplete-btn {
   margin-top: 10px;
 }
 
@@ -1806,7 +1806,7 @@ input[type="number"] {
   text-align: left;
 }
 
-#transition-modal label {
+#recovery-modal label {
   font-weight:bold;
   text-align:left;
   font-size:22px;
@@ -1816,7 +1816,7 @@ input[type="number"] {
   display: block;
 }
 
-#transition-modal input {
+#recovery-modal input {
   box-sizing: border-box;
   width: 100%;
   border: 0;
@@ -1828,11 +1828,32 @@ input[type="number"] {
   font-size: 20px;
 }
 
-#transition-description, #transition-balance, #transition-succeeded, #transition-new-seed-description {
+#transition-description, #transition-balance, #transition-succeeded, #transition-new-seed-description, #recovery-modal .description {
   background:#efefef;
   padding:10px;
 }
 
 #transition-balance span.amount {
   font-weight: bold;
+}
+
+#recovery-step-2 {
+  display: none;
+}
+
+#recovery-confirmed-status {
+  background: #dbffc2;
+  padding: 20px;
+}
+
+.pending-proof {
+  background: #fff9c4 !important;
+}
+
+#recovery-proof-transaction-confirmed {
+  display: none;
+}
+
+#recovery-step-2-close {
+  display: none;
 }

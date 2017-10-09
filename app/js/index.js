@@ -1012,6 +1012,11 @@ electron.ipcRenderer.on("updateSettings", function(event, settings) {
   UI.sendToWebview("updateSettings", settings);
 });
 
+electron.ipcRenderer.on("showRecovery", function() {
+  UI.hideAlerts();
+  UI.sendToWebview("showRecovery");
+})
+
 electron.ipcRenderer.on("stopCcurl", function(event, data) {
   UI.sendToWebview("stopCcurl", data);
 });

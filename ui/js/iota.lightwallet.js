@@ -26,4 +26,6 @@ var localAttachToTangle = function(trunkTransaction, branchTransaction, minWeigh
 }
 
 iota.api.attachToTangle = localAttachToTangle;
+iota.api.__proto__.attachToTangle = localAttachToTangle;
 iota.api.interruptAttachingToTangle = localInterruptAttachingToTangle;
+iota.api.__proto__.interruptAttachingToTangle = localInterruptAttachingToTangle;

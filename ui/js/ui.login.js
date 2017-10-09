@@ -22,6 +22,7 @@ var UI = (function(UI, $, undefined) {
       clearInterval(loginGradientInterval);
     }, 60000);
 
+    UI.handleRecovery();
     UI.handleHelpMenu();
     UI.handleNetworkSpamming();
     UI.handlePastingTrytes();

@@ -138,6 +138,13 @@ ipcRenderer.on("stopCcurl", function(event, callback) {
   ipcRenderer.send("relaunchApplication", true);
 });
 
+ipcRenderer.on('showRecovery', function(event, callback) {
+  console.log('enter recovery tool')
+  if (typeof(UI) !== "undefined") {
+    UI.showRecoveryModal()
+  }
+})
+
 function _hoverAmountStart(amount) {
   ipcRenderer.send("hoverAmountStart", amount);
 }

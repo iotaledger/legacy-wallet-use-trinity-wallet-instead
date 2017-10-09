@@ -14,9 +14,9 @@ var UI = (function(UI, $, undefined) {
       console.log("UI.handleHistory: Show bundle modal for hash " + hash);
 
       iota.api.getBundle(hash, function(error, transactions) {
-        if (error) { 
+        if (error) {
           return;
-        } 
+        }
 
         var inputAddresses = [];
 
@@ -40,11 +40,11 @@ var UI = (function(UI, $, undefined) {
           }
 
           html += "</ul></div>";
-        
+
           $modal.find(".contents").html(html);
           $modal.find(".hash").html("<strong><span data-i18n='hash'>" + UI.t("hash") + "</span>:</strong> " + UI.formatForClipboard(hash));
 
-          $modal.find(".persistence").html("<span data-i18n='persistence'>" + UI.t("persistence") + "</span>: " + (persistence ? "<span data-i18n='confirmed'>" + UI.t("confirmed") + "</span>" : "<span data-i18n='pending'>" + UI.t("pending") + "</span>")).show(); 
+          $modal.find(".persistence").html("<span data-i18n='persistence'>" + UI.t("persistence") + "</span>: " + (persistence ? "<span data-i18n='confirmed'>" + UI.t("confirmed") + "</span>" : "<span data-i18n='pending'>" + UI.t("pending") + "</span>")).show();
           $modal.find(".btn").data("hash", hash);
 
           $modal.find(".btn").each(function() {
@@ -61,7 +61,7 @@ var UI = (function(UI, $, undefined) {
           } else {
             $modal.find(".btn").hide();
           }
-          
+
           modal = $modal.remodal(options);
           modal.open();
         });
@@ -228,7 +228,8 @@ var UI = (function(UI, $, undefined) {
         transfersHtml += "<li data-hash='" + UI.format(bundle[0].hash) + "' data-type='" + (isSent ? "spending" : "receiving") + "' data-persistence='" + UI.format(persistence*1) + "'>";
         transfersHtml += "<div class='type'><i class='fa fa-arrow-circle-" + (isSent ? "left" : "right") + "'></i></div>";
         transfersHtml += "<div class='details'>";
-        transfersHtml += "<div class='date'>" + (bundle[0].attachmentTimestamp != "0" ? UI.formatDate(bundle[0].attachmentTimestamp, true) : UI.t("genesis")) + "</div>";
+        transfersHtml += "<div class='date'>" + (bundle[0].attachmentTimestamp != 0 ? UI.formatDate(bundle[0].attachmentTimestamp, true) :
+                                      (bundle[0].timestamp != 0 ? UI.formatDate(bundle[0].timestamp, true) : "")) + "</div>";
         transfersHtml += "<div class='address'>" + (address ? UI.formatForClipboard(iota.utils.addChecksum(address)) : "/") + "</div>";
         transfersHtml += "<div class='action'>";
         if (tags.length) {
@@ -280,7 +281,7 @@ var UI = (function(UI, $, undefined) {
     }
   }
 
-  UI.updateBalance = function() {    
+  UI.updateBalance = function() {
     $("#available-balance, #available-balance-always").html(UI.formatAmount(connection.accountData.balance));
     $("#available-balance span").css("font-size", "");
   }

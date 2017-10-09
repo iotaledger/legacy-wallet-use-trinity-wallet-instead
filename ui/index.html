@@ -12,6 +12,7 @@
   <script type="text/javascript" src="bower_components/toastr/toastr.js"></script>
   <script type="text/javascript" src="bower_components/async/dist/async.min.js"></script>
   <script type="text/javascript" src="bower_components/iota.lib.js/dist/iota.js"></script>
+  <script type="text/javascript" src="js/iota.crypto.js"></script>
   <script type="text/javascript" src="js/other/loading-btn.js"></script>
   <script type="text/javascript" src="js/ui.init.js"></script>
   <script type="text/javascript" src="js/ui.addresses.js"></script>
@@ -27,6 +28,7 @@
   <script type="text/javascript" src="js/ui.update.js"></script>
   <script type="text/javascript" src="js/ui.pasteTrytes.js"></script>
   <script type="text/javascript" src="js/ui.utils.js"></script>
+  <script type="text/javascript" src="js/ui.recover.js"></script>
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
   <link rel="stylesheet" href="bower_components/remodal/dist/remodal.css" />
   <link rel="stylesheet" href="bower_components/toastr/toastr.css" />
@@ -160,13 +162,6 @@
   <button id="sent-to-key-reuse-close-btn" type="button" class="btn" data-initial="close" data-loading="closing" data-i18n="close"></button>
 </div>
 
-<div id="not-enough-available-inputs-modal" class="modal" data-remodal-id="not-enough-available-inputs">
-  <button data-remodal-action="close" class="remodal-close"></button>
-  <h1 data-i18n="not_enough_available_inputs_error"></h1>
-  <div class="contents"><p data-i18n="not_enough_available_inputs_attempt"></p></div>
-  <button id="not-enough-available-inputs-close-btn" type="button" class="btn" data-initial="close" data-loading="closing" data-i18n="close"></button>
-</div>
-
 <div id="paste-trytes-modal" class="modal" data-remodal-id="paste-trytes">
   <button data-remodal-action="close" class="remodal-close"></button>
   <h1 data-i18n="paste_trytes"></h1>
@@ -190,6 +185,29 @@
   <button id="spam-btn" type="button" class="btn" data-initial="spam_the_network" data-loading="spamming" data-i18n="spam_the_network"></button>
   <div id="spam-output" class="small"><span id="spam-cnt">0</span> <span data-i18n="x_transactions_generated"></span> <span id="spam-msg"></span></div>
   <div id="spam-not-synced" class="small" style="color:red;display:none;" data-i18n="not_synced"></div>
+</div>
+
+<div id="recovery-modal" class="modal gray" data-remodal-id="recovery">
+  <button data-remodal-action="close" class="remodal-close"></button>
+  <div class="contents"><p data-i18n=""></p></div>
+  <div id="recovery-step-1">
+    <p class="description"><span data-i18n="recovery_info"></span></p>
+    <label for="old_seed" data-i18n="old_seed">Old seed:</label>
+    <input type="password" name="old_seed" id="recovery-old-seed" placeholder="Old seed" />
+    <p class="description"><span data-i18n="recovery_new_seed_prompt"></span></p>
+    <label for="new_seed" data-i18n="new_seed"></label>
+    <input type="password" name="new_seed" id="recovery-new-seed" placeholder="New seed" />
+    <button id="recovery-publish-proof-btn" class="btn" type="button" data-initial="publish_proof" data-loading="sending" data-i18n="publish_proof"></button>
+  </div>
+  <div id="recovery-step-2">
+    <p id="recovery-confirmed-status" class="pending-proof">
+      <span id="recovery-proof-transaction-pending" data-i18n="recovery_proof_transaction_pending"></span>
+      <span id="recovery-proof-transaction-confirmed" data-i18n="recovery_proof_transaction_confirmed"></span>
+    </p>
+    <p id="recovery-reattach-prompt" class="description"><span data-i18n="recovery_reattach_prompt"></span></p>
+    <button id="recovery-reattach-btn" class="btn" type="button" data-initial="reattach" data-loading="reattaching" data-i18n="reattach"></button>
+    <button id="recovery-step-2-close" class="btn btn-no-loading" type="button" data-initial="recovery_close" data-i18n="recovery_close"></button>
+  </div>
 </div>
 
 <div id="help">

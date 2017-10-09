@@ -58,7 +58,8 @@ var App = (function(App, undefined) {
   var didKillNode               = false;
   var settings                  = {};
   var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
-  var isDebug                   = process.argv.indexOf("debug") !== -1;
+  var isDebug                   = process.argv.indexOf("--enableDeveloperConsole") !== -1;
+  var showDevTools              = false;
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
@@ -401,7 +402,7 @@ var App = (function(App, undefined) {
       }
 
       win = new electron.BrowserWindow(windowOptions);
-      if (isDebug) {
+      if (showDevTools) {
         win.toggleDevTools({mode: "undocked"});
       }
       win.setAspectRatio(11 / 16);
@@ -524,17 +525,6 @@ var App = (function(App, undefined) {
           }
         },
         {
-          label: App.t("toggle_web_inspector"),
-          accelerator: process.platform === "darwin" ? "Alt+Command+I" : "Ctrl+Shift+I",
-          click() {
-            if (otherWin) {
-              otherWin.toggleDevTools({mode: "undocked"});
-            } else if (App.uiIsReady) {
-              win.webContents.send("toggleDeveloperTools");
-            }
-          }
-        },
-        {
           label: (isFullScreen ? App.t("exit_full_screen") : App.t("enter_full_screen")),
           accelerator: process.platform === "darwin" ? "Ctrl+Command+F" : "F11",
           click() {
@@ -579,7 +569,7 @@ var App = (function(App, undefined) {
       var translatedLanguage = languages[i][1].trim();
       var originalLanguage   = languages[i][2].trim();
 
-      template[1].submenu[3].submenu.push({
+      template[1].submenu[2].submenu.push({
         label: (translatedLanguage != originalLanguage ? translatedLanguage + " - " + originalLanguage : translatedLanguage),
         click(item) {
           App.changeLanguage(item.id.replace("language-", ""));
@@ -591,11 +581,10 @@ var App = (function(App, undefined) {
     }
 
     if (simple) {
-      template[1].submenu.splice(0, 1);
-      template[1].submenu.splice(1, 1);
+      template[1].submenu.splce(0, 2); // Only language
     } else {
       if (process.platform == "win32") {
-        template[1].submenu.splice(2, 1);
+        template[1].submenu.splice(1, 1); // Hide fullscreen
       }
 
       template.push(
@@ -629,6 +618,12 @@ var App = (function(App, undefined) {
             label: App.t("paste_trytes"),
             click(item) {
               App.pasteTrytes();
+            }
+          },
+          {
+            label: App.t("reclaim_tool"),
+            click(item) {
+              App.showRecovery();
             }
           },
           {
@@ -684,16 +679,16 @@ var App = (function(App, undefined) {
       });
 
       if (settings.lightWallet == 1) {
-        template[2].submenu[13].label = App.t("switch_to_full_node");
+        template[2].submenu[14].label = App.t("switch_to_full_node");
         // Remove "view neighbors and view server log" options.
         template[2].submenu.splice(1, 3);
         // Remove "network spammer and open database folder" options.
-        template[2].submenu.splice(2, 3);
+        template[2].submenu.splice(3, 3);
         // Remove "edit neighbors" option.
-        template[2].submenu.splice(3, 1);
+        template[2].submenu.splice(4, 1);
         if (process.platform == "darwin") {
           // Remove options from mac platforms
-          template[2].submenu.splice(4, 2);
+          template[2].submenu.splice(5, 2);
         }
       } else {
         if (settings.lightWallet == -1) {
@@ -2015,6 +2010,13 @@ var App = (function(App, undefined) {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showNetworkSpammer");
+    }
+  }
+
+  App.showRecovery = function () {
+    if (App.windowIsReady()) {
+      App.showWindowIfNotVisible()
+      win.webContents.send("showRecovery")
     }
   }
 
