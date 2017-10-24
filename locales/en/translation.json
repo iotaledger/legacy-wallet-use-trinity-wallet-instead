@@ -339,5 +339,6 @@
   "recovery_proof_transaction_pending": "Proof transaction is pending",
   "recovery_proof_transaction_confirmed": "Proof transaction confirmed",
   "recovery_close": "Close",
-  "invalid_checksum": "Invalid checksum"
+  "invalid_checksum": "Invalid checksum",
+  "recovery_transaction_hash": "Transaction hash:"
 }

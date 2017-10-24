@@ -1857,3 +1857,8 @@ input[type="number"] {
 #recovery-step-2-close {
   display: none;
 }
+
+#recovery-transaction-hash-clipboard {
+  overflow: hidden;
+  margin: 14px;
+}

@@ -99,6 +99,7 @@ var UI = (function (UI, $, undefined) {
           $('.remodal-close').off('click')
           $('#recovery-step-1').hide()
           $('#recovery-step-2').fadeIn()
+          $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(tx[0].hash))
           _step++
           checkInclusionStates(tx[0], CONFIRMATION_CHECK_TIMEOUT, function (err, confirmed) {
             if (err) {
