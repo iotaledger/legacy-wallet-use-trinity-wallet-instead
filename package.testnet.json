@@ -2,7 +2,7 @@
   "name": "iota-testnet",
   "productName": "IOTA Wallet Testnet",
   "description": "IOTA Wallet Testnet",
-  "version": "2.3.1-testnet",
+  "version": "2.5.1-testnet",
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {

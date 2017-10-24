@@ -1,7 +1,7 @@
 var UI = (function (UI, $, undefined) {
   var HASH_LENGTH = 81
   var CONFIRMATION_CHECK_TIMEOUT = 30 * 1000
-  var TAG = 'ZZZQWZUQBNYLHVGUEBQDMFXINKA'
+  var TAG = '9'.repeat(27)
   var CONSTANT = 'SELF9TAUGHT9AI9IS9BEST9YET9AT9STRATEGY9GAME9GOSELF9TAUGHT9AI9IS9BEST9YET9AT9STRAT'
 
   var _modal
@@ -61,6 +61,16 @@ var UI = (function (UI, $, undefined) {
         $('#recovery-new-seed').focus()
         return
       }
+
+      if (oldSeed === newSeed) {
+        UI.formError('recover', 'old_new_identical', {initial: 'publish_proof'})
+        $('.remodal-close').off('click')
+        publishProofBtn.loadingReset('publish_proof')
+        $('#recovery-new-seed').val('')
+        $('#recovery-new-seed').focus()
+        return;
+      }
+
 
       var newAddress
       {
@@ -215,8 +225,9 @@ var UI = (function (UI, $, undefined) {
     var bundle = new IOTACrypto.bundle()
     bundle.addEntry(1, pepperAndProof[1], 0, tag, Math.floor(Date.now() / 1000))
     bundle.bundle[0].tag = pepperAndProof[0]
-    bundle.bundle[0].obsoleteTag = tag;
+    bundle.bundle[0].obsoleteTag = tag
     bundle.finalize()
+    bundle.addTrytes(['9'.repeat(27*81)])
 
     return bundle
   }
