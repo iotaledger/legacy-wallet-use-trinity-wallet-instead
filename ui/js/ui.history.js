@@ -35,7 +35,7 @@ var UI = (function(UI, $, undefined) {
           var html = "<div class='list'><ul>";
 
           for (var i=0; i<transactions.length; i++) {
-            var tag = String(transactions[i].obsoleteTag).replace(/[9]+$/, "");
+            var tag = String(transactions[i].tag).replace(/[9]+$/, "");
             html += "<li><div class='details'><div class='address'>" + (tag ? "<div class='tag'>" + UI.format(tag) + "</div>" : "") + UI.formatForClipboard(iota.utils.addChecksum(transactions[i].address)) + "</div></div><div class='value'>" + UI.formatAmount(transactions[i].value) + "</div></li>";
           }
 
@@ -215,7 +215,7 @@ var UI = (function(UI, $, undefined) {
           if (item.value !== 0 && isOurAddress) {
             totalValue += item.value;
           }
-          var tag = String(item.obsoleteTag).replace(/[9]+$/, "");
+          var tag = String(item.tag).replace(/[9]+$/, "");
           if (tag && tags.indexOf(tag) == -1) {
             tags.push(tag);
           }
