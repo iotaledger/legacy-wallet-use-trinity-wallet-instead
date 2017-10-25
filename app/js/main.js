@@ -581,7 +581,7 @@ var App = (function(App, undefined) {
     }
 
     if (simple) {
-      template[1].submenu.splce(0, 2); // Only language
+      template[1].submenu.splice(0, 2); // Only language
     } else {
       if (process.platform == "win32") {
         template[1].submenu.splice(1, 1); // Hide fullscreen
