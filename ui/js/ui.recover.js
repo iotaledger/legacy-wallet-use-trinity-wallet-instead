@@ -53,7 +53,7 @@ var UI = (function (UI, $, undefined) {
         $('#recovery-old-seed').focus()
         return
       }
-      if (newSeed.length === 0 || !iota.valid.isTrytes(newSeed) || newSeed.length < 81) {
+      if (newSeed.length != 81 || !iota.valid.isTrytes(newSeed)) {
         UI.formError('recover', 'invalid_new_seed', {initial: 'publish_proof'})
         $('.remodal-close').off('click')
         publishProofBtn.loadingReset('publish_proof')
