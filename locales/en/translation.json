@@ -282,7 +282,7 @@
   "db_location":"Database Location",
   "invalid_seed":"Invalid Seed",
   "invalid_old_seed":"Invalid Old Seed",
-  "invalid_new_seed":"Invalid New Seed. Acceptable length: 81 trytes",
+  "invalid_new_seed":"Invalid new seed. The seed must be 81 trytes in length",
   "amount":"Amount",
   "select_your_host":"Select Your Host",
   "custom":"Custom",
