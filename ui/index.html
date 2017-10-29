@@ -12,6 +12,7 @@
   <script type="text/javascript" src="bower_components/toastr/toastr.js"></script>
   <script type="text/javascript" src="bower_components/async/dist/async.min.js"></script>
   <script type="text/javascript" src="bower_components/iota.lib.js/dist/iota.js"></script>
+  <script type="text/javascript" src="bower_components/openpgp/dist/openpgp.js"></script>
   <script type="text/javascript" src="js/iota.crypto.js"></script>
   <script type="text/javascript" src="js/other/loading-btn.js"></script>
   <script type="text/javascript" src="js/ui.init.js"></script>
@@ -197,18 +198,32 @@
     <p class="description"><span data-i18n="recovery_new_seed_prompt"></span></p>
     <label for="new_seed" data-i18n="new_seed"></label>
     <input type="password" name="new_seed" id="recovery-new-seed" placeholder="New seed" />
-    <button id="recovery-publish-proof-btn" class="btn" type="button" data-initial="publish_proof" data-loading="sending" data-i18n="publish_proof"></button>
+    <button id="recovery-next-btn" class="btn" type="button" data-initial="recovery_next" data-loading="recovery_loading" data-i18n="recovery_next"></button>
   </div>
   <div id="recovery-step-2">
-    <p id="recovery-confirmed-status" class="pending-proof">
+    <p id="recovery-proof-confirmed-status" class="recovery-pending">
       <span id="recovery-proof-transaction-pending" data-i18n="recovery_proof_transaction_pending"></span>
       <span id="recovery-proof-transaction-confirmed" data-i18n="recovery_proof_transaction_confirmed"></span>
+    </p>
+    <p id="recovery-reveal-confirmed-status" class="recovery-pending">
+      <span id="recovery-reveal-transaction-pending" data-i18n="recovery_reveal_transaction_pending"></span>
+      <span id="recovery-reveal-transaction-confirmed" data-i18n="recovery_reveal_transaction_confirmed"></span>
     </p>
     <span data-i18n="recovery_transaction_hash"></span>
     <div id="recovery-transaction-hash-clipboard" class="hash"></div>
     <p id="recovery-reattach-prompt" class="description"><span data-i18n="recovery_reattach_prompt"></span></p>
     <button id="recovery-reattach-btn" class="btn" type="button" data-initial="reattach" data-loading="reattaching" data-i18n="reattach"></button>
-    <button id="recovery-step-2-close" class="btn btn-no-loading" type="button" data-initial="recovery_close" data-i18n="recovery_close"></button>
+    <div id="recovery-submit-seed">
+      <p id="recovery-submit-seed-prompt" class="description"><span data-i18n="recovery_submit_seed_promt"></span></p>
+      <button id="recovery-submit-seed-btn" class="btn" type="button" data-initial="recovery_submit_seed" data-loading="sending" data-i18n="recovery_submit_seed"></button>
+      <button id="recovery-submit-seed-reattach-btn" class="btn" type="button" data-initial="reattach" data-loading="reattaching" data-i18n="reattach"></button>
+    </div>
+  </div>
+  <div id="recovery-step-3">
+    <p class="description"><span data-i18n="recovery_submitted_address"></span></p>
+    <span data-i18n="recovery_receive_address"></span>
+    <div id="recovery-new-address-clipboard" class="hash"></div>
+    <button id="recovery-step-3-close-btn" class="btn btn-no-loading" type="button" data-initial="recovery_close" data-i18n="recovery_close"></button>
   </div>
 </div>
 

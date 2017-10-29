@@ -326,6 +326,8 @@
   "please_log_out_first": "Please log out first.",
   "reclaim_tool": "Reclaim tool",
   "publish_proof": "Publish proof",
+  "recovery_next": "Continue",
+  "recovery_loading": "Loading...",
   "proof_published": "Proof published",
   "recovery_info": "Use this tool to begin the recovery process to recover your missing funds after the Curl to Kerl upgrade, precautionary measures related to key reuse or the October 23 bugfix. Please enter your old seed and the new seed below. The wallet will then generate a proof transaction using these two seeds and publish it to the tangle to establish ownership of the old seed and associated addresses upon confirmation of the proof transaction. Neither of your seeds will be published to the tangle in raw or reversable format.",
   "old_seed": "Old seed",
@@ -338,7 +340,17 @@
   "reattach_not_required": "Reattachment not required yet",
   "recovery_proof_transaction_pending": "Proof transaction is pending",
   "recovery_proof_transaction_confirmed": "Proof transaction confirmed",
+  "recovery_reveal_transaction_pending": "Reveal transaction is pending",
+  "recovery_reveal_transaction_confirmed": "Reveal transaction confirmed",
   "recovery_close": "Close",
   "invalid_checksum": "Invalid checksum",
-  "recovery_transaction_hash": "Transaction hash:"
+  "recovery_transaction_hash": "Transaction hash:",
+  "recovery_submit_seed_promt": "To complete the recovery process submit your old seed. Please ensure that the transaction will be confirmed.",
+  "recovery_submit_seed": "Submit seed",
+  "recovery_completed": "Reclaim process completed",
+  "recovery_submit_seed_error": "Error while submitting seed. Please try again.",
+  "recovery_old_seed_hash_balance": "Old seed has balance. Please move the balance to a new seed and try again.",
+  "recovery_submitted_address": "Any reclaimed tokens will be sent to your address shown below. For security reasons, do not spend from this address until you receive all your funds.",
+  "recovery_unexpected_error": "An unxpected error occured. Please try again.",
+  "recovery_receive_address": "Address"
 }

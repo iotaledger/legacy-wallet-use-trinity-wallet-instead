@@ -1837,20 +1837,24 @@ input[type="number"] {
   font-weight: bold;
 }
 
-#recovery-step-2 {
+#recovery-step-2, #recovery-step-3 {
   display: none;
 }
 
-#recovery-confirmed-status {
+#recovery-proof-confirmed-status, #recovery-reveal-confirmed-status {
   background: #dbffc2;
   padding: 20px;
 }
 
-.pending-proof {
+#recovery-reveal-confirmed-status {
+  display: none;
+}
+
+.recovery-pending {
   background: #fff9c4 !important;
 }
 
-#recovery-proof-transaction-confirmed {
+#recovery-proof-transaction-confirmed, #recovery-reveal-transaction-confirmed {
   display: none;
 }
 
@@ -1858,7 +1862,15 @@ input[type="number"] {
   display: none;
 }
 
-#recovery-transaction-hash-clipboard {
+#recovery-transaction-hash-clipboard, #recovery-new-address-clipboard {
   overflow: hidden;
   margin: 14px;
+}
+
+#recovery-submit-seed {
+  display: none;
+}
+
+#recovery-submit-seed-reattach-btn {
+  display: none;
 }

@@ -15,6 +15,7 @@
     "iota.lib.js": "^0.4.2",
     "i18next": "^8.3.0",
     "i18next-xhr-backend": "^1.4.1",
-    "jquery-i18next": "^1.2.0"
+    "jquery-i18next": "^1.2.0",
+    "openpgp": "opengpg#^2.5.12"
   }
 }

@@ -1,11 +1,53 @@
 var UI = (function (UI, $, undefined) {
   var HASH_LENGTH = 81
-  var CONFIRMATION_CHECK_TIMEOUT = 30 * 1000
+  var CONFIRMATION_CHECK_TIMEOUT = 20 * 1000
   var TAG = '9'.repeat(27)
+  var REVEAL_TAG = 'RZAFHLHZMNJQJGMTKVSRTHAPRJL'
   var CONSTANT = 'SELF9TAUGHT9AI9IS9BEST9YET9AT9STRATEGY9GAME9GOSELF9TAUGHT9AI9IS9BEST9YET9AT9STRAT'
+
+  var NUM_OF_ADDRESSES_TO_SCAN = 2 //100
+  var MIN_BALANCE_THRESHOLD = 1 * 100000
+
+  var IF_RECLAIM_SERVICE_URL = 'https://5icx91cfj6.execute-api.eu-west-1.amazonaws.com/prod'
+  var IF_RECLAIM_SERVICE_PUB_KEY = `-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mQINBFn7N9UBEADAel8VNth0zbhVobJ21zhPiqMCQuZdc3zc8ojc5ZBGWTMm
+rcMKvK1Jt+ganZCLdusRLtWTCkvlpwhtUI24cSB07auGhyJnpG7uA4CaEcSr
+XdLhZkKiCRUTXKUtxNLNzPcF7E5bxt5pyK3zlMMZT/y2XenfV4q9/WktnCNn
+PwV14/0AxxI14WIXU+0SGajQSnf8DmDkpJOYad7g5Cd1NWEGcnsY2vnbsdf2
+qN23wkLaA6RFS3JjPCLdTspQyxkoX3fhAYYOqH2mt8PhEtnrlXc1adGaCH7m
+egX+qRPqUM9TZQIu1l2Aqa4oOvuqEsbyhwG0Fdx3MtX1zyCPJGbl6FOWLUBq
+sf85ROdxjWaFuPoq0iM3rU5Jcb7B5GpmhCWFcN3axBv5JsHvmBgEK3MSapGZ
+C3yF4wp8iF1GF8nmCMWPUQruxsm+dCsAoCR3RAxbsM8krr1sU5gVvwim9euX
+kd9gzK7mGXfdbQ1p1tdwSidHoJoZ7Zr6ihsoXMP2FH046hHuIz+Cxu3U8tKP
+mgLyh/wIE1izTIKsMVavwu+sRbwYEiLrjC/xW7VRaj7uvjFgche5EnSB2Uwt
+kQDyP94BvDILOb4YU0VmBJv26mKHn4PS9v9CDfZ3WsCssYE5GaPOyQG+4fMN
+wNAs1mluv/UWRTR7J1RBUAHtPH8DqHeDUhKlIwARAQABtEZJT1RBIEZvdW5k
+YXRpb24gUmVjb3ZlcnkgVG9vbCAobm8taHVtYW5zLWludm9sdmVkKSA8cmVj
+b3ZlcnlAaW90YS5vcmc+iQJUBBMBCAA+FiEECmyt5VeVj8atvnAQ8bCzdIXm
+/xMFAln7N9UCGw0FCQHhM4AFCwkIBwIGFQgJCgsCBBYCAwECHgECF4AACgkQ
+8bCzdIXm/xMtqA//RQ+yqWJQ+Lw2G+EcXDp+u1ioB/2Eo3C6dhZDH7ZgtnuH
+8aqKmurNtFGm2R20ZU+yRAwdCg0ZrRsrxdhD3EqqjjigpVqDDH8ld5UTkz3U
+46Q0svqT1kBlOgcNgO6j4a64gGUNi81Uk/uhdyXcwYwzlF9j/6KefuOKGoYW
+B5TfcG3VFEbFQoKmT9f6NmmxF5pPbwshHhXkmdSNOUSyrhpdYMSZLhvTvSh2
+tjmnDt896RIjk7PAzJmvGesuq+jluLWv0YbS+yzNpnf8zA0kIR+TmRS2H6ww
++kmGAeQxCSUy7qw1/asRXoZznfxGZY09z49Uo3qD0YkGXY6Hg1qCOTtZku4H
+EiDza8vOhBAOj0mrGiFTk1vuRzdvSkTQoM3HTMXbZzDsPrNOkkDXgHn77aZH
+GLxbpGDmB4H2GRaCZaUR9uNu5+k4cqDj+wQ/F2q1+ApQ6yFY0Jo/trPOejy2
+0ZfXTpQfKvdVcectDbU953fS2NCPMBXOVnpyFMf5NN5LoHqlJyQ0Jda2kQon
+L65gbDhdCxRwTjNihAg1bAaxMfPnGuazQzbwha+d2T61G3Wax4utvXxDei76
+epRopQYsVYv6ILtb0LsPHT7c/5wyTDwdZlyCMXC8zmnFN/1zjKZWyI5OoeUt
+WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
+==2Lyf
+-----END PGP PUBLIC KEY BLOCK-----`
+
+  var MWM = 9
 
   var _modal
   var _proofTx = null
+  var _proofTxConfirmed = false
+  var _proofAddress = ''
+  var _pepper = ''
   var _step = 1
 
   UI.showRecoveryModal = function (callback) {
@@ -26,9 +68,12 @@ var UI = (function (UI, $, undefined) {
   }
 
   UI.handleRecovery = function () {
-    var publishProofBtn = $('#recovery-publish-proof-btn')
+    var recoveryNextBtn = $('#recovery-next-btn')
     var reattachBtn = $('#recovery-reattach-btn')
-    var recoveryCloseBtn = $('#recovery-step-2-close')
+    var recoverySubmitSeedBtn = $('#recovery-submit-seed-btn')
+    var recoverySubmitSeedReattachBtn = $('#recovery-submit-seed-reattach-btn')
+    var recoveryCloseBtn = $('#recovery-step-3-close-btn')
+
     $(document).on('closed', '#recovery-modal', function (e) {
       UI.startStateInterval()
       UI.isRecoveryOpen = false
@@ -36,7 +81,7 @@ var UI = (function (UI, $, undefined) {
       $('#recovery-old-seed').val('')
     })
 
-    publishProofBtn.on('click', function () {
+    recoveryNextBtn.on('click', function () {
       $('.remodal-close').on('click', function (e) {
         UI.notify('error', 'cannot_close_whilst_recovering')
         e.preventDefault()
@@ -48,15 +93,15 @@ var UI = (function (UI, $, undefined) {
       if (oldSeed.length === 0 || !iota.valid.isTrytes(oldSeed)) {
         UI.formError('recover', 'invalid_old_seed', {initial: 'publish_proof'})
         $('.remodal-close').off('click')
-        publishProofBtn.loadingReset('publish_proof')
+        recoveryNextBtn.loadingReset('recovery_next')
         $('#recovery-old-seed').val('')
         $('#recovery-old-seed').focus()
         return
       }
-      if (newSeed.length != 81 || !iota.valid.isTrytes(newSeed)) {
+      if (newSeed.length !== 81 || !iota.valid.isTrytes(newSeed)) {
         UI.formError('recover', 'invalid_new_seed', {initial: 'publish_proof'})
         $('.remodal-close').off('click')
-        publishProofBtn.loadingReset('publish_proof')
+        recoveryNextBtn.loadingReset('recovery_next')
         $('#recovery-new-seed').val('')
         $('#recovery-new-seed').focus()
         return
@@ -65,12 +110,11 @@ var UI = (function (UI, $, undefined) {
       if (oldSeed === newSeed) {
         UI.formError('recover', 'old_new_identical', {initial: 'publish_proof'})
         $('.remodal-close').off('click')
-        publishProofBtn.loadingReset('publish_proof')
+        recoveryNextBtn.loadingReset('recovery_next')
         $('#recovery-new-seed').val('')
         $('#recovery-new-seed').focus()
-        return;
+        return
       }
-
 
       var newAddress
       {
@@ -81,51 +125,88 @@ var UI = (function (UI, $, undefined) {
         newAddress = IOTACrypto.utils.addChecksum(newAddress)
       }
 
-      
-      filterSpentAddresses([{address: newAddress}])
-      .then(unspentAddresses => {
-        if (unspentAddresses.length === 0) {
-          UI.formError('recover', 'sent_to_key_reuse_error', {initial: 'publish_proof'})
-          $('.remodal-close').off('click')
-          publishProofBtn.loadingReset('publish_proof')
-          $('#recovery-new-seed').val('')
-          $('#recovery-new-seed').focus()
-          return
-        }
-        attachBundle(generateBundle(newAddress, generateProof(oldSeed, newSeed, newAddress), TAG))
-        .then(tx => {
-          publishProofBtn.loadingReset('publish_proof')
-          UI.formSuccess('recover', 'proof_published', {initial: 'publish_proof'})
-          $('.remodal-close').off('click')
-          $('#recovery-step-1').hide()
-          $('#recovery-step-2').fadeIn()
-          $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(tx[0].hash))
-          _step++
-          checkInclusionStates(tx[0], CONFIRMATION_CHECK_TIMEOUT, function (err, confirmed) {
+      _proofAddress = newAddress
+      var proof = generateProof(oldSeed, newSeed, newAddress)
+      _pepper = proof[2]
+      findTransactionObjects({addresses: [proof[1]]})
+      .then((txs) => {
+        if (txs.length) {
+          checkInclusionStates(txs[0], CONFIRMATION_CHECK_TIMEOUT, true, (err, confirmed) => {
             if (err) {
               UI.formError('recover', err.message, {initial: 'publish_proof'})
+              $('.remodal-close').off('click')
+              recoveryNextBtn.loadingReset('recovery_next')
               return
             }
-            _proofTx = tx
+            _proofTx = [txs[0]]
+            _step++
+            $('#recovery-step-1').hide()
+            $('#recovery-step-2').fadeIn()
+            $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(txs[0].hash))
             if (confirmed) {
-              UI.formSuccess('recover', 'recovery_proof_transaction_confirmed')
-              document.getElementById('recovery-confirmed-status').classList.remove('pending-proof')
+              _proofTxConfirmed = true
+              document.getElementById('recovery-proof-confirmed-status').classList.remove('recovery-pending')
               $('#recovery-proof-transaction-pending').hide()
               $('#recovery-proof-transaction-confirmed').show()
               $('#recovery-reattach-prompt').hide()
               reattachBtn.hide()
-              $('#recovery-step-2-close').fadeIn()
+              $('#recovery-submit-seed').fadeIn()
             }
+            $('.remodal-close').off('click')
+            recoveryNextBtn.loadingReset('recovery_next')
           })
-        }).catch(() => {
-          UI.formError('recover', 'recovery_attachment_error', {initial: 'publish_proof'})
-          publishProofBtn.loadingReset('publish_proof')
+          return
+        }
+        filterSpentAddresses([{address: newAddress}])
+        .then(unspentAddresses => {
+          if (unspentAddresses.length === 0) {
+            UI.formError('recover', 'sent_to_key_reuse_error', {initial: 'recovery_next'})
+            $('.remodal-close').off('click')
+            recoveryNextBtn.loadingReset('recovery_next')
+            $('#recovery-new-seed').val('')
+            $('#recovery-new-seed').focus()
+            return
+          }
+          attachBundle(generateProofBundle(newAddress, generateProof(oldSeed, newSeed, newAddress), TAG))
+          .then(tx => {
+            recoveryNextBtn.loadingReset('next')
+            UI.formSuccess('recover', 'proof_published', {initial: 'recovery_next'})
+            $('.remodal-close').off('click')
+            $('#recovery-step-1').hide()
+            $('#recovery-step-2').fadeIn()
+            $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(tx[0].hash))
+            _step++
+            checkInclusionStates(tx[0], CONFIRMATION_CHECK_TIMEOUT, false, (err, confirmed) => {
+              if (err) {
+                UI.formError('recover', err.message, {initial: 'recovery_next'})
+                return
+              }
+              _proofTx = tx
+              if (confirmed) {
+                _proofTxConfirmed = true
+                UI.formSuccess('recover', 'recovery_proof_transaction_confirmed')
+                document.getElementById('recovery-proof-confirmed-status').classList.remove('recovery-pending')
+                $('#recovery-proof-transaction-pending').hide()
+                $('#recovery-proof-transaction-confirmed').show()
+                $('#recovery-reattach-prompt').hide()
+                reattachBtn.hide()
+                $('#recovery-submit-seed').fadeIn()
+              }
+            })
+          }).catch(() => {
+            UI.formError('recover', 'recovery_attachment_error', {initial: 'recovery_next'})
+            recoveryNextBtn.loadingReset('recovery_next')
+            $('.remodal-close').off('click')
+          })
+        }).catch(err => {
+          UI.formError('recover', err.message, {initial: 'recovery_next'})
+          recoveryNextBtn.loadingReset('recovery_next')
           $('.remodal-close').off('click')
         })
       }).catch(err => {
-        UI.formError('recover', err.message, {initial: 'publish_proof'})
-        publishProofBtn.loadingReset('publish_proof')
-        $('.remodal-close').off('click')
+        UI.formError('recover', err.message, {initial: 'recovery_next'})
+        recoveryNextBtn.loadingReset('recovery_next')
+        $('.remodal-close').off('recovery_next')
       })
     })
 
@@ -152,29 +233,153 @@ var UI = (function (UI, $, undefined) {
       })
     })
 
+    recoverySubmitSeedReattachBtn.on('click', function () {
+      $('.remodal-close').on('click', function (e) {
+        UI.notify('error', 'cannot_close_whilst_reattaching')
+        e.preventDefault()
+        e.stopPropagation()
+      })
+      if (!_proofTx) {
+        UI.formError('recover', 'reattach_not_required', {initial: 'reattach'})
+        recoverySubmitSeedReattachBtn.loadingReset('reattach')
+        $('.remodal-close').off('click')
+        return
+      }
+      reattach(_proofTx[0].hash).then(res => {
+        recoverySubmitSeedReattachBtn.loadingReset('reattach')
+        UI.formSuccess('recover', 'reattach_completed', {initial: 'reattach'})
+        $('.remodal-close').off('click')
+      }).catch(err => {
+        recoverySubmitSeedReattachBtn.loadingReset('reattach')
+        UI.formError('recover', err.message, {initial: 'reattach'})
+        $('.remodal-close').off('click')
+      })
+    })
+
+    recoverySubmitSeedBtn.on('click', function () {
+      if (!_proofTxConfirmed) {
+        UI.formError('recover', 'recovery_unexpected_error', {initial: 'recovery_submit_seed'})
+        $('.remodal-close').off('click')
+        recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
+        _modal.close()
+        _resetState()
+        return
+      }
+      var oldSeed = String($('#recovery-old-seed').val())
+      getBalance(oldSeed)
+      .then((balance) => {
+        if (balance > MIN_BALANCE_THRESHOLD) {
+          UI.formError('recover', 'recovery_old_seed_has_balance')
+          $('.remodal-close').off('click')
+          recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
+          return
+        }
+        var data = oldSeed + ',' + iota.utils.noChecksum(_proofAddress) + ',' + _pepper
+        return pgpEncrypt(data, IF_RECLAIM_SERVICE_PUB_KEY)
+        .then(cipherText => attachBundle(generateRevealBundle(cipherText.data, _proofTx[0].address)))
+        .then((txs) => {
+          recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
+          recoverySubmitSeedBtn.hide()
+          recoverySubmitSeedReattachBtn.fadeIn()
+          $('#recovery-proof-confirmed-status').hide()
+          $('#recovery-reveal-confirmed-status').fadeIn() 
+          checkInclusionStates(txs[0], CONFIRMATION_CHECK_TIMEOUT, false, (err, confirmed) => {
+            if (err) {
+              UI.formError('recover', err.message, {initial: 'recovery_next'})
+              return
+            }
+            if (confirmed) {
+              UI.formSuccess('recover', 'recovery_completed', {initial: 'recovery_submit_seed'})
+              $('.remodal-close').off('click')
+              $('#recovery-step-2').hide()
+              $('#recovery-step-3').fadeIn()
+              $('#recovery-new-address-clipboard').html(UI.formatForClipboard(_proofAddress))
+              document.getElementById('recovery-reveal-confirmed-status').classList.remove('recovery-pending')
+              recoverySubmitSeedReattachBtn.hide()
+            }
+          })
+        }).catch((err) => {
+          UI.formError('recover', 'recovery_submit_seed_error', {initial: 'recovery_submit_seed'})
+          $('.remodal-close').off('click')
+          recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
+        })
+      }).catch((err) => {
+        UI.formError('recover', 'recovery_submit_seed_error', {initial: 'recovery_submit_seed'})
+        $('.remodal-close').off('click')
+        recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
+      })
+    })
+
     recoveryCloseBtn.on('click', function () {
       _modal.close()
       _resetState()
     })
 
     function _resetState () {
+      $('#recovery-step-3').hide()
       $('#recovery-step-2').hide()
       $('#recovery-step-1').show()
       $('#recovery-reattach-prompt').show()
-      $('#recovery-confirmed-status').show()
-      $('#recovery-step-2-close').hide()
+      $('#recovery-proof-confirmed-status').show()
+      $('#recovery-reveal-confirmed-status').hide()
+      $('#recovery-submit-seed').hide()
       $('#recovery-reattach-btn').show()
       $('#recovery-proof-transaction-confirmed').hide()
       $('#recovery-proof-transaction-pending').show()
-      document.getElementById('recovery-confirmed-status').classList.add('pending-proof')
+      $('#recovery-reveal-transaction-confirmed').hide()
+      $('#recovery-reveal-transaction-pending').show()
+      document.getElementById('recovery-proof-confirmed-status').classList.add('recovery-pending')
+      document.getElementById('recovery-reveal-confirmed-status').classList.add('recovery-pending')
       $('#recovery-new-seed').val('')
       $('#recovery-old-seed').val('')
+      $('#recovery-submit-seed-btn').show()
+      $('#recovery-submit-seed-reattach-btn').hide()
       _proofTx = null
+      _proofTxConfirmed = false
+      _proofAddress = ''
+      _pepper = ''
       _step = 1
     }
   }
 
-  function checkInclusionStates (tx, timeout, cb) {
+  function pgpEncrypt (plainText, publicKey) {
+    return openpgp.encrypt({
+      data: plainText,
+      publicKeys: openpgp.key.readArmored(publicKey).keys
+    })
+  }
+
+  function generateRevealBundle (cipherText, address) {
+    var payload = iota.utils.toTrytes(cipherText.split(/(\n)/g).slice(7, -3).join('').replace(/(\r|\n)/g, ''))
+    var fragments = []
+    var fragmentsCount = 1 + Math.floor(payload.length / (27 * HASH_LENGTH))
+    var timestamp = Math.floor(Date.now() / 1000)
+    var bundle = new IOTACrypto.bundle()
+    for (var i = 0; i < fragmentsCount; i++) {
+      const fragment = payload.slice(i * 27 * HASH_LENGTH, (i + 1) * 27 * HASH_LENGTH)
+      fragments.push(fragment + '9'.repeat((27 * HASH_LENGTH) - fragment.length))
+    }
+    bundle.addEntry(fragmentsCount, address, 0, REVEAL_TAG, timestamp)
+    for (var j = 0; j < fragmentsCount; j++) {
+      bundle.bundle[j].tag = REVEAL_TAG
+      bundle.bundle[j].obsoleteTag = REVEAL_TAG
+    }
+    bundle.finalize()
+    bundle.addTrytes(fragments)
+    return bundle
+  }
+
+  function getBalance (oldSeed) {
+    var addresses = []
+    for (var i = 0; i <= NUM_OF_ADDRESSES_TO_SCAN; i++) {
+      addresses.push(iota.api._newAddress(oldSeed, i, 2, false))
+    }
+    return new Promise((resolve, reject) => {
+      iota.api.getBalances(addresses, 100, (err, res) => err ? reject(err) : resolve(res.balances.reduce((sum, balance) => sum + parseInt(balance), 0)))
+    })
+  }
+
+  function checkInclusionStates (tx, timeout, noDelay, cb) {
     setTimeout(() => {
       findTransactionObjects({bundles: [tx.bundle]}).then(allTxs => {
         var allBundleInstances = allTxs.filter(tx => tx.currentIndex === 0)
@@ -182,14 +387,14 @@ var UI = (function (UI, $, undefined) {
           var confirmed = states.filter(state => state).length > 0
           cb(null, confirmed)
           if (!confirmed) {
-            checkInclusionStates(tx, timeout, cb)
+            checkInclusionStates(tx, timeout, false, cb)
           }
         }).catch(err => {
           cb(err)
-          checkInclusionStates(tx, timeout, cb)
+          checkInclusionStates(tx, timeout, false, cb)
         })
       })
-    }, timeout)
+    }, noDelay ? 0 : timeout)
   }
 
   function getLatestInclusion (tails) {
@@ -222,40 +427,34 @@ var UI = (function (UI, $, undefined) {
     )
   }
 
-  function generateBundle (address, pepperAndProof, tag) {
+  function generateProofBundle (address, pepperAndProof, tag) {
     var bundle = new IOTACrypto.bundle()
     bundle.addEntry(1, pepperAndProof[1], 0, tag, Math.floor(Date.now() / 1000))
     bundle.bundle[0].tag = pepperAndProof[0]
     bundle.bundle[0].obsoleteTag = tag
     bundle.finalize()
-    bundle.addTrytes(['9'.repeat(27*81)])
-
+    bundle.addTrytes(['9'.repeat(81 * 27)])
     return bundle
   }
 
-
   function generateProof (oldSeed, newSeed, newAddress) {
     var kerl = new IOTACrypto.kerl()
-
     var oldTrits = addPadding(IOTACrypto.converter.trits(oldSeed))
     var newTrits = addPadding(IOTACrypto.converter.trits(newSeed))
-
     var trits = []
     kerl.initialize()
     kerl.absorb(IOTACrypto.converter.trits(CONSTANT), 0, HASH_LENGTH * 3)
     kerl.absorb(newTrits, 0, HASH_LENGTH * 3)
     kerl.squeeze(trits, 0, HASH_LENGTH * 3)
-
-    var pepperStart = IOTACrypto.converter.trytes(trits).slice(0, 27)
-
+    var pepper = IOTACrypto.converter.trytes(trits)
+    var pepperStart = pepper.slice(0, 27)
     kerl = new IOTACrypto.kerl()
     kerl.initialize()
     kerl.absorb(trits, 0, HASH_LENGTH * 3)
     kerl.absorb(IOTACrypto.converter.trits(iota.utils.noChecksum(newAddress)), 0, HASH_LENGTH * 3)
     kerl.absorb(oldTrits, 0, HASH_LENGTH * 3)
     kerl.squeeze(trits, 0, HASH_LENGTH * 3)
-
-    return [pepperStart, IOTACrypto.converter.trytes(trits)]
+    return [pepperStart, IOTACrypto.converter.trytes(trits), pepper]
   }
 
   function addPadding (trits) {
