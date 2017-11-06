@@ -24,29 +24,55 @@ var UI = (function(UI, undefined) {
   var _updateNodeConfiguration = false;
   var _lightWalletHosts = [];
 
-  UI.initialize = function() {
-    var req = https.get('https://iotasupport.com/providers.json?' + (new Date().getTime()));
-    req.on('response', function (res) {
-      var body = '';
-      res.on('data', function (chunk) {
-        body += chunk.toString();
-      });
-      res.on('end', function () {
-        try {
-          _lightWalletHosts = shuffleArray(JSON.parse(body)).filter(function(host) {
-            return host.match(/^(https?:\/\/.*):([0-9]+)$/i);
+  UI.fetchProviders = function (urls) {
+    return Promise.all(urls.map(url => {
+      return new Promise((resolve, reject) => {
+        var req = https.get(url + '?' + (new Date().getTime()));
+        req.on('response', function (res) {
+          var body = '';
+          res.on('data', function (chunk) {
+            body += chunk.toString();
           });
-        } catch (err) {
-          console.log(err);
+          res.on('end', function () {
+            try {
+              var parsed = JSON.parse(body).filter(function(host) {
+                return host.match(/^(https?:\/\/.*):([0-9]+)$/i);
+              });
+              resolve(parsed)
+            } catch (err) {
+              resolve(false);
+            }
+          });
+          res.on('error', function (err) {
+            resolve(false);
+          })
+        });
+      })
+    })).then(res => {
+      var hosts = []
+      res.filter(a => Array.isArray(a)).forEach(list => list.forEach(host => {
+        if (hosts.indexOf(host) === -1) {
+          hosts.push(host)
         }
-      });
-    });
+      }))
+      console.log('PROVIDERS', hosts)
+      if (!hosts.length) {
+        return hosts
+      }
+      return shuffleArray(hosts)
+    })
+  }
 
-    req.on('error', function(err) {
-      console.log(err);
-    });
-
-    req.end();
+  UI.initialize = function() {
+    var urls = [
+      'https://iotasupport.com/providers.json',
+      'https://static.iota.org/providers.json'
+    ]
+    UI.fetchProviders(urls).then(res => {
+      _lightWalletHosts = res
+    }).catch(err => {
+      console.log(err)
+    })
 
     document.getElementById("host-select").addEventListener("change", function(e) {
       e.preventDefault();

@@ -2020,6 +2020,44 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.fetchProviders = function (urls) {
+    return Promise.all(urls.map(url => {
+      return new Promise((resolve, reject) => {
+        var req = https.get(url + '?' + (new Date().getTime()));
+        req.on('response', function (res) {
+          var body = '';
+          res.on('data', function (chunk) {
+            body += chunk.toString();
+          });
+          res.on('end', function () {
+            try {
+              var parsed = JSON.parse(body).filter(function(host) {
+                return host.match(/^(https?:\/\/.*):([0-9]+)$/i);
+              });
+              resolve(parsed)
+            } catch (err) {
+              resolve(false);
+            }
+          });
+          res.on('error', function (err) {
+            resolve(false);
+          })
+        });
+      })
+    })).then(res => {
+      var hosts = []
+      res.filter(a => Array.isArray(a)).forEach(list => list.forEach(host => {
+        if (hosts.indexOf(host) === -1) {
+          hosts.push(host)
+        }
+      }))
+      if (!hosts.length) {
+        return hosts
+      }
+      return shuffleArray(hosts)
+    })
+  }
+
   App.editNodeConfiguration = function(walletType) {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
@@ -2028,33 +2066,18 @@ var App = (function(App, undefined) {
       }
       if (walletType == 1) {
         var config = {"lightWallet": 1, "lightWalletHost": settings.lightWalletHost, "lightWalletPort": settings.lightWalletPort, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum, "ccurl": settings.ccurl};
-
-        var req = https.get('https://iotasupport.com/providers.json?' + (new Date().getTime()));
-        req.on('response', function (res) {
-          var body = '';
-          res.on('data', function (chunk) {
-            body += chunk.toString();
-          });
-          res.on('end', function () {
-            try {
-              config.lightWalletHosts = shuffleArray(JSON.parse(body)).filter(function(host) {
-                return host.match(/^(https?:\/\/.*):([0-9]+)$/i);
-              });
-            } catch (err) {
-              console.log(err);
-            } finally {
-              win.webContents.send("editNodeConfiguration", config);
-            }
-          });
-        });
-
-        req.on('error', function(err) {
-          console.log(err);
+        var urls = [
+          'https://iotasupport.com/providers.json',
+          'https://static.iota.org/providers.json'
+        ]
+        App.fetchProviders(urls).then(res => {
+          config.lightWalletHosts = res
+        }).catch(err => {
+          console.log(err)
+        }).then(() => {
           win.webContents.send("editNodeConfiguration", config);
-        });
-
-        req.end();
-      } else {
+        })
+     } else {
         var config = {"lightWallet": 0, "port": settings.port, "udpReceiverPort": settings.udpReceiverPort, "tcpReceiverPort": settings.tcpReceiverPort, "sendLimit": settings.sendLimit, "depth": settings.depth, "minWeightMagnitude": settings.minWeightMagnitude, "testNet": isTestNet, "dbLocation": databaseDirectory, "minWeightMagnitudeMinimum": minWeightMagnitudeMinimum};
         win.webContents.send("editNodeConfiguration", config);
       }
