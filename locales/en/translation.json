@@ -345,12 +345,12 @@
   "recovery_close": "Close",
   "invalid_checksum": "Invalid checksum",
   "recovery_transaction_hash": "Transaction hash:",
-  "recovery_submit_seed_promt": "To complete the recovery process submit your old seed. Please ensure that the transaction will be confirmed.",
+  "recovery_submit_seed_promt": "To complete the reclaim process submit your old seed. Please wait for the confirmation of the reveal transaction and make use of the reattach button if it is pending for too long.",
   "recovery_submit_seed": "Submit seed",
   "recovery_completed": "Reclaim process completed",
   "recovery_submit_seed_error": "Error while submitting seed. Please try again.",
   "recovery_old_seed_hash_balance": "Old seed has balance. Please move the balance to a new seed and try again.",
   "recovery_submitted_address": "Any reclaimed tokens will be sent to your address shown below. For security reasons, do not spend from this address until you receive all your funds.",
   "recovery_unexpected_error": "An unxpected error occured. Please try again.",
-  "recovery_receive_address": "Address"
+  "recovery_receive_address": "Address:"
 }
