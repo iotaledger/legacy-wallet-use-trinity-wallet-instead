@@ -41,8 +41,6 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
 ==2Lyf
 -----END PGP PUBLIC KEY BLOCK-----`
 
-  var MWM = 9
-
   var _modal
   var _proofTx = null
   var _proofTxConfirmed = false
