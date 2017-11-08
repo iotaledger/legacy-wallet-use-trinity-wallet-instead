@@ -263,49 +263,51 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         return
       }
       var oldSeed = String($('#recovery-old-seed').val())
-      getBalance(oldSeed)
-      .then((balance) => {
-        if (balance > MIN_BALANCE_THRESHOLD) {
-          UI.formError('recover', 'recovery_old_seed_has_balance')
-          $('.remodal-close').off('click')
-          recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
-          return
-        }
-        var data = oldSeed + ',' + iota.utils.noChecksum(_proofAddress) + ',' + _pepper
-        return pgpEncrypt(data, IF_RECLAIM_SERVICE_PUB_KEY)
-        .then(cipherText => attachBundle(generateRevealBundle(cipherText.data, _proofTx[0].address)))
-        .then((txs) => {
-          recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
-          recoverySubmitSeedBtn.hide()
-          recoverySubmitSeedReattachBtn.fadeIn()
-          $('#recovery-proof-confirmed-status').hide()
-          $('#recovery-reveal-confirmed-status').fadeIn()
-          $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(txs[0].hash))
-          checkInclusionStates(txs[0], CONFIRMATION_CHECK_TIMEOUT, false, (err, confirmed) => {
-            if (err) {
-              UI.formError('recover', err.message, {initial: 'recovery_next'})
-              return
-            }
-            if (confirmed) {
-              UI.formSuccess('recover', 'recovery_completed', {initial: 'recovery_submit_seed'})
-              $('.remodal-close').off('click')
-              $('#recovery-step-2').hide()
-              $('#recovery-step-3').fadeIn()
-              $('#recovery-new-address-clipboard').html(UI.formatForClipboard(_proofAddress))
-              document.getElementById('recovery-reveal-confirmed-status').classList.remove('recovery-pending')
-              recoverySubmitSeedReattachBtn.hide()
-            }
+      setTimeout(() => {
+        getBalance(oldSeed)
+        .then((balance) => {
+          if (balance > MIN_BALANCE_THRESHOLD) {
+            UI.formError('recover', 'recovery_old_seed_has_balance')
+            $('.remodal-close').off('click')
+            recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
+            return
+          }
+          var data = oldSeed + ',' + iota.utils.noChecksum(_proofAddress) + ',' + _pepper
+          return pgpEncrypt(data, IF_RECLAIM_SERVICE_PUB_KEY)
+          .then(cipherText => attachBundle(generateRevealBundle(cipherText.data, _proofTx[0].address)))
+          .then((txs) => {
+            recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
+            recoverySubmitSeedBtn.hide()
+            recoverySubmitSeedReattachBtn.fadeIn()
+            $('#recovery-proof-confirmed-status').hide()
+            $('#recovery-reveal-confirmed-status').fadeIn()
+            $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(txs[0].hash))
+            checkInclusionStates(txs[0], CONFIRMATION_CHECK_TIMEOUT, false, (err, confirmed) => {
+              if (err) {
+                UI.formError('recover', err.message, {initial: 'recovery_next'})
+                return
+              }
+              if (confirmed) {
+                UI.formSuccess('recover', 'recovery_completed', {initial: 'recovery_submit_seed'})
+                $('.remodal-close').off('click')
+                $('#recovery-step-2').hide()
+                $('#recovery-step-3').fadeIn()
+                $('#recovery-new-address-clipboard').html(UI.formatForClipboard(_proofAddress))
+                document.getElementById('recovery-reveal-confirmed-status').classList.remove('recovery-pending')
+                recoverySubmitSeedReattachBtn.hide()
+              }
+            })
+          }).catch(() => {
+            UI.formError('recover', 'recovery_submit_seed_error', {initial: 'recovery_submit_seed'})
+            $('.remodal-close').off('click')
+            recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
           })
-        }).catch((err) => {
+        }).catch(() => {
           UI.formError('recover', 'recovery_submit_seed_error', {initial: 'recovery_submit_seed'})
           $('.remodal-close').off('click')
           recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
         })
-      }).catch((err) => {
-        UI.formError('recover', 'recovery_submit_seed_error', {initial: 'recovery_submit_seed'})
-        $('.remodal-close').off('click')
-        recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
-      })
+      }, 1000)
     })
 
     recoveryCloseBtn.on('click', function () {
