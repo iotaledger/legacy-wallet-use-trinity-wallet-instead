@@ -2,7 +2,7 @@
   "name": "iota",
   "productName": "IOTA Wallet",
   "description": "IOTA Wallet",
-  "version": "2.5.3",
+  "version": "2.5.4",
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
