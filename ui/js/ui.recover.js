@@ -280,7 +280,8 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
           recoverySubmitSeedBtn.hide()
           recoverySubmitSeedReattachBtn.fadeIn()
           $('#recovery-proof-confirmed-status').hide()
-          $('#recovery-reveal-confirmed-status').fadeIn() 
+          $('#recovery-reveal-confirmed-status').fadeIn()
+          $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(txs[0].hash))
           checkInclusionStates(txs[0], CONFIRMATION_CHECK_TIMEOUT, false, (err, confirmed) => {
             if (err) {
               UI.formError('recover', err.message, {initial: 'recovery_next'})
