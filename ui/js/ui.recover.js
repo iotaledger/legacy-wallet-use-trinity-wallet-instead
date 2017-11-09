@@ -42,6 +42,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
 
   var _modal
   var _proofTx = null
+  var _revealTx = null
   var _proofTxConfirmed = false
   var _proofAddress = ''
   var _pepper = ''
@@ -236,13 +237,13 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         e.preventDefault()
         e.stopPropagation()
       })
-      if (!_proofTx) {
+      if (!_revealTx) {
         UI.formError('recover', 'reattach_not_required', {initial: 'reattach'})
         recoverySubmitSeedReattachBtn.loadingReset('reattach')
         $('.remodal-close').off('click')
         return
       }
-      reattach(_proofTx[0].hash).then(res => {
+      reattach(_revealTx[0].hash).then(res => {
         recoverySubmitSeedReattachBtn.loadingReset('reattach')
         UI.formSuccess('recover', 'reattach_completed', {initial: 'reattach'})
         $('.remodal-close').off('click')
@@ -287,6 +288,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
                 UI.formError('recover', err.message, {initial: 'recovery_next'})
                 return
               }
+              _revealTx = txs
               if (confirmed) {
                 UI.formSuccess('recover', 'recovery_completed', {initial: 'recovery_submit_seed'})
                 $('.remodal-close').off('click')
@@ -335,6 +337,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
       $('#recovery-submit-seed-btn').show()
       $('#recovery-submit-seed-reattach-btn').hide()
       _proofTx = null
+      _revealTx = null
       _proofTxConfirmed = false
       _proofAddress = ''
       _pepper = ''
