@@ -129,18 +129,18 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
       findTransactionObjects({addresses: [proof[1]]})
       .then((txs) => {
         if (txs.length) {
-          checkInclusionStates(txs[0], CONFIRMATION_CHECK_TIMEOUT, true, (err, confirmed) => {
+          checkInclusionStates(txs, CONFIRMATION_CHECK_TIMEOUT, true, (err, confirmed) => {
             if (err) {
               UI.formError('recover', err.message, {initial: 'publish_proof'})
               $('.remodal-close').off('click')
               recoveryNextBtn.loadingReset('recovery_next')
               return
             }
-            _proofTx = [txs[0]]
+            _proofTx = [txs.filter(tx => tx.lastIndex === 0).sort((a, b) => a.timestamp - b.timestamp)[0]]
             _step++
             $('#recovery-step-1').hide()
             $('#recovery-step-2').fadeIn()
-            $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(txs[0].hash))
+            $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(_proofTx[0].hash))
             if (confirmed) {
               _proofTxConfirmed = true
               document.getElementById('recovery-proof-confirmed-status').classList.remove('recovery-pending')
@@ -382,19 +382,22 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
     })
   }
 
-  function checkInclusionStates (tx, timeout, noDelay, cb) {
+  function checkInclusionStates (txs, timeout, noDelay, cb) {
+    if (!Array.isArray(txs)) {
+      txs = [txs]
+    }
     setTimeout(() => {
-      findTransactionObjects({bundles: [tx.bundle]}).then(allTxs => {
+      findTransactionObjects({bundles: txs.map(tx => tx.bundle)}).then(allTxs => {
         var allBundleInstances = allTxs.filter(tx => tx.currentIndex === 0)
         getLatestInclusion(allBundleInstances.map(tx => tx.hash)).then(states => {
           var confirmed = states.filter(state => state).length > 0
           cb(null, confirmed)
           if (!confirmed) {
-            checkInclusionStates(tx, timeout, false, cb)
+            checkInclusionStates(txs, timeout, false, cb)
           }
         }).catch(err => {
           cb(err)
-          checkInclusionStates(tx, timeout, false, cb)
+          checkInclusionStates(txs, timeout, false, cb)
         })
       })
     }, noDelay ? 0 : timeout)
