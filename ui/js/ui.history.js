@@ -26,12 +26,7 @@ var UI = (function(UI, $, undefined) {
           }
         }
 
-        iota.api.isReattachable(inputAddresses, function(error, isReattachable) {
-          //TEMP BUG FIX
-          if (inputAddresses.length == 0) {
-            isReattachable = false;
-          }
-
+        function renderBundleModal (isReattachable) {
           var html = "<div class='list'><ul>";
 
           for (var i=0; i<transactions.length; i++) {
@@ -64,6 +59,27 @@ var UI = (function(UI, $, undefined) {
 
           modal = $modal.remodal(options);
           modal.open();
+        }
+
+        iota.api.isReattachable(inputAddresses, function (error, isReattachable) {
+          if (error) {
+            return
+          }
+          if (inputAddresses.length === 0) {
+            return iota.api.findTransactionObjects({bundles: [transactions[0].bundle]}, function (err, txs) {
+              if (err) {
+                return
+              }
+              iota.api.getLatestInclusion(txs.filter(tx => tx.currentIndex === 0).map(tx => tx.hash), function (err, states) {
+                if (err) {
+                  return
+                }
+                isReattachable = states.indexOf(true) === -1
+                renderBundleModal(isReattachable)
+              })
+            })
+          }
+          renderBundleModal(isReattachable)
         });
       });
     });
