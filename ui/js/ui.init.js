@@ -122,12 +122,15 @@ var UI = (function(UI, $, undefined) {
             console.log("...");
           }
           showLightWalletErrorMessage();
-          return;
+          connection.ccurlProvider = null
         } else {
-          connection.ccurlProvider = ccurl.ccurlProvider(connection.ccurlPath);
-          if (!connection.ccurlProvider) {
-            console.log("Did not get ccurlProvider from " + connection.ccurlPath);
-            return;
+          try {
+            connection.ccurlProvider = ccurl.ccurlProvider(connection.ccurlPath);
+            if (!connection.ccurlProvider) {
+              console.log("Did not get ccurlProvider from " + connection.ccurlPath);
+            }
+          } catch (err) {
+            connection.ccurlProvider = null
           }
         }
         // Overwrite iota lib with light wallet functionality

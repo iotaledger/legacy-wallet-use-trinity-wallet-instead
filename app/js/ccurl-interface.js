@@ -69,8 +69,10 @@ var ccurlInterruptAndFinalize = function(libccurl) {
 }
 
 var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWeightMagnitude, trytes, callback) {
-  if (!libccurl.hasOwnProperty("ccurl_pow")) {
-    return callback(new Error("Hashing not available"));
+  var ccurlPoW = connection.ccurl
+
+  if (!libccurl || !libccurl.hasOwnProperty("ccurl_pow")) {
+    ccurlPoW = 0
   }
 
   var iotaObj = iota;
@@ -165,7 +167,7 @@ var ccurlHashing = function(libccurl, trunkTransaction, branchTransaction, minWe
 
     var newTrytes = iotaObj.utils.transactionTrytes(txObject);
 
-    switch (connection.ccurl) {
+    switch (ccurlPoW) {
       case 0: {
         libcurl.pow({trytes: newTrytes, minWeight: minWeightMagnitude}).then(function(nonce) {
           var returnedTrytes = newTrytes.substr(0, 2673-81).concat(nonce);
