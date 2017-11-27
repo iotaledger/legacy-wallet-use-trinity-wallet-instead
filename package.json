@@ -6,7 +6,7 @@
   "license": "GPL-3.0",
   "main": "app/js/main.js",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps && cd app && npm run bower-install && cd ../ui && npm run bower-install",
+    "postinstall": "electron-builder install-app-deps && npm run bower-install-app && npm run bower-install-ui",
     "start": "export NODE_ENV=development || set NODE_ENV=development && electron app/js/main.js",
     "precompile": "rimraf out/* && node install-deps.js",
     "compile": "export CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --win --mac --linux --x64 --ia32",
@@ -20,7 +20,8 @@
     "publish:lin": "electron-builder --linux --x64 --ia32 --publish always",
     "publish:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --mac --x64 --publish always",
     "publish:win": "electron-builder --win --x64 --ia32 --publish always",
-    "bower-install": "bower install"
+    "bower-install-app": "bower install --config.cwd=app",
+    "bower-install-ui": "bower install --config.cwd=ui"
   },
   "author": "IOTA Foundation <contact@iota.org>",
   "homepage": "https://www.iota.org",
