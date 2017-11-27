@@ -1,0 +1,3 @@
+[submodule "iri"]
+	path = iri
+	url = https://github.com/iotaledger/iri

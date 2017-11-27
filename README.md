@@ -26,7 +26,7 @@
 
 #### Compiling
 
-If you wish to compile the app, install the following also: 
+If you wish to compile the app, install the following also:
 
 1. Install [Electron Builder](https://github.com/electron-userland/electron-builder)
 
@@ -36,10 +36,10 @@ If you wish to compile the app, install the following also:
 
 ## Instructions
 
-1. Clone this repository:
+1. Clone this repository and initialise git submodules with:
 
   ```
-  git clone https://github.com/iotaledger/wallet
+  git clone --recursive https://github.com/iotaledger/wallet
   ```
 
 2. Go to the `wallet` directory:
@@ -48,33 +48,25 @@ If you wish to compile the app, install the following also:
   cd wallet
   ```
 
-3. Clone iri: 
-
-  ```
-  git clone https://github.com/iotaledger/iri
-  ```
-
-  Note: make sure compiled iri.jar is in the `iri` folder.
-  
-4. Install components
+3. Install components
 
   ```
   npm install
   ```
 
-5. Run the app:
+4. Run the app:
 
   ```
   npm start
   ```
 
-6. If you wish to compile the app: 
+5. If you wish to compile the app:
 
   ```
   npm run compile
   ```
 
-  If you'd like to create a package only for a specific OS, you can do so like this: 
+  If you'd like to create a package only for a specific OS, you can do so like this:
 
   ```
   npm run compile:win
