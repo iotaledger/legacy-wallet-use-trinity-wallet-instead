@@ -13,9 +13,15 @@ for (var i=0; i<paths.length; i++) {
   }
 }
 
-var req = https.get({"host"    : "api.github.com",
-                     "path"    : "/repos/iotaledger/ccurl/releases/latest",
-                     "headers" : {"User-Agent": "IOTA Wallet"}}, function(res) {
+var options = {
+  host: "api.github.com",
+  path: "/repos/iotaledger/ccurl/releases/latest",
+  headers: {
+    "User-Agent": "IOTA Wallet"
+  }
+};
+
+var req = https.get(options, function(res) {
   if (res.statusCode !== 200) {
     throw ("HTTP Error: " + res.statusCode);
   }
