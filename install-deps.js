@@ -13,11 +13,11 @@ for (var i=0; i<paths.length; i++) {
   }
 }
 
-var req = https.get({"host"    : "api.github.com", 
+var req = https.get({"host"    : "api.github.com",
                      "path"    : "/repos/iotaledger/ccurl/releases/latest",
                      "headers" : {"User-Agent": "IOTA Wallet"}}, function(res) {
   if (res.statusCode !== 200) {
-    throw ("HTTP Error: " + response.statusCode);
+    throw ("HTTP Error: " + res.statusCode);
   }
 
   var body = "";
@@ -77,7 +77,7 @@ var download = function(url, dest, cb) {
   var parsed = URL.parse(url);
 
   var file = fs.createWriteStream(dest);
-  var req = https.get({"host"   : parsed.host, 
+  var req = https.get({"host"   : parsed.host,
                        "path"   : parsed.path,
                        "headers": {"user-agent": "IOTA Wallet", "Accept": "application/octet-stream"}}, function(response) {
     response.pipe(file);
