@@ -94,8 +94,6 @@
   "transfer_fields_prefilled_link":"Os campos da transferência foram preenchidos a partir de um link pressionado.",
   "unknown_or_invalid_url":"URL desconhecida ou inválida.",
   "error_whilst_adding_neighbors":"Erro ao adicionar vizinhos.",
-
-1
   "added_neighbor":"{{count}} vizinho adicionado.",
   "added_neighbor_plural":"{{count}} vizinhos adicionados.",
   "error_whilst_removing_neighbors":"Erro ao remover vizinhos.",
@@ -155,7 +153,6 @@
   "server_address_already_in_use":"O endereço do servidor já está em uso. Por favor, encerre outros aplicativos/serviços que possam estar executando na porta {{port}}.",
   "initalization_alert":"Alerta de Inicialização",
   "server_initialization_error_occurred":"Ocorreu um erro de inicialização do servidor.",
-  // 1
   "testnet_node_from_mainnet_connection":"Conectando a um nó de teste de redes a partir da carteira principal. Isso não é recomendado...",
   "mainnet_node_from_testnet_connection":"conectando a um nó da rede principal a partir de carteira da rede de testes. Isto não é recomendado...",
   "iri":"IRI",
