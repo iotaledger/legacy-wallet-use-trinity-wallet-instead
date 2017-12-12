@@ -1,16 +1,20 @@
 var UI = (function(UI, $, undefined) {
   UI.handleHistory = function() {
     var modal;
-    var bundlesToTailsMap = new Map()
-    var isRenderingModal = false
+
+    const bundlesToTailsMap = new Map()
+    const inconsistentTails = new Set()
+
+    let _isRenderingModal = false
 
     $("#history-stack").on("click", ".show-bundle", function(e) {
       e.preventDefault();
 
-      if (isRenderingModal) {
+      if (_isRenderingModal) {
         return false
       }
-      isRenderingModal = true
+
+      _isRenderingModal = true
 
       var hash = $(this).closest("li").data("hash");
       var bundleHash = $(this).closest("li").data("bundle")
@@ -21,12 +25,14 @@ var UI = (function(UI, $, undefined) {
 
       console.log("UI.handleHistory: Show bundle modal for hash " + hash);
 
-      iota.api.getBundle(hash, function(error, transactions) {
+      iota.api.getBundle(hash, (error, transactions) => {
         if (error) {
-          isRenderingModal = false
-          return;
+          _isRenderingModal = false
+
+          return
         }
 
+        /*
         var inputAddresses = [];
 
         for (var i=0; i<transactions.length; i++) {
@@ -34,6 +40,7 @@ var UI = (function(UI, $, undefined) {
             inputAddresses.push(transactions[i].address);
           }
         }
+        */
 
         function renderBundleModal (persistence, isPromotable, isReattachable) {
           var html = "<div class='list'><ul>";
@@ -74,38 +81,61 @@ var UI = (function(UI, $, undefined) {
 
           modal = $modal.remodal(options);
           modal.open();
-          isRenderingModal = false
+          _isRenderingModal = false
         }
 
         if (persistence) {
           bundlesToTailsMap.delete(transactions[0].bundle)
+
           renderBundleModal(persistence)
         } else {
-          iota.api.findTransactionObjects({bundles: [transactions[0].bundle]}, function (err, txs) {
+          iota.api.findTransactionObjects({bundles: [transactions[0].bundle]}, (err, txs) => {
             if (err) {
-              isRenderingModal = false
+              _isRenderingModal = false
+
               return
             }
-            const tails = txs.filter(tx => tx.currentIndex === 0)
-            iota.api.getLatestInclusion(tails.map(tx => tx.hash), function (err, inclusionStates) {
+
+            const bundleHash = txs[0].bundle
+            const consistentTailHash = bundlesToTailsMap.get(bundleHash)
+            let tails = txs.filter(tx => tx.currentIndex === 0).map(tx => tx.hash)
+
+            if (consistentTailHash) {
+              tails = tails.filter(hash => hash !== consistentTailHash)
+              tails.unshift(consistentTailHash)
+            }
+
+            iota.api.getLatestInclusion(tails, (err, inclusionStates) => {
               if (err) {
-                isRenderingModal = false
+                _isRenderingModal = false
+
                 return
               }
-              if (inclusionStates.find(state => state)) {
+
+              if (inclusionStates.some(state => state)) {
                 renderBundleModal(persistence)
               } else {
-                const states = iota.api.isPromotable(tails.map(tx => tx.hash))
-                let consistentTailHash = bundlesToTailsMap.get(tails[0].bundle)
-                if (!consistentTailHash ||
-                  (consistentTailHash && !states[tails.findIndex(tx => tx.hash === consistentTailHash)])) {
-                  consistentTailHash = tails[states.findIndex(state => state)]
+                let consistentTailHash
+
+                let _tails = tails.filter(hash => !inconsistentTails.has(hash))
+
+                for (let i = 0; i < _tails.length; i++) {
+                  if (!iota.api.isPromotable(_tails[i])) {
+                    inconsistentTails.add(_tails[i])
+                  } else {
+                    consistentTailHash = _tails[i]
+
+                    break
+                  }
                 }
+
                 if (consistentTailHash) {
-                  bundlesToTailsMap.set(tails[0].bundle, consistentTailHash)
+                  bundlesToTailsMap.set(bundleHash, consistentTailHash)
+
                   renderBundleModal(persistence, true, false)
                 } else {
-                  bundlesToTailsMap.delete(tails[0].bundle)
+                  bundlesToTailsMap.delete(bundleHash)
+
                   renderBundleModal(persistence, false, true)
                 }
               }
@@ -179,42 +209,68 @@ var UI = (function(UI, $, undefined) {
           } else {
             $('#promote-btn').loadingSuccess(success)
           }
+
           if (!UI.isFocused()) {
             UI.notifyDesktop(err || desktopNotification)
           }
+
           UI.isDoingPOW = false
           UI.isLocked = false
+
           $('.remodal-close').off('click')
           $('#rebroadcast-btn').removeAttr('disabled')
           $('#reattach-btn').removeAttr('disabled')
         }
-        function _promote () {
+
+        function _promote (tail) {
           UI.isDoingPOW = true
 
+          const spamTransfer = [{address: '9'.repeat(81), value: 0, message: '', tag: ''}]
+
           iota.api.promoteTransaction(
-            bundlesToTailsMap.get(bundleHash),
+            tail,
             connection.depth,
             connection.minWeightMagnitude,
-            [{address: '9'.repeat(81), value: 0, message: '', tag: ''}],
+            spamTransfer,
             {interrupt: false, delay: 0},
             (err, res) => {
               UI.isDoingPOW = false
+
               if (err) {
                 if (err.message.indexOf('Inconsistent subtangle') > -1) {
-                  iota.api.findTransactionObjects({bundles: [bundleHash]}, function (err, txs) {
+                  inconsistentTails.add(tail)
+
+                  iota.api.findTransactionObjects({bundles: [bundleHash]}, (err, txs) => {
                     if (err) {
                       _resetUI(err.message)
                     } else {
-                      const tails = txs.filter(tx => tx.currentIndex === 0)
-                      const states = iota.api.isPromotable(tails.map(tx => tx.hash))
-                      const newConsistentTailHash = tails[states.findIndex(state => state)].hash
+                      let tails = txs.filter(tx => tx.currentIndex === 0)
+                        .filter(tx => tx.hash !== tail)
+                        .filter(tx => !inconsistentTails.has(tx.hash))
+                        .map(tx => tx.hash)
+
+                      let newConsistentTailHash
+
+                      for (let i = 0; i < tails.length; i++) {
+                        if (!iota.api.isPromotable(tails[i])) {
+                          inconsistentTails.add(tails[i])
+                        } else {
+                          newConsistentTailHash = tails[i]
+
+                          break
+                        }
+                      }
+
                       if (newConsistentTailHash) {
                         bundlesToTailsMap.set(bundleHash, newConsistentTailHash)
+
                         setTimeout(() => _promote(newConsistentTailHash), 0)
                       } else {
                         _resetUI('promote_inconsistent_subtangle_error')
                         UI.formError('promote', 'promote_inconsistent_subtangle_error', {initial: 'promote-btn'})
+
                         bundlesToTailsMap.delete(bundleHash)
+
                         $('#promote-btn').hide()
                         $('#reattach-btn').show()
                       }
@@ -225,12 +281,13 @@ var UI = (function(UI, $, undefined) {
                 }
               } else {
                 UI.updateState(1000)
+
                 _resetUI(null, 'promote_completed', 'transaction_promoted_successfully')
               }
             }
           )
         }
-        _promote()
+        _promote(bundlesToTailsMap.get(bundleHash))
       } else {
         UI.isDoingPOW = true;
         iota.api.replayBundle(hash, connection.depth, connection.minWeightMagnitude, function(error, bundle) {
