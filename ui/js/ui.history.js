@@ -1,11 +1,19 @@
 var UI = (function(UI, $, undefined) {
   UI.handleHistory = function() {
     var modal;
+    var bundlesToTailsMap = new Map()
+    var isRenderingModal = false
 
     $("#history-stack").on("click", ".show-bundle", function(e) {
       e.preventDefault();
 
+      if (isRenderingModal) {
+        return false
+      }
+      isRenderingModal = true
+
       var hash = $(this).closest("li").data("hash");
+      var bundleHash = $(this).closest("li").data("bundle")
       var $modal = $("#bundle-modal");
 
       var persistence = $(this).closest("li").data("persistence");
@@ -15,6 +23,7 @@ var UI = (function(UI, $, undefined) {
 
       iota.api.getBundle(hash, function(error, transactions) {
         if (error) {
+          isRenderingModal = false
           return;
         }
 
@@ -26,7 +35,7 @@ var UI = (function(UI, $, undefined) {
           }
         }
 
-        function renderBundleModal (isReattachable) {
+        function renderBundleModal (persistence, isPromotable, isReattachable) {
           var html = "<div class='list'><ul>";
 
           for (var i=0; i<transactions.length; i++) {
@@ -41,74 +50,103 @@ var UI = (function(UI, $, undefined) {
 
           $modal.find(".persistence").html("<span data-i18n='persistence'>" + UI.t("persistence") + "</span>: " + (persistence ? "<span data-i18n='confirmed'>" + UI.t("confirmed") + "</span>" : "<span data-i18n='pending'>" + UI.t("pending") + "</span>")).show();
           $modal.find(".btn").data("hash", hash);
+          $modal.find(".btn").data("bundle", bundleHash)
 
           $modal.find(".btn").each(function() {
             $(this).loadingReset($(this).data("initial"));
           });
 
           if (!persistence) {
-            if (isReattachable) {
+            if (isPromotable) {
+              $("#rebroadcast-btn").show();
+              $("#promote-btn").show()
+              $("#reattach-btn").hide()
+            } else if (isReattachable) {
+              $("#rebroadcast-btn").show();
+              $("#promote-btn").hide()
               $("#reattach-btn").show();
             } else {
-              $("#reattach-btn").hide();
-            }
-            $("#rebroadcast-btn").show();
+              $modal.find(".btn").hide();
+            } 
           } else {
             $modal.find(".btn").hide();
           }
 
           modal = $modal.remodal(options);
           modal.open();
+          isRenderingModal = false
         }
 
-        iota.api.isReattachable(inputAddresses, function (error, isReattachable) {
-          if (error) {
-            return
-          }
-          if (inputAddresses.length === 0) {
-            return iota.api.findTransactionObjects({bundles: [transactions[0].bundle]}, function (err, txs) {
+        if (persistence) {
+          bundlesToTailsMap.delete(transactions[0].bundle)
+          renderBundleModal(persistence)
+        } else {
+          iota.api.findTransactionObjects({bundles: [transactions[0].bundle]}, function (err, txs) {
+            if (err) {
+              isRenderingModal = false
+              return
+            }
+            const tails = txs.filter(tx => tx.currentIndex === 0)
+            iota.api.getLatestInclusion(tails.map(tx => tx.hash), function (err, inclusionStates) {
               if (err) {
+                isRenderingModal = false
                 return
               }
-              iota.api.getLatestInclusion(txs.filter(tx => tx.currentIndex === 0).map(tx => tx.hash), function (err, states) {
-                if (err) {
-                  return
+              if (inclusionStates.find(state => state)) {
+                renderBundleModal(persistence)
+              } else {
+                const states = iota.api.isPromotable(tails.map(tx => tx.hash))
+                let consistentTailHash = bundlesToTailsMap.get(tails[0].bundle)
+                if (!consistentTailHash ||
+                  (consistentTailHash && !states[tails.findIndex(tx => tx.hash === consistentTailHash)])) {
+                  consistentTailHash = tails[states.findIndex(state => state)]
                 }
-                isReattachable = states.indexOf(true) === -1
-                renderBundleModal(isReattachable)
-              })
+                if (consistentTailHash) {
+                  bundlesToTailsMap.set(tails[0].bundle, consistentTailHash)
+                  renderBundleModal(persistence, true, false)
+                } else {
+                  bundlesToTailsMap.delete(tails[0].bundle)
+                  renderBundleModal(persistence, false, true)
+                }
+              }
             })
-          }
-          renderBundleModal(isReattachable)
-        });
+          })
+        }
       });
     });
 
-    $("#reattach-btn, #rebroadcast-btn").on("click", function(e) {
+    $("#promote-btn, #reattach-btn, #rebroadcast-btn").on("click", function(e) {
       e.preventDefault();
 
       var hash = $(this).data("hash");
+      var bundleHash = $(this).data("bundle")
 
       if (!hash) {
         console.log("UI.reattach/rebroadcast: No hash");
         return;
       }
 
+      var isPromote = $(this).attr("id") == "promote-btn"
       var isRebroadcast = $(this).attr("id") == "rebroadcast-btn";
 
       if (isRebroadcast) {
         $("#reattach-btn").attr("disabled", "disabled");
+        $("#promote-btn").attr("disabled", "disabled")
+      } else if (isPromote) {
+        $("#reattach-btn").attr("disabled", "disabled")
+        $('#rebroadcast-btn').attr("disabled", "disabled")
       } else {
+        $("#promote-btn").attr("disabled", "disabled")
         $("#rebroadcast-btn").attr("disabled", "disabled");
       }
 
       $(".remodal-close").on("click", function(e) {
-        UI.notify("error", isRebroadcast ? "cannot_close_whilst_rebroadcasting" : "cannot_close_whilst_reattaching");
+        UI.notify("error", isRebroadcast ? "cannot_close_whilst_rebroadcasting" : (isPromote ? "cannot_close_whilst_promoting" : "cannot_close_whilst_reattaching"));
         e.preventDefault();
         e.stopPropagation();
       });
 
-      console.log("UI.handleHistory: Do " + (isRebroadcast ? "rebroadcast" : "reattach") + " for hash " + hash);
+      console.log("UI.handleHistory: Do " + (isRebroadcast ? "rebroadcast" : (isPromote ? "promote" : "reattach")) + " for hash " + hash);
 
       UI.isLocked = true;
 
@@ -132,7 +170,67 @@ var UI = (function(UI, $, undefined) {
           UI.isLocked = false;
           $(".remodal-close").off("click");
           $("#reattach-btn").removeAttr("disabled");
+          $("#promote-btn").removeAttr("disabled")
         });
+      } else if (isPromote) {
+        function _resetUI (err, success, desktopNotification) {
+          if (err) {
+            $('#promote-btn').loadingError(err)
+          } else {
+            $('#promote-btn').loadingSuccess(success)
+          }
+          if (!UI.isFocused()) {
+            UI.notifyDesktop(err || desktopNotification)
+          }
+          UI.isDoingPOW = false
+          UI.isLocked = false
+          $('.remodal-close').off('click')
+          $('#rebroadcast-btn').removeAttr('disabled')
+          $('#reattach-btn').removeAttr('disabled')
+        }
+        function _promote () {
+          UI.isDoingPOW = true
+
+          iota.api.promoteTransaction(
+            bundlesToTailsMap.get(bundleHash),
+            connection.depth,
+            connection.minWeightMagnitude,
+            [{address: '9'.repeat(81), value: 0, message: '', tag: ''}],
+            {interrupt: false, delay: 0},
+            (err, res) => {
+              UI.isDoingPOW = false
+              if (err) {
+                if (err.message.indexOf('Inconsistent subtangle') > -1) {
+                  iota.api.findTransactionObjects({bundles: [bundleHash]}, function (err, txs) {
+                    if (err) {
+                      _resetUI(err.message)
+                    } else {
+                      const tails = txs.filter(tx => tx.currentIndex === 0)
+                      const states = iota.api.isPromotable(tails.map(tx => tx.hash))
+                      const newConsistentTailHash = tails[states.findIndex(state => state)].hash
+                      if (newConsistentTailHash) {
+                        bundlesToTailsMap.set(bundleHash, newConsistentTailHash)
+                        setTimeout(() => _promote(newConsistentTailHash), 0)
+                      } else {
+                        _resetUI('promote_inconsistent_subtangle_error')
+                        UI.formError('promote', 'promote_inconsistent_subtangle_error', {initial: 'promote-btn'})
+                        bundlesToTailsMap.delete(bundleHash)
+                        $('#promote-btn').hide()
+                        $('#reattach-btn').show()
+                      }
+                    }
+                  })
+                } else {
+                  _resetUI(err.message)
+                }
+              } else {
+                UI.updateState(1000)
+                _resetUI(null, 'promote_completed', 'transaction_promoted_successfully')
+              }
+            }
+          )
+        }
+        _promote()
       } else {
         UI.isDoingPOW = true;
         iota.api.replayBundle(hash, connection.depth, connection.minWeightMagnitude, function(error, bundle) {
@@ -149,12 +247,17 @@ var UI = (function(UI, $, undefined) {
             $("#reattach-btn").loadingSuccess("reattach_completed");
             $("#bundle-modal .persistence").hide();
 
+            bundlesToTailsMap.set(bundle[0].bundle, bundle[0].hash)
+            $('#reattach-btn').hide()
+            $('#promote-btn').show()
+            $('#promote-btn').removeAttr('disabled')
+
             UI.updateState(1000);
           }
 
           UI.isLocked = false;
           $(".remodal-close").off("click");
-          $("#rebroadcast-btn").removeAttr("disabled");
+          $("#rebroadcast-btn").removeAttr("disabled"); 
         });
       }
     });
@@ -241,7 +344,7 @@ var UI = (function(UI, $, undefined) {
           address = bundle[0].address;
         }
 
-        transfersHtml += "<li data-hash='" + UI.format(bundle[0].hash) + "' data-type='" + (isSent ? "spending" : "receiving") + "' data-persistence='" + UI.format(persistence*1) + "'>";
+        transfersHtml += "<li data-bundle='" + UI.format(bundle[0].bundle) + "' data-hash='" + UI.format(bundle[0].hash) + "' data-type='" + (isSent ? "spending" : "receiving") + "' data-persistence='" + UI.format(persistence*1) + "'>";
         transfersHtml += "<div class='type'><i class='fa fa-arrow-circle-" + (isSent ? "left" : "right") + "'></i></div>";
         transfersHtml += "<div class='details'>";
         transfersHtml += "<div class='date'>" + (bundle[0].attachmentTimestamp != 0 ? UI.formatDate(bundle[0].attachmentTimestamp, true) :
