@@ -1,4 +1,20 @@
 var UI = (function(UI, $, undefined) {
+  function getFirstConsistentTailHash (tails, i, inconsistentTails) {
+    return iota.api.isPromotable(tails[i]).then(state => {
+      if (!tails[i]) {
+        return false
+      }
+
+      if (state) {
+        return tails[i]
+      }
+
+      inconsistentTails.add(tails[i])
+
+      return getFirstConsistentTailHash(tails, i++)
+    })
+  }
+
   UI.handleHistory = function() {
     var modal;
 
@@ -115,29 +131,20 @@ var UI = (function(UI, $, undefined) {
               if (inclusionStates.some(state => state)) {
                 renderBundleModal(persistence)
               } else {
-                let consistentTailHash
+                getFirstConsistentTailHash(tails.filter(hash => !inconsistentTails.has(hash)), 0, inconsistentTails)
+                  .then(consistentTailHash => {
+                    if (consistentTailHash) {
+                      bundlesToTailsMap.set(bundleHash, consistentTailHash)
 
-                let _tails = tails.filter(hash => !inconsistentTails.has(hash))
+                      renderBundleModal(persistence, true, false)
+                    } else {
+                      bundlesToTailsMap.delete(bundleHash)
 
-                for (let i = 0; i < _tails.length; i++) {
-                  if (!iota.api.isPromotable(_tails[i])) {
-                    inconsistentTails.add(_tails[i])
-                  } else {
-                    consistentTailHash = _tails[i]
-
-                    break
-                  }
-                }
-
-                if (consistentTailHash) {
-                  bundlesToTailsMap.set(bundleHash, consistentTailHash)
-
-                  renderBundleModal(persistence, true, false)
-                } else {
-                  bundlesToTailsMap.delete(bundleHash)
-
-                  renderBundleModal(persistence, false, true)
-                }
+                      renderBundleModal(persistence, false, true)
+                    }
+                  }).catch(() => {
+                    _isRenderingModal = false
+                  })
               }
             })
           })
@@ -249,31 +256,22 @@ var UI = (function(UI, $, undefined) {
                         .filter(tx => !inconsistentTails.has(tx.hash))
                         .map(tx => tx.hash)
 
-                      let newConsistentTailHash
+                      getFirstConsistentTailHash(tails, 0, inconsistentTails)
+                        .then(newConsistentTailHash => {
+                          if (newConsistentTailHash) {
+                            bundlesToTailsMap.set(bundleHash, newConsistentTailHash)
 
-                      for (let i = 0; i < tails.length; i++) {
-                        if (!iota.api.isPromotable(tails[i])) {
-                          inconsistentTails.add(tails[i])
-                        } else {
-                          newConsistentTailHash = tails[i]
+                            setTimeout(() => _promote(newConsistentTailHash), 0)
+                          } else {
+                            _resetUI('promote_inconsistent_subtangle_error')
+                            UI.formError('promote', 'promote_inconsistent_subtangle_error', {initial: 'promote-btn'})
 
-                          break
-                        }
-                      }
+                            bundlesToTailsMap.delete(bundleHash)
 
-                      if (newConsistentTailHash) {
-                        bundlesToTailsMap.set(bundleHash, newConsistentTailHash)
-
-                        setTimeout(() => _promote(newConsistentTailHash), 0)
-                      } else {
-                        _resetUI('promote_inconsistent_subtangle_error')
-                        UI.formError('promote', 'promote_inconsistent_subtangle_error', {initial: 'promote-btn'})
-
-                        bundlesToTailsMap.delete(bundleHash)
-
-                        $('#promote-btn').hide()
-                        $('#reattach-btn').show()
-                      }
+                            $('#promote-btn').hide()
+                            $('#reattach-btn').show()
+                          }
+                        })
                     }
                   })
                 } else {
@@ -314,7 +312,7 @@ var UI = (function(UI, $, undefined) {
 
           UI.isLocked = false;
           $(".remodal-close").off("click");
-          $("#rebroadcast-btn").removeAttr("disabled"); 
+          $("#rebroadcast-btn").removeAttr("disabled");
         });
       }
     });
