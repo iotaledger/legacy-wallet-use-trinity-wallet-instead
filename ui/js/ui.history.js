@@ -1,24 +1,28 @@
 var UI = (function(UI, $, undefined) {
-  function getFirstConsistentTailHash (tails, i, inconsistentTails) {
-    return iota.api.isPromotable(tails[i]).then(state => {
-      if (!tails[i]) {
-        return false
-      }
-
-      if (state) {
+  function getFirstConsistentTail (tails, i, inconsistentTails) {
+    if (!tails[i]) {
+      return Promise.resolve(false)
+    }
+    return iota.api.isPromotable(tails[i].hash).then(state => {
+      if (state && isAboveMaxDepth(tails[i])) {
         return tails[i]
       }
 
-      inconsistentTails.add(tails[i])
+      inconsistentTails.add(tails[i].hash)
 
-      return getFirstConsistentTailHash(tails, i++)
+      return getFirstConsistentTail(tails, i++)
     })
+  }
+
+  function isAboveMaxDepth (tx) {
+    return (Math.floor(Date.now()) - parseInt(tx.attachmentTimestamp)) < (14 * 2 * 60 * 1000)
   }
 
   UI.handleHistory = function() {
     var modal;
 
     const bundlesToTailsMap = new Map()
+    const promotableTailsMap = new Map()
     const inconsistentTails = new Set()
 
     let _isRenderingModal = false
@@ -113,15 +117,21 @@ var UI = (function(UI, $, undefined) {
             }
 
             const bundleHash = txs[0].bundle
-            const consistentTailHash = bundlesToTailsMap.get(bundleHash)
-            let tails = txs.filter(tx => tx.currentIndex === 0).map(tx => tx.hash)
+            const consistentTail = bundlesToTailsMap.get(bundleHash)
+            let tails = txs.filter(tx => tx.currentIndex === 0)
 
-            if (consistentTailHash) {
-              tails = tails.filter(hash => hash !== consistentTailHash)
-              tails.unshift(consistentTailHash)
+            if (consistentTail && consistentTail.bundle === bundleHash) {
+              tails = tails.filter(tx => tx.hash !== consistentTail.hash)
+              tails.unshift(consistentTail)
             }
 
-            iota.api.getLatestInclusion(tails, (err, inclusionStates) => {
+            if (!promotableTailsMap.has(bundleHash)) {
+              promotableTailsMap.set(bundleHash, tails)
+            }
+
+            let promotableTails = promotableTailsMap.get(bundleHash) || []
+
+            iota.api.getLatestInclusion(tails.map(tx => tx.hash), (err, inclusionStates) => {
               if (err) {
                 _isRenderingModal = false
 
@@ -130,15 +140,22 @@ var UI = (function(UI, $, undefined) {
 
               if (inclusionStates.some(state => state)) {
                 renderBundleModal(persistence)
+              } else if (consistentTail &&
+                !inconsistentTails.has(consistentTail.hash) &&
+                isAboveMaxDepth(consistentTail)) {
+                renderBundleModal(false, true, false)
               } else {
-                getFirstConsistentTailHash(tails.filter(hash => !inconsistentTails.has(hash)), 0, inconsistentTails)
-                  .then(consistentTailHash => {
-                    if (consistentTailHash) {
-                      bundlesToTailsMap.set(bundleHash, consistentTailHash)
+                promotableTails = promotableTails.filter(tx => !inconsistentTails.has(tx.hash) && isAboveMaxDepth(tx))
+
+                getFirstConsistentTail(promotableTails, 0, inconsistentTails)
+                  .then(consistentTail => {
+                    if (consistentTail) {
+                      bundlesToTailsMap.set(bundleHash, consistentTail)
 
                       renderBundleModal(persistence, true, false)
                     } else {
                       bundlesToTailsMap.delete(bundleHash)
+                      promotableTails = []
 
                       renderBundleModal(persistence, false, true)
                     }
@@ -149,14 +166,15 @@ var UI = (function(UI, $, undefined) {
             })
           })
         }
-      });
-    });
+      })
+    })
 
     $("#promote-btn, #reattach-btn, #rebroadcast-btn").on("click", function(e) {
       e.preventDefault();
 
-      var hash = $(this).data("hash");
-      var bundleHash = $(this).data("bundle")
+      const hash = $(this).data("hash");
+      const bundleHash = $(this).data("bundle")
+      let promotableTails = promotableTailsMap.get(bundleHash) || []
 
       if (!hash) {
         console.log("UI.reattach/rebroadcast: No hash");
@@ -234,8 +252,29 @@ var UI = (function(UI, $, undefined) {
 
           const spamTransfer = [{address: '9'.repeat(81), value: 0, message: '', tag: ''}]
 
+          if (!isAboveMaxDepth(tail)) {
+            promotableTails = promotableTails.filter(tx => !inconsistentTails.has(tx.hash) && isAboveMaxDepth(tx))
+
+            return getFirstConsistentTail(promotableTails, 0, inconsistentTails)
+              .then(newConsistentTail => {
+                if (newConsistentTail) {
+                  bundlesToTailsMap.set(bundleHash, newConsistentTail)
+
+                  setTimeout(() => _promote(newConsistentTail), 0)
+                } else {
+                  _resetUI('promote_bellow_max_depth_error')
+
+                  bundlesToTailsMap.delete(bundleHash)
+                  promotableTails = []
+
+                  $('#reattach-btn').show()
+                  $('#promote-btn').hide()
+                }
+              })
+          }
+
           iota.api.promoteTransaction(
-            tail,
+            tail.hash,
             connection.depth,
             connection.minWeightMagnitude,
             spamTransfer,
@@ -245,39 +284,33 @@ var UI = (function(UI, $, undefined) {
 
               if (err) {
                 if (err.message.indexOf('Inconsistent subtangle') > -1) {
-                  inconsistentTails.add(tail)
+                  inconsistentTails.add(tail.hash)
 
-                  iota.api.findTransactionObjects({bundles: [bundleHash]}, (err, txs) => {
-                    if (err) {
-                      _resetUI(err.message)
-                    } else {
-                      let tails = txs.filter(tx => tx.currentIndex === 0)
-                        .filter(tx => tx.hash !== tail)
-                        .filter(tx => !inconsistentTails.has(tx.hash))
-                        .map(tx => tx.hash)
+                  promotableTails = promotableTails.filter(tx => !inconsistentTails.has(tx.hash) && isAboveMaxDepth(tx))
 
-                      getFirstConsistentTailHash(tails, 0, inconsistentTails)
-                        .then(newConsistentTailHash => {
-                          if (newConsistentTailHash) {
-                            bundlesToTailsMap.set(bundleHash, newConsistentTailHash)
+                  getFirstConsistentTail(promotableTails, 0, inconsistentTails)
+                    .then(newConsistentTail => {
+                      if (newConsistentTail) {
+                        bundlesToTailsMap.set(bundleHash, newConsistentTail)
 
-                            setTimeout(() => _promote(newConsistentTailHash), 0)
-                          } else {
-                            _resetUI('promote_inconsistent_subtangle_error')
-                            UI.formError('promote', 'promote_inconsistent_subtangle_error', {initial: 'promote-btn'})
+                        setTimeout(() => _promote(newConsistentTail), 0)
+                      } else {
+                        _resetUI('promote_inconsistent_subtangle_error')
 
-                            bundlesToTailsMap.delete(bundleHash)
+                        bundlesToTailsMap.delete(bundleHash)
+                        promotableTails = []
 
-                            $('#promote-btn').hide()
-                            $('#reattach-btn').show()
-                          }
-                        })
-                    }
-                  })
+                        $('#promote-btn').hide()
+                        $('#reattach-btn').show()
+                      }
+                    })
                 } else {
                   _resetUI(err.message)
                 }
               } else {
+                bundlesToTailsMap.set(bundleHash, res[0])
+                promotableTails.unshift(res[0])
+
                 UI.updateState(1000)
 
                 _resetUI(null, 'promote_completed', 'transaction_promoted_successfully')
@@ -302,12 +335,14 @@ var UI = (function(UI, $, undefined) {
             $("#reattach-btn").loadingSuccess("reattach_completed");
             $("#bundle-modal .persistence").hide();
 
-            bundlesToTailsMap.set(bundle[0].bundle, bundle[0].hash)
             $('#reattach-btn').hide()
             $('#promote-btn').show()
             $('#promote-btn').removeAttr('disabled')
 
             UI.updateState(1000);
+
+            bundlesToTailsMap.set(bundle[0].bundle, bundle[0].hash)
+            promotableTails.push(bundle[0])
           }
 
           UI.isLocked = false;
