@@ -55,6 +55,7 @@
   "hash":"Hash",
   "persistence":"Persistence",
   "confirmed":"Confirmed",
+  "reattachment_confirmed": "A reattachment confirmed",
   "pending":"Pending",
   "cannot_close_whilst_rebroadcasting":"Cannot close whilst rebroadcasting.",
   "transaction_rebroadcasted_successfully":"Transaction rebroadcasted successfully",

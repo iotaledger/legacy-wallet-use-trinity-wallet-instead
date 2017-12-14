@@ -62,7 +62,7 @@ var UI = (function(UI, $, undefined) {
         }
         */
 
-        function renderBundleModal (persistence, isPromotable, isReattachable) {
+        function renderBundleModal (persistence, isPromotable, isReattachable, status) {
           var html = "<div class='list'><ul>";
 
           for (var i=0; i<transactions.length; i++) {
@@ -75,7 +75,7 @@ var UI = (function(UI, $, undefined) {
           $modal.find(".contents").html(html);
           $modal.find(".hash").html("<strong><span data-i18n='hash'>" + UI.t("hash") + "</span>:</strong> " + UI.formatForClipboard(hash));
 
-          $modal.find(".persistence").html("<span data-i18n='persistence'>" + UI.t("persistence") + "</span>: " + (persistence ? "<span data-i18n='confirmed'>" + UI.t("confirmed") + "</span>" : "<span data-i18n='pending'>" + UI.t("pending") + "</span>")).show();
+          $modal.find(".persistence").html("<span data-i18n='persistence'>" + UI.t("persistence") + "</span>: " + (persistence ? "<span data-i18n='" + status + "'>" + UI.t(status) + "</span>" : "<span data-i18n='pending'>" + UI.t("pending") + "</span>")).show();
           $modal.find(".btn").data("hash", hash);
           $modal.find(".btn").data("bundle", bundleHash)
 
@@ -107,7 +107,7 @@ var UI = (function(UI, $, undefined) {
         if (persistence) {
           bundlesToTailsMap.delete(transactions[0].bundle)
 
-          renderBundleModal(persistence)
+          renderBundleModal(persistence, false, false, 'confirmed')
         } else {
           iota.api.findTransactionObjects({bundles: [transactions[0].bundle]}, (err, txs) => {
             if (err) {
@@ -139,7 +139,14 @@ var UI = (function(UI, $, undefined) {
               }
 
               if (inclusionStates.some(state => state)) {
-                renderBundleModal(persistence)
+                let status
+                if (inclusionStates[tails.findIndex(tx => tx.hash === hash)]) {
+                  status = 'confirmed'
+                } else {
+                  status = 'reattachment_confirmed'
+                }
+
+                renderBundleModal(persistence, false, false, status)
               } else if (consistentTail &&
                 !inconsistentTails.has(consistentTail.hash) &&
                 isAboveMaxDepth(consistentTail)) {
@@ -341,7 +348,7 @@ var UI = (function(UI, $, undefined) {
 
             UI.updateState(1000);
 
-            bundlesToTailsMap.set(bundle[0].bundle, bundle[0].hash)
+            bundlesToTailsMap.set(bundle[0].bundle, bundle[0])
             promotableTails.push(bundle[0])
           }
 
