@@ -1,24 +1,24 @@
 const electron         = require("electron");
-const fs               = require("fs-extra");
-const path             = require("path");
-const childProcess     = require("child_process");
-const autoUpdater      = electron.autoUpdater;
-const powerSaveBlocker = electron.powerSaveBlocker;
-const shell            = electron.shell;
-const clipboard        = electron.clipboard;
-const pusage           = require("pidusage");
-const i18n             = require("i18next");
-const i18nBackend      = require("i18next-sync-fs-backend");
-const https            = require("https");
+fs               = require("fs-extra"),
+path             = require("path"),
+childProcess     = require("child_process"),
+autoUpdater      = electron.autoUpdater,
+powerSaveBlocker = electron.powerSaveBlocker,
+shell            = electron.shell,
+clipboard        = electron.clipboard,
+pusage           = require("pidusage"),
+i18n             = require("i18next"),
+i18nBackend      = require("i18next-sync-fs-backend"),
+https            = require("https");
 
-global.i18n            = i18n;
+global.i18n      = i18n;
 
 let win;
-let otherWin;
-let loadingWin;
-let server;
-let powerSaver = -1;
-let cpuTrackInterval;
+otherWin,
+loadingWin,
+server,
+powerSaver = -1,
+cpuTrackInterval;
 
 var __entityMap = {
   "&": "&amp;",
@@ -40,46 +40,44 @@ Array.prototype.unique = function(a){
 }(function(a,b,c){ return c.indexOf(a,b+1) < 0 });
 
 var App = (function(App, undefined) {
-  var isStarted                 = false;
-  var appDirectory              = "";
-  var appDataDirectory          = "";
-  var resourcesDirectory        = "";
-  var databaseDirectory         = "";
-  var jarDirectory              = "";
-  var javaLocations             = [];
-  var selectedJavaLocation;
-  var currentLocationTest       = 0;
-  var nodeInitializationError   = false;
-  var serverOutput              = [];
-  var doNotQuit                 = false;
-  var callback                  = null;
-  var isClosing                 = false;
-  var isClosed                  = false;
-  var didKillNode               = false;
-  var settings                  = {};
-  var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
-  var isDebug                   = process.argv.indexOf("--enableDeveloperConsole") !== -1;
-  var showDevTools              = false;
-  var didCheckForUpdates        = false;
-  var appVersion                = require("../../package.json").version;
-  var isLookingAtServerLog      = false;
-  var is64BitOS                 = 64;
-  var rendererPid               = null;
-
-  var launchURL                 = null;
-  var iriVersion                = "";
-  var lastError                 = "";
-
-  var isTestNet                 = String(appVersion).match(/\-testnet$/) !== null;
+  var isStarted                 = false,
+      appDirectory              = "",
+      appDataDirectory          = "",
+      resourcesDirectory        = "",
+      databaseDirectory         = "",
+      jarDirectory              = "",
+      javaLocations             = [],
+      selectedJavaLocation,
+      currentLocationTest       = 0,
+      nodeInitializationError   = false,
+      serverOutput              = [],
+      doNotQuit                 = false,
+      callback                  = null,
+      isClosing                 = false,
+      isClosed                  = false,
+      didKillNode               = false,
+      settings                  = {},
+      isDevelopment             = String(process.env.NODE_ENV).trim() === "development",
+      isDebug                   = process.argv.indexOf("--enableDeveloperConsole") !== -1,
+      showDevTools              = false,
+      didCheckForUpdates        = false,
+      appVersion                = require("../../package.json").version,
+      isLookingAtServerLog      = false,
+      is64BitOS                 = 64,
+      rendererPid               = null,
+      launchURL                 = null,
+      iriVersion                = "",
+      lastError                 = "",
+      isTestNet                 = String(appVersion).match(/\-testnet$/) !== null;
 
   App.uiIsReady                 = false;
   App.uiIsInitialized           = false;
   App.doNodeStarted             = false;
 
-  var minWeightMagnitudeMinimum = (isTestNet ? 9 : 14);
-  var deleteDb                  = false;
-  var deleteAnyways             = false;
-  var isFullScreen              = false;
+  var minWeightMagnitudeMinimum = (isTestNet ? 9 : 14),
+  deleteDb                  = false,
+  deleteAnyways             = false,
+  isFullScreen              = false;
 
   App.initialize = function() {
     App.loadEnvironment();
@@ -122,13 +120,13 @@ var App = (function(App, undefined) {
       var settingsFile = path.join(appDataDirectory, "settings.json");
 
       if (fs.existsSync(settingsFile)) {
-        settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
+          settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
       } else {
-        settings = {};
+          settings = {};
       }
 
       if (!settings.hasOwnProperty("language")) {
-        settings.language = "en";
+          settings.language = "en";
       }
       if (!settings.hasOwnProperty("version")) {
           // If no version defined yet or it's the first run
@@ -137,57 +135,57 @@ var App = (function(App, undefined) {
           settings.version = appVersion;
       }
       if (!settings.hasOwnProperty("bounds") || typeof(settings.bounds) != "object" || !settings.bounds.width || !settings.bounds.height) {
-        settings.bounds = {width: 520, height: 780};
+          settings.bounds = {width: 520, height: 780};
       }
       if (!settings.hasOwnProperty("lightWallet")) {
-        settings.lightWallet = -1;
+          settings.lightWallet = -1;
       }
       if (!settings.hasOwnProperty("checkForUpdates")) {
-        settings.checkForUpdates = 1;
+          settings.checkForUpdates = 1;
       }
       if (!settings.hasOwnProperty("lastUpdateCheck")) {
-        settings.lastUpdateCheck = 0;
+          settings.lastUpdateCheck = 0;
       }
       if (!settings.hasOwnProperty("showStatusBar")) {
-        settings.showStatusBar = 1;
+          settings.showStatusBar = 1;
       }
       if (!settings.hasOwnProperty("isFirstRun")) {
-        settings.isFirstRun = 1;
+          settings.isFirstRun = 1;
       }
       if (!settings.hasOwnProperty("port")) {
-        settings.port = (isTestNet ? 14900 : 14265);
+          settings.port = (isTestNet ? 14900 : 14265);
       }
       if (!settings.hasOwnProperty("udpReceiverPort") || settings.udpReceiverPort == 0) {
-        settings.udpReceiverPort = 14600;
+          settings.udpReceiverPort = 14600;
       }
       if (!settings.hasOwnProperty("tcpReceiverPort") || settings.tcpReceiverPort == 0) {
-        settings.tcpReceiverPort = 15600;
+          settings.tcpReceiverPort = 15600;
       }
       if (!settings.hasOwnProperty("sendLimit")) {
-        settings.sendLimit = 0;
+          settings.sendLimit = 0;
       }
       if (!settings.hasOwnProperty("depth")) {
-        settings.depth = 3;
+          settings.depth = 3;
       }
       if (!settings.hasOwnProperty("minWeightMagnitude")) {
-        settings.minWeightMagnitude = minWeightMagnitudeMinimum;
+          settings.minWeightMagnitude = minWeightMagnitudeMinimum;
       } else if (settings.minWeightMagnitude < minWeightMagnitudeMinimum) {
-        settings.minWeightMagnitude = minWeightMagnitudeMinimum;
+          settings.minWeightMagnitude = minWeightMagnitudeMinimum;
       }
       if (!settings.hasOwnProperty("ccurl")) {
-        settings.ccurl = 0;
+          settings.ccurl = 0;
       }
       if (!settings.hasOwnProperty("nodes") || typeof settings.nodes != "object") {
-        settings.nodes = [];
+          settings.nodes = [];
       }
       if (!settings.hasOwnProperty("dbLocation") || (settings.dbLocation && !fs.existsSync(settings.dbLocation))) {
-        settings.dbLocation = "";
+          settings.dbLocation = "";
       }
       if (!settings.hasOwnProperty("allowShortSeedLogin")) {
-        settings.allowShortSeedLogin = 0;
+          settings.allowShortSeedLogin = 0;
       }
       if (!settings.hasOwnProperty("keccak")) {
-        settings.keccak = 0;
+          settings.keccak = 0;
       }
     } catch (err) {
       console.log("Error reading settings:");
