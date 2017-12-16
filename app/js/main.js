@@ -1,15 +1,15 @@
-const electron         = require("electron");
-fs               = require("fs-extra"),
-path             = require("path"),
-childProcess     = require("child_process"),
-autoUpdater      = electron.autoUpdater,
-powerSaveBlocker = electron.powerSaveBlocker,
-shell            = electron.shell,
-clipboard        = electron.clipboard,
-pusage           = require("pidusage"),
-i18n             = require("i18next"),
-i18nBackend      = require("i18next-sync-fs-backend"),
-https            = require("https");
+const electron         = require("electron"),
+      fs               = require("fs-extra"),
+      path             = require("path"),
+      childProcess     = require("child_process"),
+      autoUpdater      = electron.autoUpdater,
+      powerSaveBlocker = electron.powerSaveBlocker,
+      shell            = electron.shell,
+      clipboard        = electron.clipboard,
+      pusage           = require("pidusage"),
+      i18n             = require("i18next"),
+      i18nBackend      = require("i18next-sync-fs-backend"),
+      https            = require("https");
 
 global.i18n      = i18n;
 
