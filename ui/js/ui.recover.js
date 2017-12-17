@@ -411,7 +411,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
       }
       var oldSeed = String($('#recovery-old-seed').val())
 
-      if (!iota.utils.isTrytes(oldSeed)) {
+      if (!iota.valid.isTrytes(oldSeed)) {
         oldSeed = oldSeed.replace(/([^A-Z])/g, '9')
       }
 
