@@ -47,7 +47,7 @@
   "attach_tangle_before_using_address":"Vær sikker på at vedhæfte til Tangle før du benytter adressen",
   "fill_all_fields":"Udfyld alle felter",
   "invalid_characters":"Ugyldige tegn",
-  "mixed_case_characters":"blanding af store og små bogstaver",
+  "mixed_case_characters":"Blanding af store og små bogstaver",
   "new_seed_too_short":"Nyt seed for kort",
   "new_seed_too_long":"Nyt seed for langt",
   "not_matching":"Matcher ikke",
