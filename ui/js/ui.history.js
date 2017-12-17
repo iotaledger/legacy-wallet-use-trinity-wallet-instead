@@ -10,7 +10,7 @@ var UI = (function(UI, $, undefined) {
 
       inconsistentTails.add(tails[i].hash)
 
-      return getFirstConsistentTail(tails, i++)
+      return getFirstConsistentTail(tails, i++, inconsistentTails)
     })
   }
 

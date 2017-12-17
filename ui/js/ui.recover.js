@@ -664,7 +664,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         return tails[i]
       }
       inconsistentTails.add(tails[i].hash)
-      return getFirstConsistentTail(tails, i++)
+      return getFirstConsistentTail(tails, i++, inconsistentTails)
     })
   }
 
