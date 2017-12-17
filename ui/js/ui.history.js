@@ -15,7 +15,10 @@ var UI = (function(UI, $, undefined) {
   }
 
   function isAboveMaxDepth (tx) {
-    return (Math.floor(Date.now()) - parseInt(tx.attachmentTimestamp)) < (14 * 2 * 60 * 1000)
+    if (tx.attachmentTimestamp > Date.now()) {
+      return false
+    }
+    return (Date.now() - parseInt(tx.attachmentTimestamp)) < (11 * 60 * 1000)
   }
 
   UI.handleHistory = function() {
