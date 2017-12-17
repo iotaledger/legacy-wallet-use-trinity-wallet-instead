@@ -21,10 +21,23 @@ var UI = (function(UI, $, undefined) {
     return (Date.now() - parseInt(tx.attachmentTimestamp)) < (11 * 60 * 1000)
   }
 
+  const TTL = 30 * 60 * 1000
+
+  function hasTimeToLive (origin) {
+    if (!origin) {
+      return false
+    }
+    if (origin.attachmentTimestamp > Date.now()) {
+      return false
+    }
+    return (Date.now() - origin.attachmentTimestamp) < TTL
+  }
+
   UI.handleHistory = function() {
     var modal;
 
     const bundlesToTailsMap = new Map()
+    const bundlesToOriginsMap = new Map()
     const promotableTailsMap = new Map()
     const inconsistentTails = new Set()
 
@@ -78,7 +91,7 @@ var UI = (function(UI, $, undefined) {
           $modal.find(".contents").html(html);
           $modal.find(".hash").html("<strong><span data-i18n='hash'>" + UI.t("hash") + "</span>:</strong> " + UI.formatForClipboard(hash));
 
-          $modal.find(".persistence").html("<span data-i18n='persistence'>" + UI.t("persistence") + "</span>: " + (persistence ? "<span data-i18n='" + status + "'>" + UI.t(status) + "</span>" : "<span data-i18n='pending'>" + UI.t("pending") + "</span>")).show();
+          $modal.find(".persistence").html("<span data-i18n='persistence'>" + UI.t("persistence") + "</span>: <span data-i18n='" + status + "'>" + UI.t(status) + "</span>").show();
           $modal.find(".btn").data("hash", hash);
           $modal.find(".btn").data("bundle", bundleHash)
 
@@ -152,8 +165,9 @@ var UI = (function(UI, $, undefined) {
                 renderBundleModal(persistence, false, false, status)
               } else if (consistentTail &&
                 !inconsistentTails.has(consistentTail.hash) &&
-                isAboveMaxDepth(consistentTail)) {
-                renderBundleModal(false, true, false)
+                isAboveMaxDepth(consistentTail) &&
+                hasTimeToLive(bundlesToOriginsMap.get(bundleHash))) {
+                renderBundleModal(false, true, false, 'pending')
               } else {
                 promotableTails = promotableTails.filter(tx => !inconsistentTails.has(tx.hash) && isAboveMaxDepth(tx))
 
@@ -162,12 +176,16 @@ var UI = (function(UI, $, undefined) {
                     if (consistentTail) {
                       bundlesToTailsMap.set(bundleHash, consistentTail)
 
-                      renderBundleModal(persistence, true, false)
+                      if (!bundlesToOriginsMap.has(bundleHash)) {
+                        bundlesToOriginsMap.set(consistentTail)
+                      }
+
+                      renderBundleModal(false, true, false, 'pending')
                     } else {
                       bundlesToTailsMap.delete(bundleHash)
                       promotableTails = []
 
-                      renderBundleModal(persistence, false, true)
+                      renderBundleModal(false, false, true, 'pending')
                     }
                   }).catch(() => {
                     _isRenderingModal = false
@@ -267,7 +285,7 @@ var UI = (function(UI, $, undefined) {
 
             return getFirstConsistentTail(promotableTails, 0, inconsistentTails)
               .then(newConsistentTail => {
-                if (newConsistentTail) {
+                if (newConsistentTail && hasTimeToLive(bundlesToOriginsMap.get(bundleHash))) {
                   bundlesToTailsMap.set(bundleHash, newConsistentTail)
 
                   setTimeout(() => _promote(newConsistentTail), 0)
@@ -300,7 +318,7 @@ var UI = (function(UI, $, undefined) {
 
                   getFirstConsistentTail(promotableTails, 0, inconsistentTails)
                     .then(newConsistentTail => {
-                      if (newConsistentTail) {
+                      if (newConsistentTail && hasTimeToLive(bundlesToOriginsMap.get(bundleHash))) {
                         bundlesToTailsMap.set(bundleHash, newConsistentTail)
 
                         setTimeout(() => _promote(newConsistentTail), 0)
@@ -353,6 +371,7 @@ var UI = (function(UI, $, undefined) {
 
             bundlesToTailsMap.set(bundle[0].bundle, bundle[0])
             promotableTails.push(bundle[0])
+            bundlesToOriginsMap.set(bundle[0].bundle, bundle[0])
           }
 
           UI.isLocked = false;
