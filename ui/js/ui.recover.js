@@ -97,7 +97,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
       var oldSeed = String($('#recovery-old-seed').val())
       var newSeed = String($('#recovery-new-seed').val())
 
-      if (oldSeed.length === 0 || !iota.valid.isTrytes(oldSeed)) {
+      if (oldSeed.length === 0) {
         UI.formError('recover', 'invalid_old_seed', {initial: 'publish_proof'})
         $('.remodal-close').off('click')
         recoveryNextBtn.loadingReset('recovery_next')
@@ -105,6 +105,11 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         $('#recovery-old-seed').focus()
         return
       }
+
+      if (!iota.valid.isTrytes(oldSeed)) {
+        oldSeed = oldSeed.replace(/([^A-Z])/g, '9')
+      }
+
       if (newSeed.length !== 81 || !iota.valid.isTrytes(newSeed)) {
         UI.formError('recover', 'invalid_new_seed', {initial: 'publish_proof'})
         $('.remodal-close').off('click')
