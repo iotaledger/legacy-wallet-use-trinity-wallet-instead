@@ -410,6 +410,11 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         return
       }
       var oldSeed = String($('#recovery-old-seed').val())
+
+      if (!iota.utils.isTrytes(oldSeed)) {
+        oldSeed = oldSeed.replace(/([^A-Z])/g, '9')
+      }
+
       setTimeout(() => {
         getBalance(oldSeed)
         .then((balance) => {
