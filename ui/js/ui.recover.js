@@ -42,14 +42,10 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
 
   var _modal
   var _bundlesToTailsMap = new Map()
-  var _inconsistentTails = new Set()
   var _proofTx = null
   var _revealTx = null
-  var _proofTails = []
-  var _revealTails = []
   var _proofTxConfirmed = false
   var _revealTxConfirmed = false
-  var _latestAttachmentTimestamp = null
   var _proofAddress = ''
   var _pepper = ''
   var _step = 1
@@ -151,29 +147,10 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
               return
             }
             _proofTx = [txs.filter(tx => tx.lastIndex === 0).sort((a, b) => a.timestamp - b.timestamp)[0]]
-            _latestAttachmentTimestamp = _proofTx[0].attachmentTimestamp
-            _proofTails = tails
-            _bundlesToTailsMap.set(_proofTx[0].bundle, _proofTx[0])
             _step++
             $('#recovery-step-1').hide()
             $('#recovery-step-2').fadeIn()
             $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(_proofTx[0].hash))
-            getFirstConsistentTail(tails.filter(tail => isAboveMaxDepth(tail) && !_inconsistentTails.has(tail.hash)), 0, _inconsistentTails)
-              .then(consistentTail => {
-                if (_proofTxConfirmed || _pauseConfCheck) {
-                  return
-                }
-                if (consistentTail && !promotionTimedOut(_latestAttachmentTimestamp)) {
-                  _bundlesToTailsMap.set(_proofTx[0].bundle, consistentTail)
-                  promoteBtn.show()
-                  reattachBtn.hide()
-                } else {
-                  _bundlesToTailsMap.delete(_proofTx[0].bundle)
-                  _proofTails = []
-                  promoteBtn.hide()
-                  reattachBtn.show()
-                }
-              })
             if (confirmed) {
               _proofTxConfirmed = true
               document.getElementById('recovery-proof-confirmed-status').classList.remove('recovery-pending')
@@ -183,10 +160,29 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
               reattachBtn.hide()
               promoteBtn.hide()
               $('#recovery-submit-seed').fadeIn()
+            } else {
+              const currentTail = _bundlesToTailsMap.get(_proofTx[0].bundle)
+              if (!currentTail || !isAboveMaxDepth(currentTail)) {
+                getPromotableTail(tails, 0)
+                  .then(consistentTail => {
+                    if (_proofTxConfirmed || _pauseConfCheck) {
+                      return
+                    }
+                    if (consistentTail) {
+                      _bundlesToTailsMap.set(_proofTx[0].bundle, consistentTail)
+                      promoteBtn.show()
+                      reattachBtn.hide()
+                    } else {
+                      _bundlesToTailsMap.delete(_proofTx[0].bundle)
+                      promoteBtn.hide()
+                      reattachBtn.show()
+                    }
+                  })
+              }
             }
-            $('.remodal-close').off('click')
-            recoveryNextBtn.loadingReset('recovery_next')
           })
+          $('.remodal-close').off('click')
+          recoveryNextBtn.loadingReset('recovery_next')
           return
         }
         filterSpentAddresses([{address: newAddress}])
@@ -201,15 +197,13 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
           }
           attachBundle(generateProofBundle(newAddress, generateProof(oldSeed, newSeed, newAddress), TAG))
           .then(tx => {
-            _latestAttachmentTimestamp = tx[0].attachmentTimestamp
-            _proofTails = [tx[0]]
-            _bundlesToTailsMap.set(tx[0].bundle, tx[0])
             recoveryNextBtn.loadingReset('next')
             UI.formSuccess('recover', 'proof_published', {initial: 'recovery_next'})
             $('.remodal-close').off('click')
             $('#recovery-step-1').hide()
             $('#recovery-step-2').fadeIn()
             $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(tx[0].hash))
+            _bundlesToTailsMap.set(tx[0].bundle, tx[0])
             _step++
             checkInclusionStates(tx, CONFIRMATION_CHECK_TIMEOUT, false, (err, confirmed, tails) => {
               if (err) {
@@ -217,7 +211,6 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
                 return
               }
               _proofTx = tx
-              _proofTails = tails
               if (confirmed) {
                 _proofTxConfirmed = true
                 UI.formSuccess('recover', 'recovery_proof_transaction_confirmed')
@@ -229,22 +222,24 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
                 promoteBtn.hide()
                 $('#recovery-submit-seed').fadeIn()
               } else {
-                getFirstConsistentTail(tails.filter(tail => isAboveMaxDepth(tail) && !_inconsistentTails.has(tail.hash)), 0, _inconsistentTails)
-                  .then(consistentTail => {
-                    if (_proofTxConfirmed || _pauseConfCheck) {
-                      return
-                    }
-                    if (consistentTail && !promotionTimedOut(_latestAttachmentTimestamp)) {
-                      _bundlesToTailsMap.set(_proofTx[0].bundle, consistentTail)
-                      reattachBtn.hide()
-                      promoteBtn.show()
-                    } else {
-                      _bundlesToTailsMap.delete(_proofTx[0].bundle)
-                      _proofTails = []
-                      promoteBtn.hide()
-                      reattachBtn.show()
-                    }
-                  })
+                const currentTail = _bundlesToTailsMap.get(_proofTx[0].bundle)
+                if (!currentTail || !isAboveMaxDepth(currentTail)) {
+                  getPromotableTail(tails, 0)
+                    .then(consistentTail => {
+                      if (_proofTxConfirmed || _pauseConfCheck) {
+                        return
+                      }
+                      if (consistentTail) {
+                        _bundlesToTailsMap.set(_proofTx[0].bundle, consistentTail)
+                        reattachBtn.hide()
+                        promoteBtn.show()
+                      } else {
+                        _bundlesToTailsMap.delete(_proofTx[0].bundle)
+                        promoteBtn.hide()
+                        reattachBtn.show()
+                      }
+                    })
+                }
               }
             })
           }).catch(() => {
@@ -281,9 +276,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         reattachBtn.loadingReset('reattach')
         UI.formSuccess('recover', 'reattach_completed', {initial: 'reattach'})
         _pauseConfCheck = false
-        _latestAttachmentTimestamp = res[0].attachmentTimestamp
         _bundlesToTailsMap.set(res[0].bundle, res[0])
-        _proofTails = [res[0]]
         reattachBtn.hide()
         promoteBtn.show()
         $('.remodal-close').off('click')
@@ -307,28 +300,22 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         $('.remodal-close').off('click')
         return
       }
-      promote(
-        _bundlesToTailsMap.get(_proofTx[0].bundle),
-        _proofTails.filter(tail => !_inconsistentTails.has(tail.hash)),
-        _proofTx[0].bundle,
-        _bundlesToTailsMap,
-        _inconsistentTails
-      ).then(res => {
-        _bundlesToTailsMap.set(_proofTx[0].bundle, res[0])
-        _proofTails.unshift(res[0])
-        promoteBtn.loadingReset('promote')
-        UI.formSuccess('recover', 'promote_completed', {initial: 'promote'})
-        $('.remodal-close').off('click')
-      }).catch(err => {
-        promoteBtn.loadingReset('promote')
-        if (err.message.indexOf('Inconsistent subtangle') > -1) {
-          UI.formError('recover', 'promote_inconsistent_subtangle_error')
-          promoteBtn.hide()
-          reattachBtn.show()
+      const tail = _bundlesToTailsMap.get(_proofTx[0].bundle) || _proofTx[0]
+      promote(tail, _bundlesToTailsMap, 5, 1, (err, res) => {
+        if (err) {
+          if (err.message.indexOf('Inconsistent subtangle') > -1) {
+            UI.formError('recover', 'promote_inconsistent_subtangle_error')
+            promoteBtn.hide()
+            reattachBtn.show()
+          } else {
+            UI.formError('recover', err.message, {initial: 'promote'})
+          }
+          $('.remodal-close').off('click')
         } else {
-          UI.formError('recover', err.message, {initial: 'promote'})
+          UI.formSuccess('recover', 'promote_completed', {initial: 'promote'})
+          $('.remodal-close').off('click')
         }
-        $('.remodal-close').off('click')
+        promoteBtn.loadingReset('promote')
       })
     })
 
@@ -344,28 +331,22 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         $('.remodal-close').off('click')
         return
       }
-      promote(
-        _bundlesToTailsMap.get(_revealTx[0].bundle),
-        _revealTails.filter(tail => !_inconsistentTails.has(tail.hash)),
-        _revealTx[0].bundle,
-        _bundlesToTailsMap,
-        _inconsistentTails
-      ).then(res => {
-        _bundlesToTailsMap.set(_revealTx[0].bundle, res[0])
-        _revealTails.unshift(res[0])
-        recoverySubmitSeedPromoteBtn.loadingReset('promote')
-        UI.formSuccess('recover', 'promote_completed', {initial: 'promote'})
-        $('.remodal-close').off('click')
-      }).catch(err => {
-        recoverySubmitSeedPromoteBtn.loadingReset('promote')
-        if (err.message.indexOf('Inconsistent subtangle') > -1) {
-          UI.formError('recover', 'promote_inconsistent_subtangle_error')
-          recoverySubmitSeedPromoteBtn.hide()
-          recoverySubmitSeedReattachBtn.show()
+      const tail = _bundlesToTailsMap.get(_revealTx[0].bundle) || _revealTx[0]
+      promote(tail, _bundlesToTailsMap, 5, 1, (err, res) => {
+        if (err) {
+          if (err.message.indexOf('Inconsistent subtangle') > -1) {
+            UI.formError('recover', 'promote_inconsistent_subtangle_error')
+            recoverySubmitSeedPromoteBtn.hide()
+            reattachBtn.show()
+          } else {
+            UI.formError('recover', err.message, {initial: 'promote'})
+          }
+          $('.remodal-close').off('click')
         } else {
-          UI.formError('recover', err.message, {initial: 'promote'})
+          UI.formSuccess('recover', 'promote_completed', {initial: 'promote'})
+          $('.remodal-close').off('click')
         }
-        $('.remodal-close').off('click')
+        recoverySubmitSeedPromoteBtn.loadingReset('promote')
       })
     })
 
@@ -385,8 +366,6 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
       reattach(_revealTx[0].hash).then(res => {
         recoverySubmitSeedReattachBtn.loadingReset('reattach')
         _pauseConfCheck = false
-        _revealTails = [res[0]]
-        _latestAttachmentTimestamp = res[0].attachmentTimestamp
         _bundlesToTailsMap.set(res[0].bundle, res[0])
         recoverySubmitSeedReattachBtn.hide()
         recoverySubmitSeedPromoteBtn.show()
@@ -428,9 +407,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
           return pgpEncrypt(data, IF_RECLAIM_SERVICE_PUB_KEY)
           .then(cipherText => attachBundle(generateRevealBundle(cipherText.data, _proofTx[0].address)))
           .then((txs) => {
-            _revealTails = [txs[0]]
             _bundlesToTailsMap.set(txs[0].bundle, txs[0])
-            _latestAttachmentTimestamp = txs[0].attachmentTimestamp
             recoverySubmitSeedBtn.loadingReset('recovery_submit_seed')
             recoverySubmitSeedBtn.hide()
             recoverySubmitSeedPromoteBtn.show()
@@ -444,7 +421,6 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
                 return
               }
               _revealTx = txs
-              _revealTails = tails
               if (confirmed) {
                 UI.formSuccess('recover', 'recovery_completed', {initial: 'recovery_submit_seed'})
                 $('.remodal-close').off('click')
@@ -455,22 +431,24 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
                 recoverySubmitSeedReattachBtn.hide()
                 recoverySubmitSeedPromoteBtn.hide()
               } else {
-                getFirstConsistentTail(tails.filter(tail => isAboveMaxDepth(tail) && !_inconsistentTails.has(tail.hash)), 0, _inconsistentTails)
-                  .then(consistentTail => {
-                    if (_revealTxConfirmed || _pauseConfCheck) {
-                      return
-                    }
-                    if (consistentTail && !promotionTimedOut(_latestAttachmentTimestamp)) {
-                      _bundlesToTailsMap.set(_revealTx[0].bundle, consistentTail)
-                      recoverySubmitSeedReattachBtn.hide()
-                      recoverySubmitSeedPromoteBtn.show()
-                    } else {
-                      recoverySubmitSeedPromoteBtn.hide()
-                      recoverySubmitSeedReattachBtn.show()
-                      _bundlesToTailsMap.delete(_revealTx[0].bundle)
-                      _revealTails = []
-                    }
-                  })
+                const currentTail = _bundlesToTailsMap.get(_revealTx[0].bundle)
+                if (!currentTail || !isAboveMaxDepth(currentTail)) {
+                  getPromotableTail(tails, 0)
+                    .then(consistentTail => {
+                      if (_revealTxConfirmed || _pauseConfCheck) {
+                        return
+                      }
+                      if (consistentTail) {
+                        _bundlesToTailsMap.set(_revealTx[0].bundle, consistentTail)
+                        recoverySubmitSeedReattachBtn.hide()
+                        recoverySubmitSeedPromoteBtn.show()
+                      } else {
+                        recoverySubmitSeedPromoteBtn.hide()
+                        recoverySubmitSeedReattachBtn.show()
+                        _bundlesToTailsMap.delete(_revealTx[0].bundle)
+                      }
+                    })
+                }
               }
             })
           }).catch(() => {
@@ -513,14 +491,10 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
       $('#recovery-submit-seed-reattach-btn').hide()
       $('#recovery-submit-seed-promote-btn').hide()
       _bundlesToTailsMap = new Map()
-      _inconsistentTails = new Set()
       _proofTx = null
       _revealTx = null
-      _proofTails = []
-      _revealTails = []
       _proofTxConfirmed = false
       _revealTxConfirmed = false
-      _latestAttachmentTimestamp = null
       _proofAddress = ''
       _pepper = ''
       _step = 1
@@ -616,56 +590,27 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
     )
   }
 
-  function promote (tail, tails, bundleHash, bundlesToTailsMap, inconsistentTails) {
-    return new Promise((resolve, reject) => {
-      iota.api.promoteTransaction(
-        tail.hash,
-        connection.depth,
-        connection.minWeightMagnitude,
-        [{ address: '9'.repeat(81), value: 0, message: '', tag: '' }],
-        { interrupt: false, delay: 0 },
-        (err, res) => err ? reject(err) : resolve(res)
-      )
-    }).catch(err => {
-      if (err.message.indexOf('Inconsistent subtangle') > -1) {
-        inconsistentTails.add(tail.hash)
-        getFirstConsistentTail(tails, 0, inconsistentTails)
-          .then(newConsistentTail => {
-            if (newConsistentTail) {
-              bundlesToTailsMap.set(bundleHash, newConsistentTail)
-            } else {
-              bundlesToTailsMap.delete(bundleHash)
-              throw new Error(err.message)
-            }
-          })
-      } else {
-        throw new Error(err)
+  function promote (tail, bundlesToTailsMap, count, i, cb) {
+    iota.api.promoteTransaction(
+      tail.hash,
+      connection.depth,
+      connection.minWeightMagnitude,
+      [{ address: '9'.repeat(81), value: 0, message: '', tag: '' }],
+      { interrupt: false, delay: 0 },
+      (err, res) => {
+        if (err) {
+          if (err.message.indexOf('Inconsistent subtangle') > -1) {
+             bundlesToTailsMap.delete(tail.bundle)
+          }
+          return cb(err)
+        }
+        if (i < count) {
+          setTimeout(() => promote(tail, bundlesToTailsMap, count, ++i, cb))
+        } else {
+          cb(null, res)
+        }
       }
-    })
-  }
-
-  function isAboveMaxDepth (tx) {
-    if (tx.attachmentTimestamp > Date.now()) {
-      return false
-    }
-    return (Date.now() - parseInt(tx.attachmentTimestamp)) < (11 * 60 * 1000)
-  }
-
-  function promotionTimedOut (t) {
-    return (Date.now() - t) > (30 * 60 * 1000)
-  }
-
-  function getFirstConsistentTail (tails, i, inconsistentTails) {
-    if (!tails.length) {
-      return Promise.resolve(false)
-    }
-    return iota.api.isPromotable(tails[i].hash).then(state => {
-      if (state) {
-        return tails[i]
-      }
-      inconsistentTails.add(tails[i].hash)
-      return getFirstConsistentTail(tails, i++, inconsistentTails)
-    })
+    )
   }
 
   function generateProofBundle (address, pepperAndProof, tag) {
