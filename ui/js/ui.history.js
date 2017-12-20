@@ -15,8 +15,11 @@ function getPromotableTail (tails, i) {
     i = 0
   }
 
-  if (!tails.length || !tails[i]) {
+  if (!tails[i]) {
     return Promise.resolve(false)
+  }
+  if (i === 0) {
+    tails = tails.filter(tx => isAboveMaxDepth(tx)).sort((a, b) => b.attachmentTimestamp - a.attachmentTimestamp)
   }
 
   return iota.api.isPromotable(tails[i].hash).then(state => {
@@ -234,6 +237,7 @@ var UI = (function(UI, $, undefined) {
         }
 
         function _promote (tail, count, i, skipCheck) {
+          console.log(tail)
           UI.isDoingPOW = true
 
           const spamTransfer = [{address: '9'.repeat(81), value: 0, message: '', tag: ''}]
@@ -244,6 +248,7 @@ var UI = (function(UI, $, undefined) {
             bundlesToTailsMap.delete(bundleHash)
 
             $('#reattach-btn').show()
+            $('#promote-btn').loadingReset('promote')
             $('#promote-btn').hide()
           }
 
@@ -263,6 +268,7 @@ var UI = (function(UI, $, undefined) {
                   bundlesToTailsMap.delete(bundleHash)
 
                   $('#promote-btn').hide()
+                  $('#promote-btn').loadingReset('promote')
                   $('#reattach-btn').show()
                 } else {
                   _resetUI(err.message)
@@ -294,7 +300,7 @@ var UI = (function(UI, $, undefined) {
             if (!UI.isFocused()) {
               UI.notifyDesktop("transaction_reattached_successfully");
             }
-            $("#reattach-btn").loadingSuccess("reattach_completed");
+            //$("#reattach-btn").loadingSuccess("reattach_completed");
             $("#bundle-modal .persistence").hide();
 
             $('#reattach-btn').hide()

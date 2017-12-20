@@ -163,7 +163,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
             } else {
               const currentTail = _bundlesToTailsMap.get(_proofTx[0].bundle)
               if (!currentTail || !isAboveMaxDepth(currentTail)) {
-                getPromotableTail(tails.filter(tail => isAboveMaxDepth(tail)), 0)
+                getPromotableTail(tails, 0)
                   .then(consistentTail => {
                     if (_proofTxConfirmed || _pauseConfCheck) {
                       return
@@ -224,7 +224,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
               } else {
                 const currentTail = _bundlesToTailsMap.get(_proofTx[0].bundle)
                 if (!currentTail || !isAboveMaxDepth(currentTail)) {
-                  getPromotableTail(tails.filter(tail => isAboveMaxDepth(tail)), 0)
+                  getPromotableTail(tails, 0)
                     .then(consistentTail => {
                       if (_proofTxConfirmed || _pauseConfCheck) {
                         return
@@ -433,7 +433,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
               } else {
                 const currentTail = _bundlesToTailsMap.get(_revealTx[0].bundle)
                 if (!currentTail || !isAboveMaxDepth(currentTail)) {
-                  getPromotableTail(tails.filter(tail => isAboveMaxDepth(tail)), 0)
+                  getPromotableTail(tails, 0)
                     .then(consistentTail => {
                       if (_revealTxConfirmed || _pauseConfCheck) {
                         return
