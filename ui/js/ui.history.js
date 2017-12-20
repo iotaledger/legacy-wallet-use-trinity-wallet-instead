@@ -253,6 +253,17 @@ var UI = (function(UI, $, undefined) {
             $('#promote-btn').hide()
           }
 
+          $('#promote-btn').loadingReset()
+
+          var $bar = $('<span class="progress" style="display:block"><div class="slider"><div class="line"></div><div class="break dot1"></div><div class="break dot2"></div><div class="break dot3"></div></div></span>')
+
+          if (i === 1) {
+            $('#promote-btn').append($bar)
+          }
+          $('#promote-btn .progress').show()
+
+          $('#promote-btn').loadingUpdate(UI.t('promoting') + ' ' + i + '/' + count)
+
           iota.api.promoteTransaction(
             tail.hash,
             connection.depth,
@@ -279,6 +290,8 @@ var UI = (function(UI, $, undefined) {
                   setTimeout(() => _promote(tail, count, ++i, true), 1000)
                   return
                 }
+
+                $('#promote-btn .progress').hide()
 
                 UI.updateState(1000)
 
