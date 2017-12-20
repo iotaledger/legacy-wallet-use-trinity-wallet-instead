@@ -15,11 +15,12 @@ function getPromotableTail (tails, i) {
     i = 0
   }
 
-  if (!tails[i]) {
-    return Promise.resolve(false)
-  }
   if (i === 0) {
     tails = tails.filter(tx => isAboveMaxDepth(tx)).sort((a, b) => b.attachmentTimestamp - a.attachmentTimestamp)
+  }
+
+  if (!tails[i]) {
+    return Promise.resolve(false)
   }
 
   return iota.api.isPromotable(tails[i].hash).then(state => {
