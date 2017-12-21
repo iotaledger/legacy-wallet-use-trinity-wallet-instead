@@ -256,8 +256,6 @@ var UI = (function(UI, $, undefined) {
               return
             }
 
-            UI.isDoingPOW = true
-
             const spamTransfer = [{address: '9'.repeat(81), value: 0, message: '', tag: ''}]
 
             if (!skipCheck && !isAboveMaxDepth(tail)) {
@@ -268,6 +266,7 @@ var UI = (function(UI, $, undefined) {
               $('#reattach-btn').show()
               $('#promote-btn').loadingReset('promote')
               $('#promote-btn').hide()
+              return
             }
 
             $('#promote-btn').loadingReset()
@@ -280,6 +279,8 @@ var UI = (function(UI, $, undefined) {
             $('#promote-btn .progress').show()
 
             $('#promote-btn').loadingUpdate(UI.t('promoting') + ' ' + i + '/' + count)
+
+            UI.isDoingPOW = true
 
             iota.api.promoteTransaction(
               tail.hash,
