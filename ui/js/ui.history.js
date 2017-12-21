@@ -219,6 +219,8 @@ var UI = (function(UI, $, undefined) {
         });
       } else if (isPromote) {
         function _resetUI (err, success, desktopNotification) {
+          $('#promote-btn .progress').hide()
+
           if (err) {
             $('#promote-btn').loadingError(err)
           } else {
@@ -238,67 +240,81 @@ var UI = (function(UI, $, undefined) {
         }
 
         function _promote (tail, count, i, skipCheck) {
-          console.log(tail)
-          UI.isDoingPOW = true
-
-          const spamTransfer = [{address: '9'.repeat(81), value: 0, message: '', tag: ''}]
-
-          if (!skipCheck && !isAboveMaxDepth(tail)) {
-            _resetUI('promote_bellow_max_depth_error')
-
-            bundlesToTailsMap.delete(bundleHash)
-
-            $('#reattach-btn').show()
-            $('#promote-btn').loadingReset('promote')
-            $('#promote-btn').hide()
-          }
-
-          $('#promote-btn').loadingReset()
-
-          var $bar = $('<span class="progress" style="display:block"><div class="slider"><div class="line"></div><div class="break dot1"></div><div class="break dot2"></div><div class="break dot3"></div></div></span>')
-
-          if (i === 1) {
-            $('#promote-btn').append($bar)
-          }
-          $('#promote-btn .progress').show()
-
-          $('#promote-btn').loadingUpdate(UI.t('promoting') + ' ' + i + '/' + count)
-
-          iota.api.promoteTransaction(
-            tail.hash,
-            connection.depth,
-            connection.minWeightMagnitude,
-            spamTransfer,
-            {interrupt: false, delay: 0},
-            (err, res) => {
-              UI.isDoingPOW = false
-
-              if (err) {
-                if (err.message.indexOf('Inconsistent subtangle') > -1) {
-                  _resetUI('promote_inconsistent_subtangle_error')
-
-                  bundlesToTailsMap.delete(bundleHash)
-
-                  $('#promote-btn').hide()
-                  $('#promote-btn').loadingReset('promote')
-                  $('#reattach-btn').show()
-                } else {
-                  _resetUI(err.message)
-                }
-              } else {
-                if (i < count) {
-                  setTimeout(() => _promote(tail, count, ++i, true), 1000)
-                  return
-                }
-
-                $('#promote-btn .progress').hide()
-
-                UI.updateState(1000)
-
-                _resetUI(null, 'promote_completed', 'transaction_promoted_successfully')
-              }
+          iota.api.getLatestInclusion([tail.hash], (err, states) => {
+            if (err) {
+              _resetUI(err.message)
+              return
             }
-          )
+
+            if (states[0]) {
+              $('#bundle-modal').find('.btn').hide()
+              $('#bundle-modal').find(".persistence").html("<span data-i18n='persistence'>" + UI.t("persistence") + "</span>: <span data-i18n='confirmed'>" + UI.t('confirmed') + "</span>").show()
+
+              UI.updateState(1000)
+
+              _resetUI(null, 'promote_completed', 'transaction_promoted_successfully')
+              return
+            }
+
+            UI.isDoingPOW = true
+
+            const spamTransfer = [{address: '9'.repeat(81), value: 0, message: '', tag: ''}]
+
+            if (!skipCheck && !isAboveMaxDepth(tail)) {
+              _resetUI('promote_bellow_max_depth_error')
+
+              bundlesToTailsMap.delete(bundleHash)
+
+              $('#reattach-btn').show()
+              $('#promote-btn').loadingReset('promote')
+              $('#promote-btn').hide()
+            }
+
+            $('#promote-btn').loadingReset()
+
+            var $bar = $('<span class="progress" style="display:block"><div class="slider"><div class="line"></div><div class="break dot1"></div><div class="break dot2"></div><div class="break dot3"></div></div></span>')
+
+            if (i === 1) {
+              $('#promote-btn').append($bar)
+            }
+            $('#promote-btn .progress').show()
+
+            $('#promote-btn').loadingUpdate(UI.t('promoting') + ' ' + i + '/' + count)
+
+            iota.api.promoteTransaction(
+              tail.hash,
+              connection.depth,
+              connection.minWeightMagnitude,
+              spamTransfer,
+              {interrupt: false, delay: 0},
+              (err, res) => {
+                UI.isDoingPOW = false
+
+                if (err) {
+                  if (err.message.indexOf('Inconsistent subtangle') > -1) {
+                    _resetUI('promote_inconsistent_subtangle_error')
+
+                    bundlesToTailsMap.delete(bundleHash)
+
+                    $('#promote-btn').hide()
+                    $('#promote-btn').loadingReset('promote')
+                    $('#reattach-btn').show()
+                  } else {
+                    _resetUI(err.message)
+                  }
+                } else {
+                  if (i < count) {
+                    setTimeout(() => _promote(tail, count, ++i, true), 1000)
+                    return
+                  }
+
+                  UI.updateState(1000)
+
+                  _resetUI(null, 'promote_completed', 'transaction_promoted_successfully')
+                }
+              }
+            )
+          })
         }
         _promote(bundlesToTailsMap.get(bundleHash), 5, 1, false)
       } else {

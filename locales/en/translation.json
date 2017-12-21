@@ -345,8 +345,6 @@
   "cannot_close_whilst_recovering": "Cannot close whilst recovering",
   "recovery_new_seed_prompt": "Enter your new seed below. The address at key index 0 should be unused it is where you will receive your tokens into during the reveal phase.",
   "recovery_reattach_prompt": "Please wait for the confirmation of the proof transaction and make use of the promote/reattach button if it is pending for too long. A proof is only accepted once it's confirmed.",
-  "reattach_not_required": "Wait a few seconds before reattaching",
-  "promote_not_required": "Wait a few seconds before promoting",
   "recovery_proof_transaction_pending": "Proof transaction is pending",
   "recovery_proof_transaction_confirmed": "Proof transaction confirmed",
   "recovery_reveal_transaction_pending": "Reveal transaction is pending",
