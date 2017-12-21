@@ -44,6 +44,8 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
   var _bundlesToTailsMap = new Map()
   var _proofTx = null
   var _revealTx = null
+  var _proofTails = []
+  var _revealTails = []
   var _proofTxConfirmed = false
   var _revealTxConfirmed = false
   var _proofAddress = ''
@@ -146,6 +148,7 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
               recoveryNextBtn.loadingReset('recovery_next')
               return
             }
+            _proofTails = tails
             _proofTx = [txs.filter(tx => tx.lastIndex === 0).sort((a, b) => a.timestamp - b.timestamp)[0]]
             _step++
             $('#recovery-step-1').hide()
@@ -205,12 +208,13 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
             $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(tx[0].hash))
             _bundlesToTailsMap.set(tx[0].bundle, tx[0])
             _step++
+            _proofTx = tx
             checkInclusionStates(tx, CONFIRMATION_CHECK_TIMEOUT, false, (err, confirmed, tails) => {
               if (err) {
                 UI.formError('recover', err.message, {initial: 'recovery_next'})
                 return
               }
-              _proofTx = tx
+              _proofTails = tails
               if (confirmed) {
                 _proofTxConfirmed = true
                 UI.formSuccess('recover', 'recovery_proof_transaction_confirmed')
@@ -266,12 +270,6 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         e.preventDefault()
         e.stopPropagation()
       })
-      if (!_proofTx) {
-        UI.formError('recover', 'reattach_not_required', {initial: 'reattach'})
-        reattachBtn.loadingReset('reattach')
-        $('.remodal-close').off('click')
-        return
-      }
       reattach(_proofTx[0].hash).then(res => {
         reattachBtn.loadingReset('reattach')
         UI.formSuccess('recover', 'reattach_completed', {initial: 'reattach'})
@@ -294,14 +292,8 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         e.preventDefault()
         e.stopPropagation()
       })
-      if (!_proofTx) {
-        UI.formError('recover', 'promote_not_required', {initial: 'promote'})
-        promoteBtn.loadingReset('promote')
-        $('.remodal-close').off('click')
-        return
-      }
       const tail = _bundlesToTailsMap.get(_proofTx[0].bundle) || _proofTx[0]
-      promote(tail, _bundlesToTailsMap, 5, 1, (err, res) => {
+      promote(tail, _proofTails, _bundlesToTailsMap, 5, 1, (err, res) => {
         if (err) {
           if (err.message.indexOf('Inconsistent subtangle') > -1) {
             UI.formError('recover', 'promote_inconsistent_subtangle_error')
@@ -325,14 +317,8 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         e.preventDefault()
         e.stopPropagation()
       })
-      if (!_revealTx) {
-        UI.formError('recover', 'promote_not_required', {initial: 'promote'})
-        recoverySubmitSeedPromoteBtn.loadingReset('promote')
-        $('.remodal-close').off('click')
-        return
-      }
       const tail = _bundlesToTailsMap.get(_revealTx[0].bundle) || _revealTx[0]
-      promote(tail, _bundlesToTailsMap, 5, 1, (err, res) => {
+      promote(tail, _revealTails, _bundlesToTailsMap, 5, 1, (err, res) => {
         if (err) {
           if (err.message.indexOf('Inconsistent subtangle') > -1) {
             UI.formError('recover', 'promote_inconsistent_subtangle_error')
@@ -357,12 +343,6 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
         e.preventDefault()
         e.stopPropagation()
       })
-      if (!_revealTx) {
-        UI.formError('recover', 'reattach_not_required', {initial: 'reattach'})
-        recoverySubmitSeedReattachBtn.loadingReset('reattach')
-        $('.remodal-close').off('click')
-        return
-      }
       reattach(_revealTx[0].hash).then(res => {
         recoverySubmitSeedReattachBtn.loadingReset('reattach')
         _pauseConfCheck = false
@@ -415,12 +395,13 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
             $('#recovery-proof-confirmed-status').hide()
             $('#recovery-reveal-confirmed-status').fadeIn()
             $('#recovery-transaction-hash-clipboard').html(UI.formatForClipboard(txs[0].hash))
+            _revealTx = txs
             checkInclusionStates(txs, CONFIRMATION_CHECK_TIMEOUT, false, (err, confirmed, tails) => {
               if (err) {
                 UI.formError('recover', err.message, {initial: 'recovery_next'})
                 return
               }
-              _revealTx = txs
+              _revealTails = tails
               if (confirmed) {
                 UI.formSuccess('recover', 'recovery_completed', {initial: 'recovery_submit_seed'})
                 $('.remodal-close').off('click')
@@ -493,6 +474,8 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
       _bundlesToTailsMap = new Map()
       _proofTx = null
       _revealTx = null
+      _proofTails = []
+      _revealTails = []
       _proofTxConfirmed = false
       _revealTxConfirmed = false
       _proofAddress = ''
@@ -590,27 +573,40 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
     )
   }
 
-  function promote (tail, bundlesToTailsMap, count, i, cb) {
-    iota.api.promoteTransaction(
-      tail.hash,
-      connection.depth,
-      connection.minWeightMagnitude,
-      [{ address: '9'.repeat(81), value: 0, message: '', tag: '' }],
-      { interrupt: false, delay: 0 },
-      (err, res) => {
-        if (err) {
-          if (err.message.indexOf('Inconsistent subtangle') > -1) {
-             bundlesToTailsMap.delete(tail.bundle)
-          }
-          return cb(err)
-        }
-        if (i < count) {
-          setTimeout(() => promote(tail, bundlesToTailsMap, count, ++i, cb))
-        } else {
-          cb(null, res)
-        }
+  function promote (tail, tails, bundlesToTailsMap, count, i, cb) {
+    if (!tails || !tails.length) {
+      tails = [tail]
+    }
+    iota.api.getLatestInclusion(tails.map(tx => tx.hash), (err, states) => {
+      if (err) {
+        return cb(err)
       }
-    )
+
+      if (states.some(state => state)) {
+        return cb(null, true)
+      }
+
+      iota.api.promoteTransaction(
+        tail.hash,
+        connection.depth,
+        connection.minWeightMagnitude,
+        [{ address: '9'.repeat(81), value: 0, message: '', tag: '' }],
+        { interrupt: false, delay: 0 },
+        (err, res) => {
+          if (err) {
+            if (err.message.indexOf('Inconsistent subtangle') > -1) {
+               bundlesToTailsMap.delete(tail.bundle)
+            }
+            return cb(err)
+          }
+          if (i < count) {
+            setTimeout(() => promote(tail, tails, bundlesToTailsMap, count, ++i, cb), 1000)
+          } else {
+            cb(null, res)
+          }
+        }
+      )
+    })
   }
 
   function generateProofBundle (address, pepperAndProof, tag) {
