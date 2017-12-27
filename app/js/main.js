@@ -9,6 +9,7 @@ const clipboard        = electron.clipboard;
 const pusage           = require("pidusage");
 const i18n             = require("i18next");
 const i18nBackend      = require("i18next-sync-fs-backend");
+const escape           = require("./modules/escapeHtml/escapeHtml");
 const https            = require("https");
 
 global.i18n            = i18n;
@@ -19,21 +20,6 @@ let loadingWin;
 let server;
 let powerSaver = -1;
 let cpuTrackInterval;
-
-var __entityMap = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': '&quot;',
-  "'": '&#39;',
-  "/": '&#x2F;'
-};
-
-String.prototype.escapeHTML = function() {
-  return String(this).replace(/[&<>"'\/]/g, function(s) {
-    return __entityMap[s];
-  });
-}
 
 Array.prototype.unique = function(a){
     return function(){ return this.filter(a) }
@@ -760,7 +746,7 @@ var App = (function(App, undefined) {
     }
 
     if (process.platform === "darwin") {
-      const name = App.format(electron.app.getName());
+      const name = escape(electron.app.getName());
       template.unshift({
         label: name,
         submenu: [
@@ -1585,7 +1571,7 @@ var App = (function(App, undefined) {
     if (!isStarted && !didKillNode && !nodeInitializationError)   {
       if (type == "error") {
         if (data.match(/java\.net\.BindException/i)) {
-          lastError = App.t("server_address_already_in_use", {port: App.format(settings.port)});
+          lastError = App.t("server_address_already_in_use", {port: escape(settings.port)});
         } else {
           var error = data.match(/ERROR\s*com\.iota\.iri\.IRI\s*\-\s*(.*)/i);
           if (error && !lastError.match(/URI Syntax Exception|Illegal Argument Exception/i)) {
@@ -1711,7 +1697,7 @@ var App = (function(App, undefined) {
   }
 
   App.format = function(text) {
-    return String(text).escapeHTML();
+    return escape(text);
   }
 
   App.changeLanguage = function(language) {
@@ -2431,7 +2417,7 @@ var App = (function(App, undefined) {
       _isTestNet = isTestNet;
     }
 
-    var title = "IOTA " + (includeNodeType && settings.lightWallet == 1 ? "Light " : "") + "Wallet " + App.format(appVersion.replace("-testnet", "")) + (_isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + App.format(iriVersion) : "");
+    var title = "IOTA " + (includeNodeType && settings.lightWallet == 1 ? "Light " : "") + "Wallet " + escape(appVersion.replace("-testnet", "")) + (_isTestNet ? " - Testnet" : "") + (iriVersion ? " - IRI " + escape(iriVersion) : "");
 
     try {
       if (win) {

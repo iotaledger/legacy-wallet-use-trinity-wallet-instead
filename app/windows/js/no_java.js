@@ -2,24 +2,10 @@ const electron      = require("electron");
 const fs            = require("fs");
 const path          = require("path");
 const childProcess  = require("child_process");
+const escape        = require("../../js/modules/escapeHtml/escapeHtml");
 
 var isDevelopment = String(process.env.NODE_ENV).trim() === "development";
 var resourcesDirectory = isDevelopment ? "../../" : "../../../";
-
-var __entityMap = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': '&quot;',
-  "'": '&#39;',
-  "/": '&#x2F;'
-};
-
-String.prototype.escapeHTML = function() {
-  return String(this).replace(/[&<>"'\/]/g, function(s) {
-    return __entityMap[s];
-  });
-}
 
 var UI = (function(UI, undefined) {
   UI.isDebian              = false;
@@ -534,7 +520,7 @@ var UI = (function(UI, undefined) {
   }
 
   UI.format = function(text) {
-    return String(text).escapeHTML();
+    return escape(text);
   }
 
   UI.changeLanguage = function(language, callback) {

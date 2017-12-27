@@ -1,20 +1,6 @@
 const electron = require("electron")
 const i18n     = electron.remote.getGlobal("i18n");
-
-var __entityMap = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': '&quot;',
-  "'": '&#39;',
-  "/": '&#x2F;'
-};
-
-String.prototype.escapeHTML = function() {
-  return String(this).replace(/[&<>"'\/]/g, function(s) {
-    return __entityMap[s];
-  });
-}
+const escape   = require("./modules/escapeHtml/escapeHtml")
 
 let webglAvailable = false;
 try {
@@ -827,7 +813,7 @@ var UI = (function(UI, undefined) {
   }
 
   UI.format = function(text) {
-    return String(text).escapeHTML();
+    return escape(text);
   }
 
   UI.changeLanguage = function(language) {
