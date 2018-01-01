@@ -89,6 +89,7 @@
   "incorrect_address_length":"Incorrect address length",
   "incorrect_address_checksum":"Incorrect address checksum",
   "amount_cannot_be_zero":"Amount cannot be zero",
+  "amount_cannot_be_negative":"Amount cannot be negative",
   "tag_is_invalid":"Tag is invalid",
   "ignoring_invalid_tag_value":"Invalid tag value. Ignoring.",
   "wont_overwrite_transfer_fields":"Transfer fields are already filled, won't overwrite.",

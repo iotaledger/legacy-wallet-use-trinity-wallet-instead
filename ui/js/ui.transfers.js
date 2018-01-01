@@ -38,10 +38,16 @@ var UI = (function(UI, $, undefined) {
         if (!rawAmount) {
           throw UI.t("amount_cannot_be_zero");
         } else {
+          if(rawAmount < 0){
+            throw UI.t("amount_cannot_be_negative");
+          }
           amount = iota.utils.convertUnits(parseFloat(rawAmount), rawUnits, "i");
 
           if (!amount) {
             throw UI.t("amount_cannot_be_zero");
+          }
+          if(amount < 0){
+            throw UI.t("amount_cannot_be_negative");
           }
         }
 
@@ -80,7 +86,7 @@ var UI = (function(UI, $, undefined) {
           $stack.removeClass("loading");
           return;
         }
-        
+
         var transfers = [{"address": address, "value": amount, "message": "", "tag": tag}];
         var outputsToCheck = transfers.map(transfer => { return {address: iota.utils.noChecksum(transfer.address)}});
         var exptectedOutputsLength = outputsToCheck.length;
@@ -290,4 +296,3 @@ function getUnspentInputs(seed, start, threshold, inputs, cb) {
     }).catch(err => cb(err, inputs))
   })
 }
-
