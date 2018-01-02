@@ -1,5 +1,5 @@
 ### Prerequisites
-If you are **not** suggesting a feature, you must be able to check all of the following:
+If you are **not** suggesting a feature, you must be able to check all of the following (place an x inside the brackets to check the box):
 
 * [ ] I confirm that this is an issue with the IOTA Wallet and not an exchange
 * [ ] I confirm that this is an issue with the wallet, not IRI
