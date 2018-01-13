@@ -85,7 +85,7 @@ var UI = (function(UI, $, undefined) {
         }
 
         var transfers = [{"address": address, "value": amount, "message": "", "tag": tag}];
-        var outputsToCheck = transfers.map(transfer => { return {address: iota.utils.noChecksum(transfer.address)}});
+        var outputsToCheck = transfers.map(transfer => iota.utils.noChecksum(transfer.address));
         var exptectedOutputsLength = outputsToCheck.length;
         filterSpentAddresses(outputsToCheck).then(filtered => {
           if (filtered.length !== exptectedOutputsLength) {
@@ -126,8 +126,11 @@ var UI = (function(UI, $, undefined) {
               $stack.removeClass("loading");
             });
           });
+        }).catch(err => {
+          UI.formError('transfer', err, {initial: 'send_it_now'})
+          $stack.removeClass("loading")
         });
-      });
+      })
     });
 
     $("#key-reuse-close-btn").on("click", function(e) {
@@ -216,59 +219,16 @@ var UI = (function(UI, $, undefined) {
 }(UI || {}, jQuery));
 
 
-function filterSpentAddresses(inputs) {
+function filterSpentAddresses (addresses) {
   return new Promise((resolve, reject) => {
-    iota.api.findTransactionObjects({addresses: inputs.map(input => input.address)}, (err, txs) => {
-      if (err) {
-        reject(err)
-      }
-      txs = txs.filter(tx => tx.value < 0)
-      if (txs.length > 0) {
-        var bundles = txs.map(tx => tx.bundle)
-        iota.api.findTransactionObjects({bundles: bundles}, (err, txs) => {
-          if (err) {
-            reject(err)
-		      }
-          var hashes = txs.filter(tx => tx.currentIndex === 0)
-          var allBundleHashes = txs.map(tx => tx.bundle)
-          hashes = hashes.map(tx => tx.hash)
-		      iota.api.getLatestInclusion(hashes, (err, states) => {
-            if (err) {
-              reject(err)
-            }
-            var confirmedHashes = hashes.filter((hash, i) => states[i])
-            var unconfirmedHashes = hashes.filter(hash => confirmedHashes.indexOf(hash) === -1).map(hash => {
-              return { hash: hash, validate: true }
-            })
-            var getBundles = confirmedHashes.concat(unconfirmedHashes).map(hash => new Promise((resolve, reject) => {
-                iota.api.traverseBundle(typeof hash == 'string' ? hash : hash.hash, null, [], (err, bundle) => {
-                if (err) {
-                  reject(err)
-                }
-                resolve(typeof hash === 'string' ? bundle : {bundle: bundle, validate: true})
-              })
-            }))
-            resolve(Promise.all(getBundles).then(bundles => {
-              bundles = bundles.filter(bundle => {
-                if (bundle.validate) {
-                  return iota.utils.isBundle(bundle.bundle)
-                }
-                return true
-              }).map(bundle => bundle.hasOwnProperty('validate') ? bundle.bundle : bundle)
-              var blacklist = bundles.reduce((a, b) => a.concat(b), []).filter(tx => tx.value < 0).map(tx => tx.address)
-              return inputs.filter(input => blacklist.indexOf(input.address) === -1)
-            }).catch(err => reject(err)))
-		      })
- 	      })
-      }
-      else {
-        resolve(inputs);
-      }
-    })
+    iota.api.wereAddressesSpentFrom(
+      iota.valid.isArrayOfHashes(addresses) ? addresses : addresses.map(address => address.address),
+      (err, wereSpent) => err ? reject(err) : resolve(addresses.filter((address, i) => !wereSpent[i]))
+    )
   })
 }
 
-function getUnspentInputs(seed, start, threshold, inputs, cb) {
+function getUnspentInputs (seed, start, threshold, inputs, cb) {
   if (arguments.length === 4) {
     cb = arguments[3]
     inputs = {inputs: [], totalBalance: 0, allBalance: 0}
@@ -286,8 +246,7 @@ function getUnspentInputs(seed, start, threshold, inputs, cb) {
         var ordered = res.inputs.sort((a, b) => a.keyIndex - b.keyIndex).reverse()
         var end = ordered[0].keyIndex
         getUnspentInputs(seed, end + 1, diff, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance}, cb)
-      }
-      else {
+      } else {
         cb(null, {inputs: inputs.inputs.concat(filtered), totalBalance: inputs.totalBalance + collected, allBalance: inputs.allBalance})
       }
     }).catch(err => cb(err, inputs))
