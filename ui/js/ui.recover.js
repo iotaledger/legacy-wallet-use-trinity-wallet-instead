@@ -185,9 +185,13 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
           recoveryNextBtn.loadingReset('recovery_next')
           return
         }
-        filterSpentAddresses([{address: newAddress}])
+        const newAddressesToCheck = [newAddress]
+        for (let i = 1; i < 50; i++) {
+          newAddressesToCheck.push(iota.api._newAddress(newSeed, i, 2, false))
+        }
+        filterSpentAddresses(newAddressesToCheck)
         .then(unspentAddresses => {
-          if (unspentAddresses.length === 0) {
+          if (unspentAddresses.length !== newAddressesToCheck.length) {
             UI.formError('recover', 'sent_to_key_reuse_error', {initial: 'recovery_next'})
             $('.remodal-close').off('click')
             recoveryNextBtn.loadingReset('recovery_next')
@@ -648,56 +652,6 @@ WHGl/N/YlZ/p38kb7ZXtuRca7VUPxRzqv3FrUBg
       trits.push(0)
     }
     return trits
-  }
-
-  function filterSpentAddresses (inputs) {
-    return new Promise((resolve, reject) => {
-      iota.api.findTransactionObjects({addresses: inputs.map(input => iota.utils.noChecksum(input.address))}, (err, txs) => {
-        if (err) {
-          reject(err)
-        }
-        txs = txs.filter(tx => tx.value < 0)
-        if (txs.length > 0) {
-          var bundles = txs.map(tx => tx.bundle)
-          iota.api.findTransactionObjects({bundles: bundles}, (err, txs) => {
-            if (err) {
-              reject(err)
-            }
-            var hashes = txs.filter(tx => tx.currentIndex === 0)
-            hashes = hashes.map(tx => tx.hash)
-            iota.api.getLatestInclusion(hashes, (err, states) => {
-              if (err) {
-                reject(err)
-              }
-              var confirmedHashes = hashes.filter((hash, i) => states[i])
-              var unconfirmedHashes = hashes.filter(hash => confirmedHashes.indexOf(hash) === -1).map(hash => {
-                return { hash: hash, validate: true }
-              })
-              var getBundles = confirmedHashes.concat(unconfirmedHashes).map(hash => new Promise((resolve, reject) => {
-                iota.api.traverseBundle(typeof hash === 'string' ? hash : hash.hash, null, [], (err, bundle) => {
-                  if (err) {
-                    reject(err)
-                  }
-                  resolve(typeof hash === 'string' ? bundle : {bundle: bundle, validate: true})
-                })
-              }))
-              resolve(Promise.all(getBundles).then(bundles => {
-                bundles = bundles.filter(bundle => {
-                  if (bundle.validate) {
-                    return iota.utils.isBundle(bundle.bundle)
-                  }
-                  return true
-                }).map(bundle => bundle.hasOwnProperty('validate') ? bundle.bundle : bundle)
-                var blacklist = bundles.reduce((a, b) => a.concat(b), []).filter(tx => tx.value < 0).map(tx => tx.address)
-                return inputs.filter(input => blacklist.indexOf(input.address) === -1)
-              }).catch(err => reject(err)))
-            })
-          })
-        } else {
-          resolve(inputs)
-        }
-      })
-    })
   }
 
   return UI
