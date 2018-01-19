@@ -51,6 +51,7 @@
       <input type="password" id="login-password" data-i18n="[placeholder]seed" />
     </div>
     <button type="button" id="login-btn" class="btn" data-initial="login" data-loading="logging_in" data-bar-timeout="50" data-auto-reset="1" data-i18n="login"></button>
+    <button type="button" id="generate-seed-btn" class="btn btn-no-loading" data-i18n="generate_seed"></button>
     <button type="button" id="error-btn" class="btn btn-no-loading" data-i18n="no_connection"></button>
   </div>
 </div>
@@ -125,6 +126,14 @@
       </div>
     </div>
   </div>
+</div>
+
+<div id="generate-seed-modal" class="modal" data-remodal-id="generate-seed-modal">
+  <button data-remodal-action="close" class="remodal-close"></button>
+  <h1 data-i18n="generate_seed"></h1>
+  <div class="contents"><p data-i18n="create_new_seed_warning"></p></div>
+  <input type="text" class="clipboard" id="generated-seed" readonly="readonly" />
+  <button type="button" id="copy-seed-to-clipboard-btn" class="btn btn-no-loading" data-i18n="copy_to_clipboard" data-clipboard-action="copy" data-clipboard-target="#generated-seed"></button>
 </div>
 
 <div id="bundle-modal" class="modal" data-remodal-id="bundle">

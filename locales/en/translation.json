@@ -1,4 +1,5 @@
 {
+  "generate_seed":"Create new wallet",
   "login":"LOGIN",
   "error":"Error",
   "balance":"Balance",
@@ -50,6 +51,7 @@
   "mixed_case_characters":"Mixed case characters",
   "new_seed_too_short":"New seed too short",
   "new_seed_too_long":"New seed too long",
+  "create_new_seed_warning":"This is your new 81 digit long wallet seed. Your seed is your password that is used to access your account, and thus your IOTA tokens. Do not share it with anyone and keep it stored safely somewhere where nobody else but you can access it. If you have forgotten your seed, you will lose access to your IOTA tokens.",
   "not_matching":"Not matching",
   "invalid_input":"Invalid input",
   "hash":"Hash",
@@ -359,5 +361,6 @@
   "recovery_old_seed_hash_balance": "Old seed has balance. Please move the balance to a new seed and try again.",
   "recovery_submitted_address": "Any reclaimed tokens will be sent to your address shown below. For security reasons, do not spend from this address until you receive all your funds.",
   "recovery_unexpected_error": "An unxpected error occured. Please try again.",
-  "recovery_receive_address": "Address:"
+  "recovery_receive_address": "Address:",
+  "copy_to_clipboard": "Copy to clipboard"
 }
