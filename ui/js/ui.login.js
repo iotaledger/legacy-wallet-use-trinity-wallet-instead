@@ -96,12 +96,14 @@ var UI = (function(UI, $, undefined) {
       var options = {hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false};
       var seed = "";
       var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ9";
+      var array = new Uint32Array(81);
+      window.crypto.getRandomValues(array);
 
       for (var i = 0; i < 81; i++)
       {
-        seed += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+        seed += alphabet.charAt(array[i] % alphabet.length);
       }
-      
+
       $modal.find("#generated-seed").val(seed);
       modal = $modal.remodal(options);
       modal.open();
