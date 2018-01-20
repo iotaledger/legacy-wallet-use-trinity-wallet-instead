@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [{
+        "name": "Launch main.js",
+        "request": "launch",
+        "type": "node",
+        "program": "${workspaceRoot}/app/js/main.js",
+        "stopOnEntry": false,
+        "args": [],
+        "cwd": "${workspaceRoot}",
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+        "runtimeArgs": ["--nolazy"],
+        "env": { 
+           "NODE_ENV": "development"
+        },
+        "console": "integratedTerminal",
+        "sourceMaps": false
+      },
+      {
+          "name": "Attach",
+          "type": "node",
+          "request": "attach",
+          "port": 5858,
+          "sourceMaps": false,
+          "localRoot": "${workspaceRoot}",
+          "remoteRoot": null
+      }]
+}
