@@ -48,7 +48,11 @@ var UI = (function (UI, $, undefined) {
   }
 
   function setSeedChunkIndex(newSeedChunkIndex) {
-    if (newSeedChunkIndex < 0 || newSeedChunkIndex >= 14) {
+    if (newSeedChunkIndex < 0 || newSeedChunkIndex >= 15) {
+      return
+    }
+    if (newSeedChunkIndex == 14) {
+      setStep(2)
       return
     }
     _seedChunkIndex = newSeedChunkIndex
@@ -57,8 +61,12 @@ var UI = (function (UI, $, undefined) {
     _generatedSeedChunkNumberUi.text(UI.t("generated_seed_chunk_number") + " " + (_seedChunkIndex + 1))
     _generatedSeedChunkValueUi.text(_generatedSeed.substring(firstCharIndex, firstCharIndex + 6))
 
+    if (newSeedChunkIndex == 13) {
+      _showNextChunkButtonUi.text(UI.t("generated_seed_confirm"))
+    } else {
+      _showNextChunkButtonUi.text(UI.t("show_next_seed_chunk"))
+    }
     _showPreviousChunkButtonUi.disabled = _seedChunkIndex == 0;
-    _showNextChunkButtonUi.disabled = _seedChunkIndex == 13;
   }
 
   function setStep(newStep) {
