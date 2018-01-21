@@ -10,12 +10,8 @@ var UI = (function (UI, $, undefined) {
     UI.stopStateInterval()
     UI.isLocked = true
     var $modal = $('#seed-generator-modal')
-    _modal = $modal.remodal({
-      hashTracking: false, 
-      closeOnOutsideClick: false, 
-      closeOnEscape: false,
-      open: function() { setStep(1) } 
-    })
+    _modal = $modal.remodal({ hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false })
+    setStep(1)
     _modal.open()
   }
 
