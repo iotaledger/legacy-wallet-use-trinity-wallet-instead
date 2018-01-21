@@ -340,7 +340,16 @@ var UI = (function(UI, undefined) {
 
   UI.showSeedGenerator = function() {
     UI.hideAlerts();
-    UI.showAlert("<h1>HAHAHA</h1>");
+    var modal = new tingle.modal({
+      footer: false,
+      onOpen: function() {
+        var close = document.querySelector(".tingle-modal__close");
+        var modalContent = document.querySelector(".tingle-modal-box__content");
+        modalContent.appendChild(close);
+      }
+    })
+    modal.setContent("<h1>hohoho</h1>");
+    modal.open();
   }
 
   UI.showPreferences = function(settings) {
