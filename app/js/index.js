@@ -1018,7 +1018,6 @@ electron.ipcRenderer.on("showRecovery", function() {
 })
 
 electron.ipcRenderer.on("showSeedGenerator", function() {
-  UI.hideAlerts();
   UI.sendToWebview("showSeedGenerator");
 })
 
