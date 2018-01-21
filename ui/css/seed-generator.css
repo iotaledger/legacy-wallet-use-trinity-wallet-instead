@@ -1,0 +1,52 @@
+#generated-seed-info {
+    width: 98%;
+    margin: 0 auto 0 auto;
+}
+
+#show-previous-seed-chunk-btn {
+    width: 20%;
+}
+
+#show-next-seed-chunk-btn {
+    width: 20%;
+}
+
+#generated-seed-chunk-number {
+    margin: 0 0 0.25em 0;
+    text-align: center;
+    padding: 0.25em;
+    font-weight: bold;
+    display: block;
+}
+
+#generated-seed-chunk-value {
+    display: inline-block !important;
+    font-size: 2em;
+    width: 50%;
+    font-weight: bolder;
+    background-color: #ddd;
+    vertical-align: middle;
+    margin: 0;
+}
+
+.seed-generator-btn {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 5px;
+    padding: 12px 20px;
+    border: none;
+    background-color: #3498db;
+    box-shadow: none;
+    color: #fff;
+    vertical-align: middle;
+    text-decoration: none;
+    font-size: 0.75em;
+    font-family: inherit;
+    line-height: normal;
+    cursor: pointer;
+  }
+
+.seed-generator-btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }

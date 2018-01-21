@@ -361,5 +361,8 @@
   "recovery_unexpected_error": "An unxpected error occured. Please try again.",
   "recovery_receive_address": "Address:",
   "generate_your_secret_seed": "Generate your secret seed",
-  "seed_generation_instructions": "Move your mouse erratically to generate a random seed"
+  "generated_seed_instructions": "Write these values down somewhere and keep them safe!",
+  "show_previous_seed_chunk": "Previous",
+  "show_next_seed_chunk": "Next",
+  "generated_seed_chunk_number": "Chunk number"
 }
