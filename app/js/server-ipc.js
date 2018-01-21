@@ -145,6 +145,15 @@ ipcRenderer.on('showRecovery', function(event, callback) {
   }
 })
 
+ipcRenderer.on('showSeedGenerator', function(event, callback) {
+  console.log('enter seed generator tool')
+  if (typeof(UI) !== "undefined") {
+    UI.showSeedGenerator()
+  }
+})
+
+
+
 function _hoverAmountStart(amount) {
   ipcRenderer.send("hoverAmountStart", amount);
 }

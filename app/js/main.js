@@ -2026,6 +2026,14 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.showSeedGenerator = function () {
+    if (App.windowIsReady()) {
+      App.showWindowIfNotVisible()
+      win.webContents.send("showRecovery")
+    }
+  }
+  
+
   App.fetchProviders = function (urls) {
     return Promise.all(urls.map(url => {
       return new Promise((resolve, reject) => {
@@ -2301,12 +2309,6 @@ var App = (function(App, undefined) {
     }
   }
 
-  App.showSeedGenerator = function() {
-    if (App.windowIsReady()) {
-      App.showWindowIfNotVisible();
-      win.webContents.send("showSeedGenerator");
-    }
-  }
 
   App.showPreferences = function() {
     if (App.windowIsReady()) {

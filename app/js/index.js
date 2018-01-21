@@ -338,20 +338,6 @@ var UI = (function(UI, undefined) {
     return formattedAmount;
   }
 
-  UI.showSeedGenerator = function() {
-    UI.hideAlerts();
-    var modal = new tingle.modal({
-      footer: false,
-      onOpen: function() {
-        var close = document.querySelector(".tingle-modal__close");
-        var modalContent = document.querySelector(".tingle-modal-box__content");
-        modalContent.appendChild(close);
-      }
-    })
-    modal.setContent("<h1>hohoho</h1>");
-    modal.open();
-  }
-
   UI.showPreferences = function(settings) {
     UI.hideAlerts();
 
@@ -963,10 +949,6 @@ electron.ipcRenderer.on("showCheckingForUpdate", UI.showCheckingForUpdate);
 
 electron.ipcRenderer.on("showUpdateNotAvailable", UI.showUpdateNotAvailable);
 
-electron.ipcRenderer.on("showSeedGenerator", function(event) {
-  UI.showSeedGenerator();
-});
-
 electron.ipcRenderer.on("showPreferences", function(event, settings) {
   UI.showPreferences(settings);
 });
@@ -1033,6 +1015,11 @@ electron.ipcRenderer.on("updateSettings", function(event, settings) {
 electron.ipcRenderer.on("showRecovery", function() {
   UI.hideAlerts();
   UI.sendToWebview("showRecovery");
+})
+
+electron.ipcRenderer.on("showSeedGenerator", function() {
+  UI.hideAlerts();
+  UI.sendToWebview("showSeedGenerator");
 })
 
 electron.ipcRenderer.on("stopCcurl", function(event, data) {
