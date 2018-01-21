@@ -594,7 +594,7 @@ var App = (function(App, undefined) {
           {
             label: App.t("generate_your_secret_seed"),
             click(item) {
-              App.showPreferences();
+              App.showSeedGenerator();
             }
           },
           {
@@ -2298,6 +2298,13 @@ var App = (function(App, undefined) {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible();
       win.webContents.send("showModal", identifier, html);
+    }
+  }
+
+  App.showSeedGenerator = function() {
+    if (App.windowIsReady()) {
+      App.showWindowIfNotVisible();
+      win.webContents.send("showSeedGenerator");
     }
   }
 

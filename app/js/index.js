@@ -338,6 +338,11 @@ var UI = (function(UI, undefined) {
     return formattedAmount;
   }
 
+  UI.showSeedGenerator = function() {
+    UI.hideAlerts();
+    UI.showAlert("<h1>HAHAHA</h1>");
+  }
+
   UI.showPreferences = function(settings) {
     UI.hideAlerts();
 
@@ -948,6 +953,10 @@ electron.ipcRenderer.on("showUpdateError", UI.showUpdateError);
 electron.ipcRenderer.on("showCheckingForUpdate", UI.showCheckingForUpdate);
 
 electron.ipcRenderer.on("showUpdateNotAvailable", UI.showUpdateNotAvailable);
+
+electron.ipcRenderer.on("showSeedGenerator", function(event) {
+  UI.showSeedGenerator();
+});
 
 electron.ipcRenderer.on("showPreferences", function(event, settings) {
   UI.showPreferences(settings);
