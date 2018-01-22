@@ -59,7 +59,7 @@ var App = (function(App, undefined) {
   var settings                  = {};
   var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
   var isDebug                   = process.argv.indexOf("--enableDeveloperConsole") !== -1;
-  var showDevTools              = false;
+  var showDevTools              = false
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;

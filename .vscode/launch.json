@@ -9,7 +9,7 @@
         "type": "node",
         "program": "${workspaceRoot}/app/js/main.js",
         "stopOnEntry": false,
-        "args": [],
+        "args": ["--enableDeveloperConsole"],
         "cwd": "${workspaceRoot}",
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
         "runtimeArgs": ["--nolazy"],
