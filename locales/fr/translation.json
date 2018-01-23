@@ -308,5 +308,11 @@
   "seed_checksum":"Vérification de l'adresse de la Seed",
   "invalid_response":"Réponse non valide",
   "no_connection_to_host":"Aucune connexion à l’hôte",
-  "request_error":"Erreur de requête"
+  "request_error":"Erreur de requête",
+  "generate_your_secret_seed": "Générez vos graines secrètes",
+  "generated_seed_instructions": "Écrivez ces valeurs quelque part et gardez-les en sécurité! Sans ceux-ci, vous ne serez pas en mesure d'accéder à votre argent.",
+  "show_previous_seed_chunk": "Précédent",
+  "show_next_seed_chunk": "Prochain",
+  "generated_seed_chunk_number": "Numéro de morceau",
+  "generated_seed_confirm": "Confirmer"
 }

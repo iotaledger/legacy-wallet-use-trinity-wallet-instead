@@ -308,5 +308,11 @@
   "seed_checksum":"Seed Checksum",
   "invalid_response":"Ongeldig antwoord",
   "no_connection_to_host":"Geen verbinding met host",
-  "request_error":"Verzoek fout"
+  "request_error":"Verzoek fout",
+  "generate_your_secret_seed": "Genereer je geheime zaad",
+  "generated_seed_instructions": "Schrijf deze waarden ergens op en bewaar ze! Zonder deze hebt u geen toegang tot uw geld.",
+  "show_previous_seed_chunk": "Voorgaand",
+  "show_next_seed_chunk": "Volgende",
+  "generated_seed_chunk_number": "Chunk nummer",
+  "generated_seed_confirm": "Bevestigen"
 }
