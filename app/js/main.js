@@ -2029,7 +2029,7 @@ var App = (function(App, undefined) {
   App.showSeedGenerator = function () {
     if (App.windowIsReady()) {
       App.showWindowIfNotVisible()
-      win.webContents.send("showSeedGenerator")
+      win.webContents.send("showSeedGenerator") 
     }
   }
   

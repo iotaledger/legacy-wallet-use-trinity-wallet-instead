@@ -1,14 +1,13 @@
 var UI = (function (UI, $, undefined) {
 
   UI.showSeedGenerator = function (callback) {
-    var _step = 0
-    var _lastStep = 2;
-    var _generatedSeed = null;
-    var _seedChunkIndex = 0;
-    var _showPreviousChunkButtonUi = null;
-    var _showNextChunkButtonUi = null;
-    var _generatedSeedChunkNumberUi = null;
-    var _generatedSeedChunkValueUi = null;
+    let _generatedSeed
+    let _seedChunkIndex
+    let _showPreviousChunkButtonUi
+    let _showNextChunkButtonUi
+    let _generatedSeedChunkNumberUi
+    let _generatedSeedChunkValueUi
+    let _modal
 
     if (UI.isLocked) {
       return
@@ -33,7 +32,6 @@ var UI = (function (UI, $, undefined) {
     _modal = $modal.remodal({ hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false, showFooter: false })
     _modal.open()
 
-    setStep(1)
     hookupUI()
     setSeedChunkIndex(0)
 
@@ -41,37 +39,9 @@ var UI = (function (UI, $, undefined) {
       _generatedSeedChunkNumberUi = $("#generated-seed-chunk-number")
       _generatedSeedChunkValueUi = $("#generated-seed-chunk-value")
       _showPreviousChunkButtonUi = $("#show-previous-seed-chunk-btn")
-      _showPreviousChunkButtonUi.on("click", function () { previousButtonClicked() })
+      _showPreviousChunkButtonUi.on("click", function () { setSeedChunkIndex(_seedChunkIndex - 1) })
       _showNextChunkButtonUi = $("#show-next-seed-chunk-btn")
-      _showNextChunkButtonUi.on("click", function () { nextButtonClicked() })
-    }
-
-    function previousButtonClicked() {
-      switch (_step) {
-        case 1:
-          setSeedChunkIndex(_seedChunkIndex - 1)
-          break
-
-        case 2:
-          break
-
-        default:
-          throw new Error(`Unknown state ${_state}`)
-      }
-    }
-
-    function nextButtonClicked() {
-      switch (_step) {
-        case 1:
-          setSeedChunkIndex(_seedChunkIndex + 1)
-          break
-
-        case 2:
-          break
-
-        default:
-          throw new Error(`Unknown state ${_state}`)
-      }
+      _showNextChunkButtonUi.on("click", function () { setSeedChunkIndex(_seedChunkIndex + 1) })
     }
 
     function setSeedChunkIndex(newSeedChunkIndex) {
@@ -79,7 +49,8 @@ var UI = (function (UI, $, undefined) {
         return
       }
       if (newSeedChunkIndex == 14) {
-        setStep(2)
+        _modal.close()
+        callback(_generatedSeed) // TODO: PeteM - Return a value
         return
       }
       _seedChunkIndex = newSeedChunkIndex
@@ -112,6 +83,10 @@ var UI = (function (UI, $, undefined) {
         throw new Error("UiElement not found #seed-generator-step-" + _step)
       }
       visibleStepUi.fadeIn()
+
+      if (_step == 2) {
+        _showPreviousChunkButtonUi.hide()
+      }
     }
   }
 
