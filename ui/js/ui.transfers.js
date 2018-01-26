@@ -46,9 +46,6 @@ var UI = (function(UI, $, undefined) {
           if (!amount) {
             throw UI.t("amount_cannot_be_zero");
           }
-          if(amount < 0){
-            throw UI.t("amount_cannot_be_negative");
-          }
         }
 
         if ($("#transfer-tag-container").is(":visible")) {
