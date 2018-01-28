@@ -643,11 +643,12 @@ var UI = (function(UI, undefined) {
     document.getElementById('download-iri-success').style.display = 'block'
     document.getElementById('download-iri-btn').style.display = 'none'
     document.getElementById('download-iri-verification-status').style.display = 'none'
-    document.getElementById('start-btn').style.display = 'block'
-    document.getElementById('switch-btn').disabled = 'false'
+    document.getElementById('switch-btn').disabled = false
     UI.updateContentSize()
     return new Promise((resolve, reject) =>
       setTimeout(() => {
+        UI.changeElementLanguage("title", 'full_node_settings');
+        document.getElementById('start-btn').style.display = 'block'
         renderFullNodeConfigurationSection()
         resolve()
       }, 2000)
