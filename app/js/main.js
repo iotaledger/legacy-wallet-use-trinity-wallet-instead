@@ -29,6 +29,9 @@ var __entityMap = {
   "/": '&#x2F;'
 };
 
+var IRI_VERSION = '1.4.2.1'
+var IRI_DIRECTORY = 'iri'
+
 String.prototype.escapeHTML = function() {
   return String(this).replace(/[&<>"'\/]/g, function(s) {
     return __entityMap[s];
@@ -43,9 +46,9 @@ var App = (function(App, undefined) {
   var isStarted                 = false;
   var appDirectory              = "";
   var appDataDirectory          = "";
+  var tempDirectory             = "";
   var resourcesDirectory        = "";
   var databaseDirectory         = "";
-  var jarDirectory              = "";
   var javaLocations             = [];
   var selectedJavaLocation;
   var currentLocationTest       = 0;
@@ -908,11 +911,11 @@ var App = (function(App, undefined) {
       appDataDirectory = path.join(electron.app.getPath("appData"), "IOTA Wallet" + (isTestNet ? " Testnet" : ""));
     }
 
+    tempDirectory = electron.app.getPath('temp')
+
     App.loadSettings();
 
     databaseDirectory = (settings.dbLocation ? settings.dbLocation : path.join(appDataDirectory, "iri"));
-
-    jarDirectory = path.join(resourcesDirectory, "iri");
 
     if (!fs.existsSync(appDataDirectory)) {
       fs.mkdirSync(appDataDirectory);
@@ -1010,11 +1013,11 @@ var App = (function(App, undefined) {
 
   App.start = function() {
     if (settings.lightWallet == 1 && (!settings.lightWalletHost || !settings.lightWalletPort)) {
-      App.showSetupWindow({"section": "light-node"});
+      App.showSetupWindow({"section": "light-node", appDataDirectory, tempDirectory});
     } else if (settings.lightWallet == 0 && settings.nodes.length == 0) {
-      App.showSetupWindow({"section": "full-node"});
+      App.showSetupWindow({"section": "full-node", appDataDirectory, tempDirectory});
     } else if (settings.lightWallet == -1) {
-      App.showSetupWindow();
+      App.showSetupWindow({appDataDirectory, tempDirectory});
     } else if (settings.lightWallet == 1) {
       global.lightWallet = true;
       App.startLightNode();
@@ -1228,7 +1231,7 @@ var App = (function(App, undefined) {
 
       params.push("-jar");
 
-      params.push(path.join(jarDirectory, "iri" + (isTestNet ? "-testnet" : "") + ".jar"));
+      params.push(path.join(appDataDirectory, IRI_DIRECTORY,  'iri' + (isTestNet ? '-testnet' : '') + '-'  + IRI_VERSION + '.jar'));
 
       // temporary !
       // Only rescan once
@@ -1802,7 +1805,10 @@ var App = (function(App, undefined) {
                                   "lightWalletPort" : settings.lightWalletPort,
                                   "port"            : settings.port,
                                   "nodes"           : settings.nodes,
-                                  "section"         : params && params.section ? params.section : null});
+                                  "section"         : params && params.section ? params.section : null,
+                                  "appDataDirectory": params && params.appDataDirectory ? params.appDataDirectory : null,
+                                  "tempDirectory"   : params && params.tempDirectory ? params.tempDirectory : null
+                                 });
   }
 
   App.showInitializationAlertWindow = function(title, msg) {
@@ -1851,14 +1857,19 @@ var App = (function(App, undefined) {
                                            "java64BitsOK"            : java64BitsOK,
                                            "is64BitOS"               : is64BitOS,
                                            "port"                    : settings.port,
-                                           "nodes"                   : settings.nodes});
+                                           "nodes"                   : settings.nodes,
+                                           "appDataDirectory"        : appDataDirectory,
+                                           "tempDirectory"           : tempDirectory});
       });
     } else {
       App.showWindow("init_error.html", {"title"                   : title,
                                          "message"                 : msg,
                                          "serverOutput"            : serverOutput,
                                          "port"                    : settings.port,
-                                         "nodes"                   : settings.nodes});
+                                         "nodes"                   : settings.nodes,
+                                         "appDataDirectory"        : appDataDirectory,
+                                         "tempDirectory"           : tempDirectory
+                                          });
     }
 
     selectedJavaLocation = "";
@@ -1971,7 +1982,9 @@ var App = (function(App, undefined) {
     //ready-to-show event not working..
     otherWin.webContents.once("did-finish-load", function() {
       App.updateTitle();
-      //win.webContents.toggleDevTools({"mode": "undocked"});
+      if (isDebug) {
+        otherWin.webContents.openDevTools({"mode": "undocked"});
+      }
       otherWin.webContents.send("show", params);
     });
 

@@ -16,7 +16,7 @@
         </div>
         <div>
           <button class="btn btn-choice" id="full-node-btn" data-i18n="full_node"></button>
-          <p data-i18n="full_node_description"></p>
+          <p id="full-node-settings-heading" data-i18n="full_node_description"></p>
         </div>
       </div>
       <div id="light-node-section">
@@ -26,11 +26,31 @@
         <p class="note" id="host-format-example" data-i18n="add_in_following_format_example"></p>
       </div>
       <div id="full-node-section">
-        <p class="label"><span data-i18n="server_port"></span>: <span id="port-error" class="error"></span></p>
-        <input type="number" min="1024" name="port" id="port" placeholder="" value="" style="width:75px;font-size:100%;" />
-        <p class="label"><span data-i18n="neighboring_nodes"></span>: <span id="nodes-error" class="error"></span></p>
-        <textarea name="nodes" id="nodes" style="width:100%;height:150px;"></textarea>
-        <p class="note"><span data-i18n="node_settings_format"></span>: udp://ip:12345</p>
+        <div id="full-node-configuration-section">
+          <p class="label"><span data-i18n="server_port"></span>: <span id="port-error" class="error"></span></p>
+          <input type="number" min="1024" name="port" id="port" placeholder="" value="" style="width:75px;font-size:100%;" />
+          <p class="label"><span data-i18n="neighboring_nodes"></span>: <span id="nodes-error" class="error"></span></p>
+          <textarea name="nodes" id="nodes" style="width:100%;height:150px;"></textarea>
+          <p class="note"><span data-i18n="node_settings_format"></span>: udp://ip:12345</p>
+        </div>
+        <div id="full-node-download-iri-section">
+          <div id="download-iri-error" class="error"></div>
+          <p id="download-iri-prompt" data-i18n="download_iri_prompt_text"></p>
+          <div id="download-iri-progress">
+            <p id="download-iri-progress-downloading" data-i18n="download_iri_downloading"></p>
+            <div id="download-iri-progress-bar">
+              <div id="download-iri-progress-bar-content"></div>
+            </div>
+            <div id="download-iri-progress-percentage"></div>
+          </div>
+          <div id="download-iri-verification-status">
+            <span data-i18n="download_iri_verifying"></span>
+          </div>
+          <div id="download-iri-success">
+            <span data-i18n="download_iri_success"></span>
+          </div>
+          <button id="download-iri-btn" class="btn btn-primary" data-i18n="download_iri"></button>
+        </div>
       </div>
     </div>
   </div>

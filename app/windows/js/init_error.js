@@ -21,6 +21,8 @@ String.prototype.escapeHTML = function() {
 
 var UI = (function(UI, undefined) {
   var isLightWallet = false;
+  var _tempDirectory
+  var _appDataDirectory
 
   UI.initialize = function() {
     document.getElementById("quit-btn").addEventListener("click", function(e) {
@@ -82,6 +84,8 @@ var UI = (function(UI, undefined) {
 
   UI.show = function(params) {
     if (params) {
+      _appDataDirectory = params.appDataDirectory
+      _tempDirectory = params.tempDirectory
       isLightWallet = params.lightWallet == 1;
       if (params.title) {
         document.getElementById("title").innerHTML = UI.format(params.title);
@@ -130,7 +134,7 @@ var UI = (function(UI, undefined) {
   }
   
   UI.showSetupWindow = function(section) {
-    electron.ipcRenderer.send("showSetupWindow", {"section": section});
+    electron.ipcRenderer.send("showSetupWindow", {"section": section, appDataDirectory: _appDataDirectory, tempDirectory: _tempDirectory});
   }
 
   UI.updateContentSize = function() {

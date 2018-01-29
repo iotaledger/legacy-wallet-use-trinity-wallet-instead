@@ -28,13 +28,16 @@
     "url": "https://github.com/iotaledger/wallet"
   },
   "dependencies": {
+    "core-util-is": "^1.0.2",
     "curl.lib.js": "^1.0.22",
     "ffi": "^2.2.0",
     "fs-extra": "^1.0.0",
     "glob": "^7.1.2",
     "i18next": "^8.4.2",
     "i18next-sync-fs-backend": "^0.1.0",
-    "pidusage": "^1.1.5"
+    "openpgp": "^2.6.2",
+    "pidusage": "^1.1.5",
+    "request": "^2.83.0"
   },
   "devDependencies": {
     "electron": "1.7.11",
@@ -52,7 +55,6 @@
     ],
     "appId": "com.iotatoken.wallet-testnet",
     "extraResources": [
-      "iri/iri-testnet.jar",
       "ccurl/**/*",
       "ui/**/*",
       "locales/**/*"
