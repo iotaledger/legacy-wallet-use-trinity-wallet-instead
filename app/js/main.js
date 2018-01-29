@@ -29,7 +29,7 @@ var __entityMap = {
   "/": '&#x2F;'
 };
 
-var IRI_VERSION = '1.4.1.7'
+var IRI_VERSION = '1.4.2.1'
 var IRI_DIRECTORY = 'iri'
 
 String.prototype.escapeHTML = function() {
