@@ -5,6 +5,7 @@ If you are **not** suggesting a feature, you must be able to check all of the fo
 * [ ] I confirm that this is an issue with the wallet, not IRI
 * [ ] For pending transactions: I confirm that I have tried reattaching and promoting multiple times (check this box if your issue is not related to a pending transaction)
 * [ ] I confirm that this is not an issue related to stolen/lost funds
+* [ ] I confirm that this is not a zero balance issue related to a snapshot (last snapshots occurred on October 23 and January 28)
 * [ ] For private key warnings: I confirm that I am not at risk of reusing an address, or another user has verified that I am not (check this box if your issue is not related to a private key reuse)
 * [ ] I confirm that this issue is present on the latest version of the wallet
 
