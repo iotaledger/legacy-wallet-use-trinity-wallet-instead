@@ -1,5 +1,7 @@
 # IOTA App
 
+This wallet is now deprecated. Please use https://github.com/iotaledger/trinity-wallet instead.
+
 ## Prerequisites
 
 1. Download [NodeJS](https://nodejs.org/en/download/)
