@@ -1,6 +1,6 @@
 # IOTA App
 
-This wallet is now deprecated. Please use https://github.com/iotaledger/trinity-wallet instead.
+**WARNING:** This wallet is now deprecated. Please use https://github.com/iotaledger/trinity-wallet instead.
 
 ## Prerequisites
 
