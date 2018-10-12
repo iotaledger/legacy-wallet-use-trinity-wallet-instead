@@ -45,7 +45,7 @@ Bundle.prototype.addEntry = function(signatureMessageLength, address, value, tag
 Bundle.prototype.addTrytes = function(signatureFragments) {
 
     var emptySignatureFragment = '';
-    var emptyHash = '999999999999999999999999999999999999999999999999999999999999999999999999999999999';
+    var emptyHash = '9'.repeat(81);
     var emptyTag = '9'.repeat(27);
     var emptyTimestamp = '9'.repeat(9);
 
@@ -1743,7 +1743,7 @@ Multisig.initiateTransfer = function(input, remainderAddress, transfers, callbac
         var timestamp = Math.floor(Date.now() / 1000);
 
         // If no tag defined, get 27 tryte tag.
-        tag = transfers[i].tag ? transfers[i].tag : '999999999999999999999999999';
+        tag = transfers[i].tag ? transfers[i].tag : '9'.repeat(27);
 
         // Pad for required 27 tryte length
         for (var j = 0; tag.length < 27; j++) {
