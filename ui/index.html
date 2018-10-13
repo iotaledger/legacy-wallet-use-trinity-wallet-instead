@@ -249,7 +249,9 @@
       <h3 data-i18n="faqs"></h3>
       <dl class="faq">
         <dt>Creating a New Account</dt>
-        <dd>Creating a new account is as easy as generating a new, unique seed (consisting of 81 characters, only uppercase latin letters and the number 9 are allowed). You do not need to make your seed 81-chars long, but that is suggested. If you already generated a seed before you can enter it and access your account directly.<br /><br />Your seed is your password that is used to access your account, and thus your IOTA tokens. Do not share it with anyone and keep it stored safely somewhere where nobody else but you can access it. If you have forgotten your seed, you will lose access to your IOTA tokens.</dd>
+        <dd>Creating a new account is as easy as generating a new, unique seed (consisting of 81 characters, only uppercase latin letters and the number 9 are allowed). If you already generated a seed before you can enter it and access your account directly.<br /><br />Your seed is your password that is used to access your account, and thus your IOTA tokens. Do not share it with anyone and keep it stored safely somewhere where nobody else but you can access it. If you have forgotten your seed, you will lose access to your IOTA tokens.</dd>
+        <dt>Generating a new seed safely</dt>
+        <dd>DO NOT use online seed generators as they have been shown to be insecure. </br>Instead, use a terminal command or a password manager. Check out <a href="https://blog.iota.org/the-secret-to-security-is-secrecy-d32b5b7f25ef" target="_blank" rel="noopener noreferrer">our blog</a> for a safe seed generation guide.</dd>
         <dt>When can I make another transfer?</dt>
         <dd>In order to prevent double-spending, you should only make a new transfer after all of your previous value transfers have been confirmed. IOTA deterministically chooses inputs for new transfers, so you have to get your previous transactions confirmed in order to successfully make a new transfer without doublespending the inputs.</dd>
         <dt>Tangle Not Solid</dt>
@@ -259,7 +261,7 @@
         <dt>How long should a transaction take?</dt>
         <dd>When sending an iota transaction your CPU carries out an amount of Proof-of-Work to secure the Tangle network, this means that the time it takes to carry out a transaction depends on the power of your processor. Expect between 1 - 25 minutes.</dd>
         <dt>How long should address generation take?</dt>
-        <dd>The address generation itself is done instantly, but in order to save the address in the Tangle, you have to carry out some Proof-of-Work, depending on what kind of CPU you have this can take anywhere from 1 - 15 minutes.</dd>
+        <dd>The address generation itself is done instantly, but in order to record the address in the Tangle, you have to carry out some Proof-of-Work, depending on what kind of CPU you have this can take anywhere from 1 - 15 minutes.</dd>
         <dt>Can I reuse addresses?</dt>
         <dd>You can use an address for receiving as long as you have not used it for any outgoing transaction. What this means is that once you have sent a transaction with a specific address as input, you should never use it again. This is because IOTA uses Winternitz one-time signatures which degrade security exponentially after each reuse.</dd>
         <dt>How long and complex should my seed be?</dt>
