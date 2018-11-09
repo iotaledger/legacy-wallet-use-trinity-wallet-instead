@@ -86,6 +86,10 @@ If you wish to compile the app, install the following also:
 
   Compiled binaries are found in the `out` directory.
 
+#### Known issues
+
+* Because of [node-ffi](https://github.com/node-ffi/node-ffi/pull/439) dependency, only Node versions < 9 are supported, recomended 8.x
+
 #### Testnet
 
 To build testnet binaries, rename `package.testnet.json` to `package.json` and follow instructions as above. Make sure the jar is named `iri-testnet.jar`.
