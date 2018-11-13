@@ -308,5 +308,11 @@
   "seed_checksum":"씨드 체크섬",
   "invalid_response":"잘못된 응답",
   "no_connection_to_host":"호스트와의 연결이 끊겼습니다.",
-  "request_error":"요청 오류"
+  "request_error":"요청 오류",
+  "generate_your_secret_seed": "비밀 시드 생성",
+  "generated_seed_instructions": "이 값들을 어딘가에 기록하고 안전하게 유지하십시오! 이것들이 없으면 돈에 접근 할 수 없습니다.",
+  "show_previous_seed_chunk": "너무 이른",
+  "show_next_seed_chunk": "다음 것",
+  "generated_seed_chunk_number": "청크 번호",
+  "generated_seed_confirm": "확인"
 }

@@ -1017,6 +1017,10 @@ electron.ipcRenderer.on("showRecovery", function() {
   UI.sendToWebview("showRecovery");
 })
 
+electron.ipcRenderer.on("showSeedGenerator", function() {
+  UI.sendToWebview("showSeedGenerator");
+})
+
 electron.ipcRenderer.on("stopCcurl", function(event, data) {
   UI.sendToWebview("stopCcurl", data);
 });

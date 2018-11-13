@@ -308,5 +308,11 @@
   "seed_checksum":"Άθροισμα ελέγχου seed",
   "invalid_response":"Μή έγκυρη απόκριση",
   "no_connection_to_host":"Δεν υπάρχει σύνδεση με το διακομιστή",
-  "request_error":"Σφάλμα αιτήματος"
+  "request_error":"Σφάλμα αιτήματος",
+  "generate_your_secret_seed": "Δημιουργήστε τον μυστικό σας σπόρο",
+  "generated_seed_instructions": "Γράψτε αυτές τις τιμές κάτω κάπου και κρατήστε τους ασφαλείς! Χωρίς αυτά, δεν θα έχετε πρόσβαση στα χρήματά σας.",
+  "show_previous_seed_chunk": "Προηγούμενος",
+  "show_next_seed_chunk": "Επόμεν",
+  "generated_seed_chunk_number": "Αριθμός τεμαχίων",
+  "generated_seed_confirm": "Επιβεβαιώνω"
 }

@@ -308,5 +308,11 @@
   "seed_checksum":"Seed Kontrollnummer",
   "invalid_response":"Ogiltigt svar",
   "no_connection_to_host":"Ingen anslutning till Host",
-  "request_error":"Begäranfel"
+  "request_error":"Begäranfel",
+  "generate_your_secret_seed": "Generera ditt hemliga frö",
+  "generated_seed_instructions": "Skriv dessa värden ner någonstans och håll dem säkra! Utan dessa kan du inte få tillgång till dina pengar.",
+  "show_previous_seed_chunk": "Tidigare",
+  "show_next_seed_chunk": "Nästa",
+  "generated_seed_chunk_number": "Chunk nummer",
+  "generated_seed_confirm": "Bekräfta"
 }

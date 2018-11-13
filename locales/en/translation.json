@@ -360,5 +360,11 @@
   "recovery_old_seed_hash_balance": "Old seed has balance. Please move the balance to a new seed and try again.",
   "recovery_submitted_address": "Any reclaimed tokens will be sent to your address shown below. For security reasons, do not spend from this address until you receive all your funds.",
   "recovery_unexpected_error": "An unxpected error occured. Please try again.",
-  "recovery_receive_address": "Address:"
+  "recovery_receive_address": "Address:",
+  "generate_your_secret_seed": "Generate your secret seed",
+  "generated_seed_instructions": "Write these values down somewhere and keep them safe! Without these you will not be able to access your money.",
+  "show_previous_seed_chunk": "Previous",
+  "show_next_seed_chunk": "Next",
+  "generated_seed_chunk_number": "Chunk number",
+  "generated_seed_confirm": "Confirm"
 }

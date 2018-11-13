@@ -308,5 +308,11 @@
   "seed_checksum":"Контрольная сумма Seed'a",
   "invalid_response":"Неверный ответ",
   "no_connection_to_host":"Нет соединения с хостом",
-  "request_error":"Ошибка запроса"
+  "request_error":"Ошибка запроса",
+  "generate_your_secret_seed": "Создайте свое секретное семя",
+  "generated_seed_instructions": "Запишите эти значения где-нибудь и сохраните их в безопасности! Без них вы не сможете получить доступ к своим деньгам.",
+  "show_previous_seed_chunk": "Предыдущий",
+  "show_next_seed_chunk": "Следующий  ",
+  "generated_seed_chunk_number": "Номер канала",
+  "generated_seed_confirm": "Подтвердить"
 }

@@ -308,5 +308,11 @@
   "seed_checksum":"Seed Checksum",
   "invalid_response":"Invalid Response",
   "no_connection_to_host":"No Connection to Host",
-  "request_error":"Request Error"
+  "request_error":"Request Error",
+  "generate_your_secret_seed": "Generate your secret seed",
+  "generated_seed_instructions": "Write these values down somewhere and keep them safe! Without these you will not be able to access your money.",
+  "show_previous_seed_chunk": "Previous",
+  "show_next_seed_chunk": "Next",
+  "generated_seed_chunk_number": "Chunk number",
+  "generated_seed_confirm": "Confirm"
 }

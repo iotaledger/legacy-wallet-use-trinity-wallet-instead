@@ -308,5 +308,11 @@
   "seed_checksum":"Checksum de Seed",
   "invalid_response":"Respuesta inválida",
   "no_connection_to_host":"No hay conexión al Host",
-  "request_error":"Error en la solicitud"
+  "request_error":"Error en la solicitud",
+  "generate_your_secret_seed": "Genera tu semilla secreta",
+  "generated_seed_instructions": "¡Escriba estos valores en algún lugar y manténgalos seguros! Sin estos, no podrá acceder a su dinero.",
+  "show_previous_seed_chunk": "Anterior",
+  "show_next_seed_chunk": "Siguiente",
+  "generated_seed_chunk_number": "Número de fragmento",
+  "generated_seed_confirm": "Confirmar"
 }

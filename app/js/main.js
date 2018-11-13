@@ -59,7 +59,7 @@ var App = (function(App, undefined) {
   var settings                  = {};
   var isDevelopment             = String(process.env.NODE_ENV).trim() === "development";
   var isDebug                   = process.argv.indexOf("--enableDeveloperConsole") !== -1;
-  var showDevTools              = false;
+  var showDevTools              = false
   var didCheckForUpdates        = false;
   var appVersion                = require("../../package.json").version;
   var isLookingAtServerLog      = false;
@@ -592,6 +592,12 @@ var App = (function(App, undefined) {
         label: App.t("tools"),
         submenu: [
           {
+            label: App.t("generate_your_secret_seed"),
+            click(item) {
+              App.showSeedGenerator();
+            }
+          },
+          {
             label: App.t("view_node_info"),
             accelerator: "CmdOrCtrl+I",
             click(item) {
@@ -679,25 +685,25 @@ var App = (function(App, undefined) {
       });
 
       if (settings.lightWallet == 1) {
-        template[2].submenu[14].label = App.t("switch_to_full_node");
+        template[2].submenu[15].label = App.t("switch_to_full_node");
         // Remove "view neighbors and view server log" options.
-        template[2].submenu.splice(1, 3);
+        template[2].submenu.splice(2, 3);
         // Remove "network spammer and open database folder" options.
-        template[2].submenu.splice(3, 3);
+        template[2].submenu.splice(4, 3);
         // Remove "edit neighbors" option.
-        template[2].submenu.splice(4, 1);
+        template[2].submenu.splice(5, 1);
         if (process.platform == "darwin") {
           // Remove options from mac platforms
-          template[2].submenu.splice(5, 2);
+          template[2].submenu.splice(6, 2);
         }
       } else {
         if (settings.lightWallet == -1) {
           //remove the switch to light / full node link
-          template[2].submenu.splice(12, 2);
+          template[2].submenu.splice(13, 2);
         }
         if (process.platform == "darwin") {
           // Remove options from mac platform
-          template[2].submenu.splice(10, 2);
+          template[2].submenu.splice(11, 2);
         }
       }
     }
@@ -2020,6 +2026,14 @@ var App = (function(App, undefined) {
     }
   }
 
+  App.showSeedGenerator = function () {
+    if (App.windowIsReady()) {
+      App.showWindowIfNotVisible()
+      win.webContents.send("showSeedGenerator") 
+    }
+  }
+  
+
   App.fetchProviders = function (urls) {
     return Promise.all(urls.map(url => {
       return new Promise((resolve, reject) => {
@@ -2294,6 +2308,7 @@ var App = (function(App, undefined) {
       win.webContents.send("showModal", identifier, html);
     }
   }
+
 
   App.showPreferences = function() {
     if (App.windowIsReady()) {
