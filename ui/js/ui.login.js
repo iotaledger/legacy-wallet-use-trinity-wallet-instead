@@ -27,6 +27,11 @@ var UI = (function(UI, $, undefined) {
     UI.handleNetworkSpamming();
     UI.handlePastingTrytes();
 
+    var clipboardSeed = new Clipboard("#copy-seed-to-clipboard-btn");
+    clipboardSeed.on("success", function(e) {
+      UI.notify("success", "copied_to_clipboard");
+    });
+
     $("#login .logo").hide().fadeIn(1000, function() {
       if (UI.showLoginForm) {
         UI.fadeInLoginForm();
@@ -83,6 +88,25 @@ var UI = (function(UI, $, undefined) {
       if (connection.inApp) {
         editNodeConfiguration();
       }
+    });
+
+
+    $('#generate-seed-btn').on("click", function(e) {
+      var $modal = $("#generate-seed-modal");
+      var options = {hashTracking: false, closeOnOutsideClick: false, closeOnEscape: false};
+      var seed = "";
+      var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ9";
+      var array = new Uint32Array(81);
+      window.crypto.getRandomValues(array);
+
+      for (var i = 0; i < 81; i++)
+      {
+        seed += alphabet.charAt(array[i] % alphabet.length);
+      }
+
+      $modal.find("#generated-seed").val(seed);
+      modal = $modal.remodal(options);
+      modal.open();
     });
 
     $("#login-btn").on("click", function(e) {
@@ -269,12 +293,12 @@ var UI = (function(UI, $, undefined) {
         var timeTaken = new Date().getTime() - UI.initializationTime;
         if (timeTaken >= 500 && timeTaken < 10000) {
           if (!$("#error-btn").hasClass("no-connection")) {
-            $("#login-btn, #login-password").hide();
+            $("#login-btn, #login-password, #generate-seed-btn").hide();
             $("#error-btn").addClass("no-connection").html(UI.t("connecting")).fadeIn();
           }
         }
       } else {
-        $("#login-btn, #login-password").hide();
+        $("#login-btn, #login-password, #generate-seed-btn").hide();
         $("#error-btn").removeClass("no-connection").html(UI.t("connection_refused")).show();
         if (UI.updateIntervalTime != 500) {
           UI.createStateInterval(500, false);
@@ -292,9 +316,9 @@ var UI = (function(UI, $, undefined) {
       $("#error-btn").hide();
 
       if (fadeIn) {
-        $("#login-btn, #login-password").fadeIn();
+        $("#login-btn, #login-password, #generate-seed-btn").fadeIn();
       } else {
-        $("#login-btn, #login-password").show();
+        $("#login-btn, #login-password, #generate-seed-btn").show();
       }
 
       $("#login-password").focus();

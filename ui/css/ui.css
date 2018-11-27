@@ -836,7 +836,7 @@ hr {
   color: #caffb0;
 }
 
-#rebroadcast-btn, #reattach-btn, #promote-btn, #key-reuse-modal, #sent-to-key-reuse-modal, #double-spend-cancel-btn, #transition-restart-btn, #transition-stop-btn, #transition-balance-complete-btn, #transition-balance-incomplete-btn {
+#rebroadcast-btn, #reattach-btn, #generate-seed-btn, #promote-btn, #key-reuse-modal, #sent-to-key-reuse-modal, #double-spend-cancel-btn, #transition-restart-btn, #transition-stop-btn, #transition-balance-complete-btn, #transition-balance-incomplete-btn {
   margin-top: 10px;
 }
 
@@ -1826,6 +1826,11 @@ input[type="number"] {
   color: #000;
   padding: 0;
   font-size: 20px;
+}
+
+#generate-seed-modal input {
+  color: #000;
+  font-size: 18px;
 }
 
 #transition-description, #transition-balance, #transition-succeeded, #transition-new-seed-description, #recovery-modal .description {
