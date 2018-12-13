@@ -1744,10 +1744,23 @@ var App = (function(App, undefined) {
   }
 
   App.stopTrackingCPU = function() {
-    if (cpuTrackInterval) {
-      clearInterval(cpuTrackInterval);
+    if (!cpuTrackInterval) {
+      App.updateStatusBar({"cpu": ""});
+      return
     }
-    App.updateStatusBar({"cpu": ""});
+
+    clearInterval(cpuTrackInterval);
+
+    var pid;
+    if (settings.lightWallet == 1) {
+      pid = rendererPid;
+    } else if (server && server.pid) {
+      pid = server.pid;
+    }
+
+    if (pid) {
+      pusage.unmonitor(pid);
+    }
   }
 
   App.trackCPU = function() {
@@ -1767,8 +1780,6 @@ var App = (function(App, undefined) {
           App.updateStatusBar({"cpu": Math.round(stat.cpu).toFixed(2)});
         }
        });
-
-      pusage.unmonitor(pid);
     } else {
       console.log("Track CPU: No server PID");
       if (cpuTrackInterval) {
