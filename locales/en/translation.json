@@ -251,7 +251,7 @@
   "seed_password":"Seed / Password",
   "address_attached":"Address Attached",
   "are_you_sure":"Are you sure?",
-  "could_not_connect_to_remote_node":"Could not connect to remote node.",
+  "could_not_connect_to_remote_node":"Could not connect to remote node. Please wait or click Tools -> Edit Node Configuration, change another Host to try again",
   "could_not_connect_to_node":"Could not connect to node.",
   "change_language":"Change Language",
   "english":"English",
