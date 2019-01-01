@@ -88,6 +88,8 @@ var UI = (function(UI, $, undefined) {
     $("#login-btn").on("click", function(e) {
       try {
         var seed = String($("#login-password").val());
+        var checksum = iota.utils.addChecksum(seed, 3, false).substr(-3);
+        $('.seed-hash').html(UI.format(checksum)).attr("title", UI.t("seed_checksum"));
 
         if (!seed) {
           throw UI.t("seed_is_required");
