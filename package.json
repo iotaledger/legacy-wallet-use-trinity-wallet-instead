@@ -38,7 +38,7 @@
     "pidusage": "^1.1.5"
   },
   "devDependencies": {
-    "electron": "1.7.11",
+    "electron": "9.4.0",
     "electron-builder": "^19.37.2",
     "follow-redirects": "^1.2.4",
     "rimraf": "^2.6.1"
